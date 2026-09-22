@@ -277,46 +277,95 @@
     .card.miss{animation:none;}
   }
 
-  /* ---------- 解説帯 ---------- */
-  .readout{
-    position:sticky;
-    bottom:calc(8px + env(safe-area-inset-bottom,0px));
-    z-index:5;
+  /* ---------- 解説ポップアップ ---------- */
+  /* 暗幕 ― 盤面を沈める */
+  .scrim{
+    position:fixed;
+    inset:0;
+    background:rgba(5,16,13,.72);
+    z-index:40;
+    animation:fade .13s ease-out;
+  }
+  /* いま話題にしている札だけ暗幕の上に出して、位置を覚えられるようにする */
+  .card.spot{z-index:45;}
+  /* ポップアップ ― 札より手前 */
+  .poplayer{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
+    z-index:60;
+    pointer-events:auto;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes drain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+  .pop{
+    width:min(470px,100%);
+    max-height:100%;
+    overflow-y:auto;
+    background:linear-gradient(176deg,#1A3E35,#0D241E);
     border:1px solid var(--felt-line);
-    border-left:3px solid var(--felt-line);
-    border-radius:var(--radius);
-    background:#0D241E;
-    box-shadow:0 -6px 18px rgba(6,20,16,.55);
-    padding:13px 15px;
-    min-height:104px;
+    border-top:3px solid var(--gold);
+    border-radius:14px;
+    box-shadow:0 20px 48px rgba(3,12,9,.62);
+    padding:17px 20px 15px;
+    cursor:pointer;
+    animation:rise .17s cubic-bezier(.2,.7,.3,1);
   }
-  .readout.hit{border-left-color:var(--gold);}
-  .readout.slip{border-left-color:var(--vermilion);}
-  .readout .head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
-  .readout .en{
+  .pop.slip{border-top-color:var(--vermilion);}
+  .pop .tag{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10px;
+    letter-spacing:.16em;
+    color:var(--vermilion-soft);
+    margin:0 0 10px;
+  }
+  .pop .tag.ok{color:var(--gold);}
+  .pop .head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  .pop .en{
     font-family:"Bodoni Moda",Georgia,serif;
-    font-size:22px;
+    font-size:25px;
     font-weight:600;
-    letter-spacing:.01em;
   }
-  .readout .pos{
+  .pop .pos{
     font-size:10.5px;
     border:1px solid var(--felt-line);
     border-radius:3px;
     padding:1px 6px;
     color:var(--text-dim);
   }
-  .readout .ja{font-size:15px;font-weight:500;color:var(--text);}
-  .readout .ex{font-family:"Bodoni Moda",Georgia,serif;font-size:14px;color:var(--text-dim);margin-top:7px;line-height:1.5;}
-  .readout .exja{font-size:12.5px;color:var(--text-faint);line-height:1.5;}
-  .readout .idle{color:var(--text-faint);font-size:13px;}
-  .readout .tag{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:10px;
-    letter-spacing:.16em;
-    color:var(--vermilion-soft);
+  .pop .ja{font-size:16px;font-weight:500;}
+  /* そろったとき ― 例文が主役 */
+  .pop .sent{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-size:18px;
+    line-height:1.5;
+    color:var(--text);
+    margin:14px 0 2px;
   }
-  .readout .tag.ok{color:var(--gold);}
+  .pop .sentja{font-size:13px;color:var(--text-dim);margin:0;line-height:1.6;}
+  /* はずれたとき ― 2語を並べる */
+  .pop .pair{display:grid;gap:13px;}
+  .pop .pair .ex{font-family:"Bodoni Moda",Georgia,serif;font-size:14px;color:var(--text-dim);margin:6px 0 0;line-height:1.5;}
+  .pop .pair .exja{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:12.5px;color:var(--text-faint);}
+  .pop .hint{font-size:11px;color:var(--text-faint);text-align:right;margin:12px 0 0;letter-spacing:.06em;}
+  .pop .drain{
+    display:block;
+    height:2px;
+    margin-top:10px;
+    border-radius:2px;
+    background:var(--gold);
+    opacity:.55;
+    transform-origin:left center;
+    animation-name:drain;
+    animation-timing-function:linear;
+    animation-fill-mode:forwards;
+  }
+  .pop.slip .drain{background:var(--vermilion);}
   .speak{
     all:unset;
     cursor:pointer;
@@ -324,11 +373,16 @@
     color:var(--text-faint);
     border:1px solid var(--felt-line);
     border-radius:5px;
-    padding:1px 7px;
+    padding:1px 8px;
     line-height:1.5;
   }
   .speak:hover{color:var(--gold);border-color:var(--gold);}
   .speak:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){
+    .scrim,.pop{animation:none;}
+    .card.spot{transition:none;}
+    .pop .drain{animation:none;transform:scaleX(1);}
+  }
 
   /* ---------- 結果 ---------- */
   .verdict{text-align:center;padding-block:10px 4px;}
@@ -443,7 +497,6 @@
       <button class="btn btn-ghost" id="quit">やめる</button>
     </div>
     <div class="board" id="board"></div>
-    <div class="readout" id="readout"><p class="idle">札を2枚めくって、英語と意味をそろえよう。</p></div>
   </section>
 
   <!-- ============ 結果 ============ -->
@@ -480,6 +533,12 @@
     </div>
     <p class="note">ここに並ぶ語は通常の回でも高い確率で配られる。得意な語（連続正解が続いた語）は自動で一覧から外れる。</p>
   </section>
+
+  <!-- ============ 解説ポップアップ ============ -->
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="poplayer" id="poplayer" role="dialog" aria-modal="true" aria-label="単語の解説" hidden>
+    <div class="pop" id="pop" tabindex="-1"></div>
+  </div>
 
 </div>
 
@@ -754,16 +813,54 @@ function show(id){
    読み上げ
    ============================================================ */
 let soundOn = true;
-function speak(text){
-  if (!soundOn || !('speechSynthesis' in window)) return;
+let voice = null;
+let sayToken = 0;
+
+/* 端末に入っている英語音声のうち、もっとも自然に読めそうなものを選ぶ。
+   合成音声の質は端末差が大きいので、既知の高品質エンジンを優先する。 */
+function pickVoice(){
+  if (!('speechSynthesis' in window)) return;
+  let list = [];
+  try { list = speechSynthesis.getVoices() || []; } catch (e) { return; }
+  const en = list.filter(v => /^en\b|^en[-_]/i.test(v.lang || ''));
+  if (!en.length) return;
+  const score = v => {
+    const name = v.name || '';
+    let s = 0;
+    if (/neural|natural|premium|enhanced|siri/i.test(name)) s += 6;
+    if (/google/i.test(name)) s += 5;
+    if (/samantha|aria|jenny|guy|alex/i.test(name)) s += 3;
+    if (v.localService === false) s += 2;      // ネットワーク音声は質が高いことが多い
+    if (/en[-_]US/i.test(v.lang)) s += 3;
+    else if (/en[-_](GB|AU|CA)/i.test(v.lang)) s += 2;
+    if (/espeak|compact|eloquence/i.test(name)) s -= 8;  // 機械的な旧世代エンジン
+    return s;
+  };
+  voice = en.slice().sort((a, b) => score(b) - score(a))[0] || null;
+}
+if ('speechSynthesis' in window) {
+  pickVoice();
+  try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) {}
+}
+
+/* text を読み上げる。onend は「この発話が最後まで終わったとき」だけ呼ぶ
+   （cancel による中断では呼ばない）。 */
+function say(text, rate, onend){
+  if (!soundOn || !('speechSynthesis' in window)) { if (onend) setTimeout(onend, 0); return; }
+  const token = ++sayToken;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US';
-    u.rate = 0.92;
+    if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'en-US'; }
+    u.rate = rate;
+    if (onend) u.onend = () => { if (token === sayToken) onend(); };
     speechSynthesis.speak(u);
-  } catch (e) {}
+  } catch (e) { if (onend) setTimeout(onend, 0); }
 }
+const speak = t => say(t, 0.9);                       // 単語
+const speakSentence = (t, onend) => say(t, 0.95, onend); // 例文（文のほうが抑揚が自然に出る）
+/* 読み上げにかかる時間のあたり ― ポップアップの表示時間の下限に使う */
+const estimate = t => Math.min(9000, 1000 + t.trim().split(/\s+/).length * 430);
 
 /* ============================================================
    ゲーム本体
@@ -811,7 +908,6 @@ function deal(){
   document.documentElement.style.setProperty('--min-card', chosenCat === 'i' ? '104px' : (wide ? '84px' : '74px'));
 
   renderBoard();
-  resetReadout();
   updateHud();
   g.timer = setInterval(updateHud, 250);
   show('s-game');
@@ -854,9 +950,10 @@ function flip(c, btn){
   g.open.push(c);
 
   const w = BY_ID.get(c.wid);
-  if (c.side === 'en') speak(w.e);
-
-  if (g.open.length < 2) return;
+  if (g.open.length < 2) {
+    if (c.side === 'en') speak(w.e);
+    return;
+  }
 
   g.moves++;
   const [a, b] = g.open;
@@ -870,29 +967,35 @@ function flip(c, btn){
     [a, b].forEach(x => { x.el.classList.remove('open'); x.el.classList.add('done'); x.el.disabled = true; });
     const s = stat(a.wid); s.ok++; s.streak++;
     saveStore();
-    showHit(BY_ID.get(a.wid));
-    speak(BY_ID.get(a.wid).e);
     updateHud();
-    if (g.matched === g.pairs) finish();
+    g.lock = true;
+    [a, b].forEach(x => x.el.classList.add('spot'));
+    showMatch(BY_ID.get(a.wid), () => {
+      [a, b].forEach(x => x.el.classList.remove('spot'));
+      g.lock = false;
+      if (g.matched === g.pairs) finish();
+    });
   } else {
     // 外した ― 意味を見せてから伏せる（ここが学習の山場）
     g.combo = 0;
     g.lock = true;
-    [a, b].forEach(x => x.el.classList.add('miss'));
+    [a, b].forEach(x => x.el.classList.add('miss','spot'));
     [a, b].forEach(x => {
       const s = stat(x.wid); s.miss++; s.streak = 0;
       g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
     });
     saveStore();
-    showSlip(BY_ID.get(a.wid), BY_ID.get(b.wid));
     updateHud();
-    setTimeout(() => {
-      [a, b].forEach(x => {
-        x.el.classList.remove('open','miss');
-        x.el.setAttribute('aria-label','伏せ札');
-      });
-      g.lock = false;
-    }, 1600);
+    // ポップアップを閉じたあと、札の位置を覚える間だけ表にしておく
+    showSlip(BY_ID.get(a.wid), BY_ID.get(b.wid), () => {
+      setTimeout(() => {
+        [a, b].forEach(x => {
+          x.el.classList.remove('open','miss','spot');
+          x.el.setAttribute('aria-label','伏せ札');
+        });
+        g.lock = false;
+      }, 700);
+    });
   }
 }
 
@@ -908,37 +1011,67 @@ function updateHud(){
 const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
 const clock = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 
-/* ---------- 解説帯 ---------- */
-function resetReadout(){
-  const r = $('readout');
-  r.className = 'readout';
-  r.innerHTML = '<p class="idle">札を2枚めくって、英語と意味をそろえよう。</p>';
+/* ---------- 解説ポップアップ ---------- */
+let popTimer = null, popAfter = null, popMs = 0;
+
+function openPop(kind, html, ms, after){
+  const pop = $('pop');
+  popMs = ms;
+  popAfter = after || null;
+  pop.className = 'pop ' + kind;
+  pop.innerHTML = html + '<span class="drain" style="animation-duration:' + ms + 'ms"></span>';
+  $('scrim').hidden = false;
+  $('poplayer').hidden = false;
+  pop.focus();
+  armPop(ms);
+  pop.querySelectorAll('.speak').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();          // 読み上げボタンでは閉じない
+    speak(b.dataset.say);
+    armPop(popMs);                // 聞き直したぶん表示を延長する
+    const d = pop.querySelector('.drain');
+    if (d) { d.style.animation = 'none'; void d.offsetWidth; d.style.animation = ''; d.style.animationDuration = popMs + 'ms'; }
+  }));
 }
-function wordBlock(w){
+function armPop(ms){
+  if (popTimer) clearTimeout(popTimer);
+  popTimer = setTimeout(closePop, ms);
+}
+function closePop(){
+  if ($('poplayer').hidden) return;
+  $('scrim').hidden = true;
+  $('poplayer').hidden = true;
+  if (popTimer) { clearTimeout(popTimer); popTimer = null; }
+  sayToken++;                     // 途中で閉じたら読み上げの後始末も止める
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const fn = popAfter; popAfter = null;
+  if (fn) fn();
+}
+function headOf(w){
   return '<div class="head">' +
       '<span class="en">' + esc(w.e) + '</span>' +
       '<span class="pos">' + esc(w.p) + '</span>' +
       '<span class="ja">' + esc(w.j) + '</span>' +
-      '<button class="speak" data-say="' + esc(w.e) + '" aria-label="' + esc(w.e) + ' を読み上げる">♪</button>' +
-    '</div>' +
-    '<p class="ex">' + esc(w.x) + '<br><span class="exja">' + esc(w.xj) + '</span></p>';
+      '<button class="speak" data-say="' + esc(w.e) + '" aria-label="' + esc(w.e) + ' を読み上げる">&#9834;</button>' +
+    '</div>';
 }
-function showHit(w){
-  const r = $('readout');
-  r.className = 'readout hit';
-  r.innerHTML = '<p class="tag ok">そろった</p>' + wordBlock(w);
-  bindSay(r);
+/* そろった ― 例文を全文読み上げ、読み終わりに合わせて閉じる */
+function showMatch(w, after){
+  const ms = Math.max(2600, estimate(w.x));
+  openPop('hit',
+    '<p class="tag ok">そろった</p>' + headOf(w) +
+    '<p class="sent">' + esc(w.x) + '</p>' +
+    '<p class="sentja">' + esc(w.xj) + '</p>' +
+    '<p class="hint">タップで次へ</p>', ms, after);
+  speakSentence(w.x, closePop);
 }
-function showSlip(a, b){
-  const r = $('readout');
-  r.className = 'readout slip';
-  r.innerHTML = '<p class="tag">はずれ ― この2語を覚えて</p>' +
-    '<div style="display:grid;gap:10px">' + wordBlock(a) + wordBlock(b) + '</div>';
-  bindSay(r);
-}
-function bindSay(root){
-  root.querySelectorAll('.speak').forEach(b =>
-    b.addEventListener('click', () => speak(b.dataset.say)));
+/* はずれ ― 2語を見せてから伏せる */
+function showSlip(a, b, after){
+  const block = w => headOf(w) +
+    '<p class="ex">' + esc(w.x) + '<span class="exja">' + esc(w.xj) + '</span></p>';
+  openPop('slip',
+    '<p class="tag">はずれ ― この2語を覚えて</p>' +
+    '<div class="pair">' + block(a) + block(b) + '</div>' +
+    '<p class="hint">タップで次へ</p>', 3600, after);
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -1055,7 +1188,11 @@ function boot(data){
   $('w-home').addEventListener('click', () => { renderHome(); show('s-home'); });
   $('r-home').addEventListener('click', () => { renderHome(); show('s-home'); });
   $('w-drill').addEventListener('click', () => { drillMode = true; deal(); });
+  $('poplayer').addEventListener('click', closePop);
+  $('scrim').addEventListener('click', closePop);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
   $('quit').addEventListener('click', () => {
+    closePop();
     if (g && g.timer) clearInterval(g.timer);
     renderHome(); show('s-home');
   });
