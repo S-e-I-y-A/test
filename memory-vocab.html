@@ -188,6 +188,19 @@
     white-space:nowrap;
   }
   .combo.on{opacity:1;}
+  .turnpill{
+    font-size:11.5px;
+    letter-spacing:.08em;
+    border:1px solid var(--felt-line);
+    border-radius:999px;
+    padding:3px 11px;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .turnpill.you{border-color:var(--gold);color:var(--gold);}
+  .turnpill.cpu{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  /* あいての番のあいだは盤面を触れなくする */
+  .board.waiting{pointer-events:none;opacity:.88;}
 
   /* ---------- 札 ---------- */
   .board{
@@ -406,6 +419,7 @@
     color:var(--gold);
     letter-spacing:.02em;
   }
+  .rank.vs{font-size:clamp(52px,15vw,78px);letter-spacing:0;}
   .rank small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;letter-spacing:.2em;color:var(--text-faint);font-weight:400;margin-top:6px;}
   .score-grid{
     display:grid;
@@ -487,6 +501,11 @@
     </div>
 
     <div class="setting">
+      <span class="eyebrow">あいて</span>
+      <div class="chips" id="pick-foe" role="group" aria-label="あいて"></div>
+    </div>
+
+    <div class="setting">
       <span class="eyebrow">札の枚数</span>
       <div class="chips" id="pick-size" role="group" aria-label="札の枚数"></div>
     </div>
@@ -504,18 +523,20 @@
       <div><span class="v" id="l-best">—</span><span class="k">最高スコア</span></div>
     </div>
 
-    <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。</p>
+    <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。<br>
+      あいてを選ぶと対戦になる。強さは<strong>めくられた札をどれだけ覚えているか</strong>の差で、「よわい」は何も覚えずに毎回でたらめにめくる。そろえた側がもう一度めくれる。<strong>にがて記録に残るのは自分が外した語だけ</strong>。</p>
     <p class="credit">語彙は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。例文は124語のみ収録。<br>出典: &copy; 英語漬け.com（えいぷら）2025</p>
   </section>
 
   <!-- ============ 盤面 ============ -->
   <section id="s-game" hidden>
     <div class="hud">
-      <div class="stat"><b id="h-pairs">0/0</b><span>ペア</span></div>
-      <div class="stat"><b id="h-moves">0</b><span>てすう</span></div>
+      <div class="stat"><b id="h-pairs">0/0</b><span id="h-pairs-k">ペア</span></div>
+      <div class="stat"><b id="h-moves">0</b><span id="h-moves-k">てすう</span></div>
       <div class="stat"><b id="h-time">0:00</b><span>タイム</span></div>
       <div class="spacer"></div>
       <div class="combo" id="h-combo"></div>
+      <span class="turnpill" id="h-turn" hidden></span>
       <button class="btn btn-ghost" id="quit">やめる</button>
     </div>
     <div class="board" id="board"></div>
@@ -2059,6 +2080,16 @@ const BANDS = [
   {k:'b4',  label:'901〜1200位',  lo:901,  hi:1200},
   {k:'b5',  label:'1201位〜',     lo:1201, hi:1480}
 ];
+/* あいて ― 強さは「めくられた札をどれだけ覚えているか」で決まる。
+   p=0 なら記憶ゼロ、つまり毎回まっさらな乱数でめくるだけになる。 */
+const FOES = [
+  {k:'solo', label:'ひとりで', hint:'記録だけ'},
+  {k:'easy', label:'よわい',   hint:'まぐれ',   p:0,    cap:0,  pace:620},
+  {k:'mid',  label:'ふつう',   hint:'半分覚える', p:0.55, cap:8,  pace:560},
+  {k:'hard', label:'つよい',   hint:'ほぼ覚える', p:0.92, cap:24, pace:470}
+];
+const FOE = k => FOES.find(f => f.k === k) || FOES[0];
+
 const SIZES = [
   {n:6,  label:'6ペア', hint:'12枚'},
   {n:8,  label:'8ペア', hint:'16枚'},
@@ -2241,8 +2272,8 @@ const estimate = t => Math.min(9000, 1000 + t.trim().split(/\s+/).length * 430);
 /* ============================================================
    ゲーム本体
    ============================================================ */
-let chosenCat = 'all', chosenSize = 8, drillMode = false;
-let g = null;
+let chosenCat = 'all', chosenSize = 8, chosenFoe = 'solo', drillMode = false;
+let g = null, gameGen = 0;
 
 function poolFor(cat){
   if (drillMode) {
@@ -2266,9 +2297,12 @@ function deal(){
   });
   shuffle(cards);
 
+  const foe = FOE(chosenFoe);
   g = {
+    gen: ++gameGen,        // 中断した回の後片付けが走らないようにする目印
     pairs: picked.length,
     cards,
+    byUid: new Map(cards.map(c => [c.uid, c])),
     open: [],
     moves: 0,
     matched: 0,
@@ -2277,7 +2311,12 @@ function deal(){
     missed: new Map(),     // id -> 回数
     lock: false,
     t0: Date.now(),
-    timer: null
+    timer: null,
+    vs: foe.k !== 'solo',
+    foe,
+    turn: 'you',
+    score: { you:0, cpu:0 },
+    mem: new Map()         // あいてが覚えている札 uid -> wid
   };
 
   // 狭い画面でも4列を保ち、盤面全体が一目に入るようにする
@@ -2288,6 +2327,70 @@ function deal(){
   updateHud();
   g.timer = setInterval(updateHud, 250);
   show('s-game');
+}
+
+/* ============================================================
+   あいて（CPU）
+   強さは記憶力ひとつで決まる。p は「めくられた札を覚えている確率」、
+   cap は「同時に覚えていられる枚数」。p=0 なら毎回ただの乱数になる。
+   ============================================================ */
+function memorize(c){
+  if (!g.vs || !g.foe.p) return;
+  if (Math.random() > g.foe.p) return;
+  g.mem.delete(c.uid);                 // 入れ直して新しい記憶にする
+  g.mem.set(c.uid, c.wid);
+  while (g.mem.size > g.foe.cap) g.mem.delete(g.mem.keys().next().value);
+}
+const isLive = c => !c.el.classList.contains('done') && !c.el.classList.contains('open');
+const liveCards = () => g.cards.filter(isLive);
+const pickRandom = list => list.length ? list[(Math.random() * list.length) | 0] : null;
+
+/* 覚えている札だけでペアが作れるか */
+function cpuKnownPair(){
+  const byWid = new Map();
+  for (const [uid, wid] of g.mem) {
+    const c = g.byUid.get(uid);
+    if (!c || !isLive(c)) continue;
+    if (!byWid.has(wid)) byWid.set(wid, []);
+    byWid.get(wid).push(c);
+  }
+  for (const list of byWid.values()) {
+    const en = list.find(c => c.side === 'en');
+    const ja = list.find(c => c.side === 'ja');
+    if (en && ja) return [en, ja];
+  }
+  return null;
+}
+
+/* 1枚目をめくったあと、その相方を覚えていないか探す */
+function cpuPickSecond(first){
+  for (const [uid, wid] of g.mem) {
+    if (wid !== first.wid) continue;
+    const c = g.byUid.get(uid);
+    if (c && c !== first && c.side !== first.side && isLive(c)) return c;
+  }
+  return pickRandom(liveCards());
+}
+
+function cpuPlay(){
+  const gen = g.gen;
+  g.lock = true;
+  updateHud();
+  const known = cpuKnownPair();
+  setTimeout(() => {
+    if (!g || g.gen !== gen) return;
+    const first = known ? known[0] : pickRandom(liveCards());
+    if (!first) { g.lock = false; return; }
+    reveal(first);
+    if (first.side === 'en') speak(BY_ID.get(first.wid).e);
+    setTimeout(() => {
+      if (!g || g.gen !== gen) return;
+      const second = known && isLive(known[1]) ? known[1] : cpuPickSecond(first);
+      if (!second) { g.lock = false; return; }
+      reveal(second);
+      resolve(first, second);
+    }, g.foe.pace);
+  }, g.foe.pace);
 }
 
 function fontFor(card){
@@ -2320,48 +2423,65 @@ function renderBoard(){
   });
 }
 
+/* 自分がめくる */
 function flip(c, btn){
-  if (g.lock || btn.classList.contains('done') || btn.classList.contains('open')) return;
-  btn.classList.add('open');
-  btn.setAttribute('aria-label', (c.side === 'en' ? '英語札 ' : '日本語札 ') + btn.querySelector('.w').textContent);
+  if (g.lock || g.turn === 'cpu') return;
+  if (btn.classList.contains('done') || btn.classList.contains('open')) return;
+  reveal(c);
   g.open.push(c);
-
-  const w = BY_ID.get(c.wid);
   if (g.open.length < 2) {
-    if (c.side === 'en') speak(w.e);
+    if (c.side === 'en') speak(BY_ID.get(c.wid).e);
     return;
   }
-
-  g.moves++;
   const [a, b] = g.open;
   g.open = [];
+  resolve(a, b);
+}
 
-  if (a.wid === b.wid && a.side !== b.side) {
-    // そろった
+/* 札を表に返す。あいては自分の番でなくても見ているので、ここで記憶させる */
+function reveal(c){
+  c.el.classList.add('open');
+  c.el.setAttribute('aria-label',
+    (c.side === 'en' ? '英語札 ' : '日本語札 ') + c.el.querySelector('.w').textContent);
+  memorize(c);
+}
+
+/* 2枚めくり終えたときの判定。自分の番のときだけ学習記録に書く */
+function resolve(a, b){
+  g.moves++;
+  const mine = !g.vs || g.turn === 'you';
+  const hit = (a.wid === b.wid && a.side !== b.side);
+
+  if (hit) {
     g.matched++;
-    g.combo++;
-    g.maxCombo = Math.max(g.maxCombo, g.combo);
-    [a, b].forEach(x => { x.el.classList.remove('open'); x.el.classList.add('done'); x.el.disabled = true; });
-    const s = stat(a.wid); s.ok++; s.streak++;
-    saveStore();
+    if (g.vs) g.score[g.turn]++;
+    if (mine) { g.combo++; g.maxCombo = Math.max(g.maxCombo, g.combo); }
+    [a, b].forEach(x => {
+      x.el.classList.remove('open');
+      x.el.classList.add('done');
+      x.el.disabled = true;
+      g.mem.delete(x.uid);
+    });
+    if (mine) { const s = stat(a.wid); s.ok++; s.streak++; saveStore(); }
     updateHud();
     g.lock = true;
     [a, b].forEach(x => x.el.classList.add('spot'));
     showMatch(BY_ID.get(a.wid), () => {
       [a, b].forEach(x => x.el.classList.remove('spot'));
-      g.lock = false;
-      if (g.matched === g.pairs) finish();
+      nextTurn(false);            // そろえた側がもう一度めくる
     });
   } else {
-    // 外した ― 意味を見せてから伏せる（ここが学習の山場）
-    g.combo = 0;
+    if (mine) {
+      // にがて記録は自分が外したときだけ。あいてのミスを背負う筋合いはない
+      g.combo = 0;
+      [a, b].forEach(x => {
+        const s = stat(x.wid); s.miss++; s.streak = 0;
+        g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
+      });
+      saveStore();
+    }
     g.lock = true;
     [a, b].forEach(x => x.el.classList.add('miss','spot'));
-    [a, b].forEach(x => {
-      const s = stat(x.wid); s.miss++; s.streak = 0;
-      g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
-    });
-    saveStore();
     updateHud();
     // ポップアップを閉じたあと、札の位置を覚える間だけ表にしておく
     // （1秒 ― 2枚を目で追って記憶に入れるのに要るおおよその時間）
@@ -2371,19 +2491,46 @@ function flip(c, btn){
           x.el.classList.remove('open','miss','spot');
           x.el.setAttribute('aria-label','伏せ札');
         });
-        g.lock = false;
+        nextTurn(true);
       }, 1000);
     });
   }
 }
 
+/* 次にめくるのは誰か */
+function nextTurn(swap){
+  if (!g) return;
+  if (g.matched === g.pairs) { finish(); return; }
+  if (!g.vs) { g.lock = false; return; }
+  if (swap) g.turn = (g.turn === 'you') ? 'cpu' : 'you';
+  updateHud();
+  if (g.turn === 'cpu') cpuPlay();
+  else g.lock = false;
+}
+
 function updateHud(){
   if (!g) return;
-  $('h-pairs').textContent = g.matched + '/' + g.pairs;
-  $('h-moves').textContent = g.moves;
-  $('h-time').textContent = clock(elapsed());
+  const pill = $('h-turn'), board = $('board');
+  if (g.vs) {
+    $('h-pairs').textContent = g.score.you;
+    $('h-pairs-k').textContent = 'あなた';
+    $('h-moves').textContent = g.score.cpu;
+    $('h-moves-k').textContent = 'あいて';
+    pill.hidden = false;
+    pill.textContent = g.turn === 'you' ? 'あなたの番' : 'あいての番';
+    pill.classList.toggle('you', g.turn === 'you');
+    pill.classList.toggle('cpu', g.turn === 'cpu');
+    board.classList.toggle('waiting', g.turn === 'cpu');
+  } else {
+    $('h-pairs').textContent = g.matched + '/' + g.pairs;
+    $('h-pairs-k').textContent = 'ペア';
+    $('h-moves').textContent = g.moves;
+    $('h-moves-k').textContent = 'てすう';
+    pill.hidden = true;
+    board.classList.remove('waiting');
+  }
   const c = $('h-combo');
-  if (g.combo >= 2) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
+  if (g.combo >= 2 && (!g.vs || g.turn === 'you')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
   else c.classList.remove('on');
 }
 const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
@@ -2466,8 +2613,9 @@ function finish(){
   clearInterval(g.timer);
   const secs = elapsed();
   const extra = Math.max(0, g.moves - g.pairs);
+  const won = g.vs ? g.score.you : g.pairs;
   const score = Math.max(0,
-    g.pairs * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
+    won * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
   const eff = g.pairs / Math.max(1, g.moves);
   const rank = eff >= 0.85 ? ['S','ほぼ完璧'] :
                eff >= 0.65 ? ['A','みごと'] :
@@ -2477,9 +2625,20 @@ function finish(){
   store.best = Math.max(store.best, score);
   saveStore();
 
-  $('r-range').textContent = (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア';
-  $('r-rank').textContent = rank[0];
-  $('r-rank').appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
+  $('r-range').textContent =
+    (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア' +
+    (g.vs ? ' / あいて「' + g.foe.label + '」' : '');
+  const rankEl = $('r-rank');
+  rankEl.classList.toggle('vs', !!g.vs);
+  if (g.vs) {
+    const you = g.score.you, cpu = g.score.cpu;
+    rankEl.textContent = you + '－' + cpu;
+    rankEl.appendChild(Object.assign(document.createElement('small'),
+      { textContent: you > cpu ? 'あなたの勝ち' : you < cpu ? 'あいての勝ち' : '引き分け' }));
+  } else {
+    rankEl.textContent = rank[0];
+    rankEl.appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
+  }
   $('r-score').textContent = score;
   $('r-moves').textContent = g.moves;
   $('r-time').textContent = clock(secs);
@@ -2518,6 +2677,18 @@ function renderHome(){
     b.innerHTML = esc(band.label) + '<span class="n">' + n + '</span>';
     b.addEventListener('click', () => { chosenCat = band.k; renderHome(); });
     cw.appendChild(b);
+  });
+
+  const fw = $('pick-foe');
+  fw.innerHTML = '';
+  FOES.forEach(f => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(f.k === chosenFoe));
+    b.innerHTML = esc(f.label) + '<span class="n">' + esc(f.hint) + '</span>';
+    b.addEventListener('click', () => { chosenFoe = f.k; renderHome(); });
+    fw.appendChild(b);
   });
 
   const sw = $('pick-size');
@@ -2579,7 +2750,7 @@ function boot(data){
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
   $('quit').addEventListener('click', () => {
     closePop();
-    if (g && g.timer) clearInterval(g.timer);
+    if (g) { g.gen = -1; if (g.timer) clearInterval(g.timer); }   // 予約済みのあいての手を無効にする
     renderHome(); show('s-home');
   });
   $('sound-toggle').addEventListener('click', e => {
