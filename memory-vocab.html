@@ -1,0 +1,1074 @@
+<title>英単語めくり</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    color-scheme: dark;
+    /* 卓（フェルト） */
+    --felt-deep:#0F2822;
+    --felt:#16362E;
+    --felt-up:#1D453B;
+    --felt-line:#2C5B4D;
+    /* 札（生成り） */
+    --card:#F0E8D6;
+    --card-edge:#DCCFB4;
+    --ink:#182A2F;
+    --ink-dim:#5E6D6B;
+    /* さしいろ */
+    --vermilion:#CF4630;
+    --vermilion-soft:#E9836F;
+    --indigo:#2F5B82;
+    --gold:#D0A24C;
+    /* 卓上の文字 */
+    --text:#E9E3D2;
+    --text-dim:#93AAA1;
+    --text-faint:#638076;
+
+    --shadow-card:0 2px 0 rgba(0,0,0,.35), 0 6px 14px rgba(0,0,0,.28);
+    --min-card:70px;
+    --radius:9px;
+  }
+
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 90% at 50% 0%, var(--felt-up) 0%, var(--felt) 42%, var(--felt-deep) 100%);
+    color:var(--text);
+    font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  *{box-sizing:border-box;}
+  button{font:inherit;color:inherit;}
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding-inline:18px;
+    padding-block:22px 40px;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- 共通パーツ ---------- */
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+  }
+  .btn{
+    border:1px solid var(--felt-line);
+    background:linear-gradient(180deg,var(--felt-up),var(--felt));
+    border-radius:var(--radius);
+    padding:11px 18px;
+    cursor:pointer;
+    transition:background .16s,border-color .16s,transform .1s;
+  }
+  .btn:hover{border-color:var(--gold);}
+  .btn:active{transform:translateY(1px);}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .btn-primary{
+    background:linear-gradient(180deg,var(--vermilion),#A9341F);
+    border-color:#8E2C19;
+    color:#FFF4EE;
+    font-weight:700;
+    letter-spacing:.06em;
+    box-shadow:0 2px 0 rgba(0,0,0,.3);
+  }
+  .btn-primary:hover{border-color:var(--vermilion-soft);}
+  .btn-ghost{background:transparent;border-color:transparent;color:var(--text-dim);padding:8px 12px;}
+  .btn-ghost:hover{color:var(--text);border-color:var(--felt-line);}
+
+  /* ---------- ホーム ---------- */
+  .masthead{text-align:center;padding-block:14px 6px;}
+  .masthead h1{
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,7vw,40px);
+    letter-spacing:.14em;
+    margin:.1em 0 .18em;
+    text-wrap:balance;
+  }
+  .masthead .sub{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--gold);
+    letter-spacing:.04em;
+  }
+  .rule{
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--felt-line) 18%,var(--felt-line) 82%,transparent);
+    margin-block:22px;
+  }
+
+  .setting{margin-block:18px;}
+  .setting > .eyebrow{display:block;margin-bottom:9px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    border:1px solid var(--felt-line);
+    background:rgba(0,0,0,.16);
+    border-radius:999px;
+    padding:7px 15px;
+    font-size:13.5px;
+    cursor:pointer;
+    color:var(--text-dim);
+    transition:all .16s;
+  }
+  .chip:hover{color:var(--text);border-color:var(--text-faint);}
+  .chip[aria-pressed="true"]{
+    background:var(--card);
+    border-color:var(--card-edge);
+    color:var(--ink);
+    font-weight:700;
+  }
+  .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .chip .n{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    opacity:.6;
+    margin-left:5px;
+  }
+
+  .start-row{display:flex;gap:10px;align-items:center;margin-top:26px;flex-wrap:wrap;}
+  .start-row .btn-primary{flex:1 1 150px;padding-block:15px;font-size:16px;}
+
+  .ledger{
+    margin-top:auto;
+    padding-top:28px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(76px,1fr));
+    gap:14px 10px;
+    border-top:1px solid var(--felt-line);
+  }
+  .ledger div{text-align:left;}
+  .ledger .v{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:20px;
+    font-weight:600;
+    color:var(--gold);
+    font-variant-numeric:tabular-nums;
+    display:block;
+    line-height:1.3;
+  }
+  .ledger .k{font-size:11.5px;color:var(--text-faint);letter-spacing:.06em;}
+
+  /* ---------- 盤面ヘッダー ---------- */
+  .hud{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--felt-line);
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .hud .stat{display:flex;flex-direction:column;line-height:1.25;min-width:52px;}
+  .hud .stat b{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:18px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .hud .stat span{font-size:10.5px;color:var(--text-faint);letter-spacing:.1em;}
+  .hud .spacer{flex:1;}
+  .combo{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--gold);
+    opacity:0;
+    transition:opacity .25s;
+    white-space:nowrap;
+  }
+  .combo.on{opacity:1;}
+
+  /* ---------- 札 ---------- */
+  .board{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(var(--min-card),1fr));
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .card{
+    all:unset;
+    display:block;
+    position:relative;
+    aspect-ratio:3/4;
+    max-width:100%;
+    cursor:pointer;
+    perspective:800px;
+    border-radius:var(--radius);
+  }
+  .card:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  .card .inner{
+    position:absolute;
+    inset:0;
+    transform-style:preserve-3d;
+    transition:transform .4s cubic-bezier(.4,.05,.2,1);
+  }
+  .card.open .inner,.card.done .inner{transform:rotateY(180deg);}
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    border-radius:var(--radius);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:5px;
+    text-align:center;
+    box-shadow:var(--shadow-card);
+    overflow:hidden;
+  }
+  /* 裏（矢絣風） */
+  .face-back{
+    background:
+      repeating-linear-gradient(135deg,#1B3F62 0 6px,#23507C 6px 12px);
+    border:1px solid #0E2438;
+  }
+  .face-back::after{
+    content:"";
+    position:absolute;
+    inset:5px;
+    border:1px solid rgba(208,162,76,.42);
+    border-radius:4px;
+  }
+  /* 表 */
+  .face-front{
+    transform:rotateY(180deg);
+    background:linear-gradient(170deg,#F6F0E2,var(--card) 55%,var(--card-edge));
+    color:var(--ink);
+    border:1px solid var(--card-edge);
+    flex-direction:column;
+    gap:2px;
+  }
+  .face-front .w{
+    font-size:var(--fs,15px);
+    line-height:1.24;
+    font-weight:600;
+    overflow-wrap:anywhere;
+    hyphens:auto;
+  }
+  .card.en .face-front{border-top:4px solid var(--indigo);}
+  .card.ja .face-front{border-top:4px solid var(--vermilion);}
+  .card.en .face-front .w{font-family:"Bodoni Moda",Georgia,serif;font-weight:600;}
+  .card.done{cursor:default;}
+  .card.done .face-front{
+    background:linear-gradient(170deg,#DFEFE2,#C9E3CE);
+    border-color:#A9CDB2;
+    opacity:.82;
+  }
+  .card.miss .face-front{
+    background:linear-gradient(170deg,#FBE2DC,#F3CCC2);
+    border-color:#E0A697;
+  }
+  @keyframes nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+  .card.miss{animation:nudge .26s 1;}
+  @media (prefers-reduced-motion:reduce){
+    .card .inner{transition:none;}
+    .card.miss{animation:none;}
+  }
+
+  /* ---------- 解説帯 ---------- */
+  .readout{
+    position:sticky;
+    bottom:calc(8px + env(safe-area-inset-bottom,0px));
+    z-index:5;
+    border:1px solid var(--felt-line);
+    border-left:3px solid var(--felt-line);
+    border-radius:var(--radius);
+    background:#0D241E;
+    box-shadow:0 -6px 18px rgba(6,20,16,.55);
+    padding:13px 15px;
+    min-height:104px;
+  }
+  .readout.hit{border-left-color:var(--gold);}
+  .readout.slip{border-left-color:var(--vermilion);}
+  .readout .head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+  .readout .en{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+  .readout .pos{
+    font-size:10.5px;
+    border:1px solid var(--felt-line);
+    border-radius:3px;
+    padding:1px 6px;
+    color:var(--text-dim);
+  }
+  .readout .ja{font-size:15px;font-weight:500;color:var(--text);}
+  .readout .ex{font-family:"Bodoni Moda",Georgia,serif;font-size:14px;color:var(--text-dim);margin-top:7px;line-height:1.5;}
+  .readout .exja{font-size:12.5px;color:var(--text-faint);line-height:1.5;}
+  .readout .idle{color:var(--text-faint);font-size:13px;}
+  .readout .tag{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:10px;
+    letter-spacing:.16em;
+    color:var(--vermilion-soft);
+  }
+  .readout .tag.ok{color:var(--gold);}
+  .speak{
+    all:unset;
+    cursor:pointer;
+    font-size:14px;
+    color:var(--text-faint);
+    border:1px solid var(--felt-line);
+    border-radius:5px;
+    padding:1px 7px;
+    line-height:1.5;
+  }
+  .speak:hover{color:var(--gold);border-color:var(--gold);}
+  .speak:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* ---------- 結果 ---------- */
+  .verdict{text-align:center;padding-block:10px 4px;}
+  .rank{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-size:clamp(64px,19vw,96px);
+    line-height:1;
+    font-weight:700;
+    color:var(--gold);
+    letter-spacing:.02em;
+  }
+  .rank small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;letter-spacing:.2em;color:var(--text-faint);font-weight:400;margin-top:6px;}
+  .score-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(88px,1fr));
+    gap:12px 8px;
+    margin-block:24px;
+    padding-block:18px;
+    border-top:1px solid var(--felt-line);
+    border-bottom:1px solid var(--felt-line);
+  }
+  .score-grid div{text-align:center;}
+  .score-grid b{
+    display:block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:21px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .score-grid span{font-size:11px;color:var(--text-faint);letter-spacing:.08em;}
+
+  .wordlist{display:flex;flex-direction:column;gap:1px;background:var(--felt-line);border:1px solid var(--felt-line);border-radius:var(--radius);overflow:hidden;}
+  .wordlist .row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 13px;
+    background:rgba(9,24,20,.6);
+    flex-wrap:wrap;
+  }
+  .wordlist .row .e{font-family:"Bodoni Moda",Georgia,serif;font-size:16px;font-weight:600;}
+  .wordlist .row .j{font-size:13px;color:var(--text-dim);flex:1;min-width:110px;}
+  .wordlist .row .c{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;
+    color:var(--vermilion-soft);
+    border:1px solid rgba(207,70,48,.4);
+    border-radius:3px;
+    padding:0 5px;
+    white-space:nowrap;
+  }
+  .empty{color:var(--text-faint);font-size:13.5px;text-align:center;padding-block:34px;border:1px dashed var(--felt-line);border-radius:var(--radius);}
+
+  h2.sec{
+    font-size:13px;
+    letter-spacing:.16em;
+    color:var(--text-dim);
+    font-weight:500;
+    margin:26px 0 10px;
+  }
+  .foot{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .foot .btn{flex:1 1 140px;text-align:center;}
+  .note{font-size:12px;color:var(--text-faint);line-height:1.65;margin-top:18px;}
+</style>
+
+<div class="wrap">
+
+  <!-- ============ ホーム ============ -->
+  <section id="s-home">
+    <div class="masthead">
+      <p class="eyebrow">英検準2級 語彙 172</p>
+      <h1>英単語めくり</h1>
+      <p class="sub">turn, match, remember</p>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="setting">
+      <span class="eyebrow">出題範囲</span>
+      <div class="chips" id="pick-cat" role="group" aria-label="出題範囲"></div>
+    </div>
+
+    <div class="setting">
+      <span class="eyebrow">札の枚数</span>
+      <div class="chips" id="pick-size" role="group" aria-label="札の枚数"></div>
+    </div>
+
+    <div class="start-row">
+      <button class="btn btn-primary" id="go">札をくばる</button>
+      <button class="btn" id="to-weak">にがて札 <span id="weak-n" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.7"></span></button>
+      <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true" title="めくったとき英語を読み上げます">音声 ON</button>
+    </div>
+
+    <div class="ledger">
+      <div><span class="v" id="l-stage">0</span><span class="k">クリア回数</span></div>
+      <div><span class="v" id="l-learned">0</span><span class="k">出会った語</span></div>
+      <div><span class="v" id="l-mastered">0</span><span class="k">得意な語</span></div>
+      <div><span class="v" id="l-best">—</span><span class="k">最高スコア</span></div>
+    </div>
+
+    <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。</p>
+  </section>
+
+  <!-- ============ 盤面 ============ -->
+  <section id="s-game" hidden>
+    <div class="hud">
+      <div class="stat"><b id="h-pairs">0/0</b><span>ペア</span></div>
+      <div class="stat"><b id="h-moves">0</b><span>てすう</span></div>
+      <div class="stat"><b id="h-time">0:00</b><span>タイム</span></div>
+      <div class="spacer"></div>
+      <div class="combo" id="h-combo"></div>
+      <button class="btn btn-ghost" id="quit">やめる</button>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="readout" id="readout"><p class="idle">札を2枚めくって、英語と意味をそろえよう。</p></div>
+  </section>
+
+  <!-- ============ 結果 ============ -->
+  <section id="s-result" hidden>
+    <div class="verdict">
+      <p class="eyebrow" id="r-range">—</p>
+      <div class="rank" id="r-rank">A<small id="r-word">みごと</small></div>
+    </div>
+    <div class="score-grid">
+      <div><b id="r-score">0</b><span>スコア</span></div>
+      <div><b id="r-moves">0</b><span>てすう</span></div>
+      <div><b id="r-time">0:00</b><span>タイム</span></div>
+      <div><b id="r-combo">0</b><span>最大コンボ</span></div>
+    </div>
+    <h2 class="sec" id="r-list-title">この回の取りこぼし</h2>
+    <div id="r-list"></div>
+    <div class="foot">
+      <button class="btn btn-primary" id="again">もう一回くばる</button>
+      <button class="btn" id="r-home">ホームへ</button>
+    </div>
+  </section>
+
+  <!-- ============ にがて札 ============ -->
+  <section id="s-weak" hidden>
+    <div class="masthead">
+      <p class="eyebrow">まちがえた回数の多い順</p>
+      <h1 style="font-size:clamp(24px,6vw,32px)">にがて札</h1>
+    </div>
+    <div class="rule"></div>
+    <div id="w-list"></div>
+    <div class="foot">
+      <button class="btn btn-primary" id="w-drill">にがてだけで勝負</button>
+      <button class="btn" id="w-home">ホームへ</button>
+    </div>
+    <p class="note">ここに並ぶ語は通常の回でも高い確率で配られる。得意な語（連続正解が続いた語）は自動で一覧から外れる。</p>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   語彙データ（英検準2級レンジ）
+   1行 = 英語|日本語|品詞|例文|例文訳
+   ============================================================ */
+const RAW = {
+v:`achieve|達成する|動|He achieved his dream of becoming a pilot.|彼はパイロットになる夢を達成した。
+admit|認める|動|He admitted that he was wrong.|彼は自分が間違っていたと認めた。
+afford|買う余裕がある|動|We can't afford a new car.|新しい車を買う余裕はない。
+appear|現れる|動|A rainbow appeared after the rain.|雨のあとに虹が現れた。
+apply|応募する|動|She applied for a part-time job.|彼女はアルバイトに応募した。
+arrange|手配する|動|I'll arrange a meeting for Friday.|金曜に会議を手配します。
+attend|出席する|動|All students must attend the ceremony.|生徒は全員式に出席しなければならない。
+avoid|避ける|動|Try to avoid eating too much sugar.|砂糖の取りすぎは避けよう。
+borrow|借りる|動|May I borrow your umbrella?|傘を借りてもいい？
+cause|引き起こす|動|The storm caused a lot of damage.|嵐は大きな被害を引き起こした。
+communicate|意思を伝える|動|We communicate mainly by email.|私たちは主にメールでやり取りする。
+compare|比較する|動|Compare the two plans carefully.|二つの案をよく比較しなさい。
+complain|不平を言う|動|He complained about the noise.|彼は騒音について苦情を言った。
+consider|よく考える|動|Please consider my offer.|私の申し出をよく考えてください。
+contain|含む|動|This drink contains no sugar.|この飲み物は砂糖を含まない。
+decrease|減少する|動|The population is decreasing.|人口が減少している。
+deliver|配達する|動|They deliver pizza until midnight.|そこは深夜までピザを配達する。
+describe|描写する|動|Can you describe the man?|その男の特徴を説明できますか。
+discover|発見する|動|Scientists discovered a new planet.|科学者が新しい惑星を発見した。
+discuss|話し合う|動|We discussed the problem for hours.|何時間もその問題を話し合った。
+encourage|励ます|動|My teacher encouraged me to try.|先生は挑戦するよう励ましてくれた。
+escape|逃げる|動|The bird escaped from its cage.|鳥がかごから逃げた。
+examine|調べる|動|The doctor examined my throat.|医者は私ののどを調べた。
+expect|予期する|動|I didn't expect to see you here.|ここで君に会うとは思わなかった。
+explain|説明する|動|Let me explain the rules.|ルールを説明させてください。
+express|表現する|動|She expressed her thanks in a letter.|彼女は手紙で感謝を表した。
+graduate|卒業する|動|He graduated from high school last year.|彼は昨年高校を卒業した。
+imagine|想像する|動|Imagine living on the moon.|月で暮らすことを想像してみて。
+improve|上達させる|動|My English has improved a lot.|私の英語はかなり上達した。
+increase|増加する|動|Sales increased by ten percent.|売上が10パーセント増加した。
+introduce|紹介する|動|Let me introduce my sister.|妹を紹介させてください。
+manage|なんとかやり遂げる|動|She managed to finish on time.|彼女はなんとか時間内に終えた。
+mention|言及する|動|He never mentioned the accident.|彼はその事故に一度も触れなかった。
+notice|気づく|動|I didn't notice you standing there.|そこに立っているのに気づかなかった。
+offer|申し出る|動|He offered to carry my bag.|彼はかばんを持とうと申し出た。
+perform|演じる|動|The band performed three new songs.|バンドは新曲を3曲演奏した。
+prepare|準備する|動|I'm preparing for the exam.|試験の準備をしている。
+provide|提供する|動|The hotel provides free breakfast.|そのホテルは朝食を無料で提供する。
+realize|気づく|動|I realized my mistake too late.|自分の間違いに気づくのが遅すぎた。
+recommend|推薦する|動|I recommend this restaurant.|このレストランをおすすめします。
+reduce|減らす|動|We must reduce plastic waste.|プラスチックごみを減らさねばならない。
+refuse|断る|動|She refused his invitation.|彼女は彼の誘いを断った。
+remind|思い出させる|動|Please remind me to call him.|彼に電話するよう言ってね。
+require|必要とする|動|This job requires patience.|この仕事は忍耐を必要とする。
+succeed|成功する|動|He succeeded in passing the test.|彼は試験に合格することに成功した。
+suggest|提案する|動|I suggest we leave early.|早めに出発することを提案します。
+survive|生き残る|動|Only one tree survived the fire.|一本の木だけが火事を生き延びた。`,
+
+n:`ability|能力|名|She has the ability to lead.|彼女には人を導く能力がある。
+accident|事故|名|The accident happened at noon.|その事故は正午に起きた。
+advice|助言|名|Thank you for your advice.|助言をありがとう。
+amount|量|名|A large amount of rain fell.|大量の雨が降った。
+article|記事|名|I read an article about AI.|AIについての記事を読んだ。
+attention|注意|名|This sign needs your attention.|この標識には注意が必要だ。
+audience|観客|名|The audience clapped loudly.|観客は大きな拍手をした。
+average|平均|名|His score was above average.|彼の点数は平均以上だった。
+benefit|利益|名|Exercise has many benefits.|運動には多くの利点がある。
+character|性格|名|She has a gentle character.|彼女は優しい性格だ。
+community|地域社会|名|Our community holds a summer festival.|私たちの地域は夏祭りを開く。
+condition|状態|名|The car is in good condition.|その車は良い状態だ。
+culture|文化|名|I'm interested in Japanese culture.|日本文化に興味がある。
+custom|習慣|名|Bowing is a Japanese custom.|おじぎは日本の習慣だ。
+damage|損害|名|The flood caused serious damage.|洪水は深刻な被害をもたらした。
+degree|程度|名|I agree to some degree.|ある程度は同意する。
+effect|影響|名|Music has a calming effect.|音楽には落ち着かせる効果がある。
+effort|努力|名|Success takes effort.|成功には努力がいる。
+environment|環境|名|We must protect the environment.|私たちは環境を守らねばならない。
+equipment|用具|名|The team bought new equipment.|チームは新しい用具を買った。
+experience|経験|名|He has ten years of experience.|彼には10年の経験がある。
+expert|専門家|名|She is an expert on birds.|彼女は鳥の専門家だ。
+goal|目標|名|My goal is to study abroad.|私の目標は留学することだ。
+government|政府|名|The government announced a new plan.|政府は新しい計画を発表した。
+habit|習慣|名|Reading before bed is a good habit.|寝る前の読書は良い習慣だ。
+industry|産業|名|The car industry is changing fast.|自動車産業は急速に変化している。
+influence|影響|名|His words had a big influence on me.|彼の言葉は私に大きな影響を与えた。
+information|情報|名|I need more information.|もっと情報が必要だ。
+interview|面接|名|I have a job interview tomorrow.|明日就職の面接がある。
+knowledge|知識|名|He has deep knowledge of history.|彼は歴史に深い知識がある。
+material|材料|名|Wood is a natural material.|木は天然の材料だ。
+medicine|薬|名|Take this medicine after meals.|食後にこの薬を飲みなさい。
+method|方法|名|This method saves time.|この方法は時間を節約する。
+neighbor|近所の人|名|Our neighbor has three dogs.|近所の人は犬を3匹飼っている。
+opinion|意見|名|In my opinion, he is right.|私の意見では彼は正しい。
+opportunity|機会|名|This is a great opportunity.|これは絶好の機会だ。
+patient|患者|名|The nurse cared for the patient.|看護師は患者を看病した。
+population|人口|名|The population of the town is falling.|町の人口が減っている。
+product|製品|名|They sell local products.|彼らは地元の製品を売っている。
+progress|進歩|名|She is making good progress.|彼女は順調に進歩している。
+purpose|目的|名|What is the purpose of your visit?|訪問の目的は何ですか。
+quality|質|名|This shirt is of high quality.|このシャツは品質が高い。
+relationship|関係|名|They have a good relationship.|彼らは良い関係だ。
+research|研究|名|He is doing research on plants.|彼は植物の研究をしている。
+result|結果|名|The result surprised everyone.|その結果は皆を驚かせた。
+situation|状況|名|The situation is getting better.|状況は良くなっている。
+society|社会|名|Technology changes society.|科学技術は社会を変える。
+solution|解決策|名|We found a simple solution.|簡単な解決策を見つけた。
+tradition|伝統|名|This festival is an old tradition.|この祭りは古い伝統だ。
+traffic|交通|名|The traffic was heavy this morning.|今朝は交通量が多かった。`,
+
+a:`actually|実際は|副|Actually, I've never been there.|実は一度も行ったことがない。
+ancient|古代の|形|We visited an ancient temple.|古代の寺を訪れた。
+anxious|心配して|形|She is anxious about the result.|彼女は結果を心配している。
+available|利用できる|形|Tickets are available online.|チケットはネットで入手できる。
+aware|気づいて|形|Are you aware of the risk?|その危険に気づいていますか。
+certain|確かな|形|I'm certain he will come.|彼が来るのは確かだ。
+comfortable|快適な|形|This chair is very comfortable.|この椅子はとても快適だ。
+common|共通の|形|Music is a common interest.|音楽は共通の趣味だ。
+convenient|便利な|形|The station is convenient for shopping.|その駅は買い物に便利だ。
+correct|正しい|形|Choose the correct answer.|正しい答えを選びなさい。
+curious|好奇心の強い|形|Children are naturally curious.|子どもは生まれつき好奇心が強い。
+dangerous|危険な|形|Swimming here is dangerous.|ここで泳ぐのは危険だ。
+effective|効果的な|形|This is an effective way to study.|これは効果的な勉強法だ。
+especially|特に|副|I like fruit, especially peaches.|果物、特に桃が好きだ。
+expensive|高価な|形|That watch is too expensive.|あの時計は高すぎる。
+familiar|よく知っている|形|This song sounds familiar.|この歌は聞き覚えがある。
+foreign|外国の|形|She speaks three foreign languages.|彼女は外国語を3つ話す。
+fortunately|幸運にも|副|Fortunately, no one was hurt.|幸運にも誰もけがをしなかった。
+immediately|すぐに|副|Call me immediately.|すぐに電話して。
+impossible|不可能な|形|Nothing is impossible.|不可能なことは何もない。
+independent|独立した|形|He became independent at eighteen.|彼は18歳で自立した。
+local|地元の|形|We ate at a local restaurant.|地元のレストランで食べた。
+modern|現代の|形|This is a modern building.|これは現代的な建物だ。
+necessary|必要な|形|Sleep is necessary for health.|睡眠は健康に必要だ。
+nervous|緊張して|形|I felt nervous before the speech.|スピーチの前は緊張した。
+obvious|明らかな|形|The answer is obvious.|答えは明らかだ。
+particular|特定の|形|Do you have a particular plan?|特定の計画はありますか。
+polite|礼儀正しい|形|He is always polite to guests.|彼は客にいつも礼儀正しい。
+possible|可能な|形|Come as early as possible.|できるだけ早く来て。
+probably|たぶん|副|It will probably rain tonight.|今夜はたぶん雨だ。
+proud|誇りに思って|形|I'm proud of my brother.|弟を誇りに思う。
+rapidly|急速に|副|The city grew rapidly.|その都市は急速に発展した。
+rare|まれな|形|This bird is very rare.|この鳥はとても珍しい。
+recently|最近|副|I recently moved to Tokyo.|最近東京に引っ越した。
+responsible|責任がある|形|You are responsible for your words.|自分の言葉に責任がある。
+serious|深刻な|形|This is a serious problem.|これは深刻な問題だ。
+similar|似ている|形|Our opinions are similar.|私たちの意見は似ている。
+sudden|突然の|形|There was a sudden change.|突然の変化があった。
+typical|典型的な|形|It was a typical summer day.|典型的な夏の日だった。
+unique|独特の|形|Her style is unique.|彼女のスタイルは独特だ。
+useful|役に立つ|形|This app is really useful.|このアプリは本当に役に立つ。
+various|さまざまな|形|We tried various methods.|さまざまな方法を試した。
+worth|価値がある|形|The book is worth reading.|その本は読む価値がある。`,
+
+i:`according to|～によると|熟|According to the news, it will snow.|ニュースによると雪が降るそうだ。
+be based on|～に基づく|熟|The movie is based on a true story.|その映画は実話に基づいている。
+break down|故障する|熟|My bike broke down on the way.|途中で自転車が故障した。
+bring up|育てる|熟|She was brought up in Osaka.|彼女は大阪で育てられた。
+carry out|実行する|熟|They carried out the plan.|彼らは計画を実行した。
+come up with|思いつく|熟|He came up with a great idea.|彼はすばらしい案を思いついた。
+deal with|～に対処する|熟|We must deal with this issue.|この問題に対処しなければならない。
+depend on|～次第だ|熟|It depends on the weather.|それは天気次第だ。
+figure out|理解する|熟|I can't figure out this puzzle.|このパズルが解けない。
+fill out|記入する|熟|Please fill out this form.|この用紙に記入してください。
+find out|見つけ出す|熟|I found out the truth.|私は真実を知った。
+get along with|～と仲良くやる|熟|He gets along with everyone.|彼は誰とでも仲良くやる。
+get over|克服する|熟|She got over her fear of dogs.|彼女は犬への恐怖を克服した。
+give up|あきらめる|熟|Don't give up so easily.|そんなに簡単にあきらめるな。
+go through|経験する|熟|They went through hard times.|彼らはつらい時期を経験した。
+hand in|提出する|熟|Hand in your report by Friday.|金曜までにレポートを提出しなさい。
+in addition|加えて|熟|In addition, the price is low.|加えて、値段も安い。
+in order to|～するために|熟|I got up early in order to study.|勉強するために早起きした。
+instead of|～の代わりに|熟|I had tea instead of coffee.|コーヒーの代わりに紅茶を飲んだ。
+keep up with|～に遅れずについていく|熟|I can't keep up with the class.|授業についていけない。
+look after|～の世話をする|熟|She looks after her grandmother.|彼女は祖母の世話をしている。
+look forward to|～を楽しみに待つ|熟|I look forward to seeing you.|お会いするのを楽しみにしています。
+pay attention to|～に注意を払う|熟|Pay attention to the details.|細部に注意を払いなさい。
+point out|指摘する|熟|He pointed out my mistake.|彼は私の間違いを指摘した。
+put off|延期する|熟|They put off the game.|彼らは試合を延期した。
+run out of|～を使い果たす|熟|We ran out of milk.|牛乳を切らしてしまった。
+set up|設立する|熟|He set up his own company.|彼は自分の会社を設立した。
+show up|現れる|熟|He didn't show up at the party.|彼はパーティーに現れなかった。
+take part in|～に参加する|熟|I took part in the contest.|私はコンテストに参加した。
+take place|行われる|熟|The event takes place in May.|その行事は5月に行われる。
+turn down|断る|熟|She turned down the offer.|彼女はその申し出を断った。
+work on|～に取り組む|熟|I'm working on a new project.|新しい企画に取り組んでいる。`
+};
+
+const CATS = [
+  {k:'all', label:'すべて'},
+  {k:'v',   label:'動詞'},
+  {k:'n',   label:'名詞'},
+  {k:'a',   label:'形容詞・副詞'},
+  {k:'i',   label:'熟語'}
+];
+const SIZES = [
+  {n:6,  label:'6ペア', hint:'12枚'},
+  {n:8,  label:'8ペア', hint:'16枚'},
+  {n:10, label:'10ペア', hint:'20枚'}
+];
+
+/* 行データを単語オブジェクトへ */
+const WORDS = [];
+for (const key of Object.keys(RAW)) {
+  RAW[key].trim().split('\n').forEach(line => {
+    const [e, j, p, x, xj] = line.split('|');
+    WORDS.push({ id: e, e, j, p, x, xj, c: key });
+  });
+}
+const BY_ID = new Map(WORDS.map(w => [w.id, w]));
+
+/* ============================================================
+   学習記録（この端末に保存）
+   ============================================================ */
+const KEY = 'megurikango.v1';
+const MASTER_STREAK = 3;               // 連続正解でこの回数に達したら「得意」
+let store = { stats:{}, cleared:0, best:0 };
+
+function loadStore(seed){
+  if (seed && seed.stats) { store = seed; return; }
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      store = { stats: p.stats || {}, cleared: p.cleared || 0, best: p.best || 0 };
+    }
+  } catch (e) { /* 保存が使えない環境でも遊べるようにする */ }
+}
+function saveStore(){
+  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
+}
+function stat(id){
+  return store.stats[id] || (store.stats[id] = { ok:0, miss:0, streak:0 });
+}
+const isMastered = id => (store.stats[id]?.streak || 0) >= MASTER_STREAK;
+const weakWords = () => WORDS
+  .filter(w => (store.stats[w.id]?.miss || 0) > 0 && !isMastered(w.id))
+  .sort((a,b) => (store.stats[b.id].miss - store.stats[a.id].miss) || a.e.localeCompare(b.e));
+
+/* ============================================================
+   出題の重み付け ― にがてな語ほど出やすく、得意な語は控えめに
+   ============================================================ */
+function weightOf(w){
+  const s = store.stats[w.id];
+  if (!s || (s.ok === 0 && s.miss === 0)) return 2;          // 未出題
+  if (s.streak >= MASTER_STREAK) return 0.25;                // 得意
+  return 1 + s.miss * 2.5;
+}
+function drawWords(pool, n){
+  const bag = pool.slice();
+  const out = [];
+  while (out.length < n && bag.length) {
+    const total = bag.reduce((t,w) => t + weightOf(w), 0);
+    let r = Math.random() * total;
+    let i = 0;
+    for (; i < bag.length; i++) { r -= weightOf(bag[i]); if (r <= 0) break; }
+    out.push(bag.splice(Math.min(i, bag.length - 1), 1)[0]);
+  }
+  return out;
+}
+const shuffle = a => { for (let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+/* ============================================================
+   画面
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const SCREENS = ['s-home','s-game','s-result','s-weak'];
+function show(id){
+  SCREENS.forEach(s => { $(s).hidden = (s !== id); });
+  window.scrollTo({ top:0, behavior:'instant' });
+}
+
+/* ============================================================
+   読み上げ
+   ============================================================ */
+let soundOn = true;
+function speak(text){
+  if (!soundOn || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.92;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ============================================================
+   ゲーム本体
+   ============================================================ */
+let chosenCat = 'all', chosenSize = 8, drillMode = false;
+let g = null;
+
+function poolFor(cat){
+  if (drillMode) {
+    const weak = weakWords();
+    if (weak.length >= chosenSize) return weak;
+    const rest = WORDS.filter(w => !weak.includes(w));
+    return weak.concat(shuffle(rest));
+  }
+  return cat === 'all' ? WORDS : WORDS.filter(w => w.c === cat);
+}
+
+
+function deal(){
+  const pool = poolFor(chosenCat);
+  const picked = drawWords(pool, Math.min(chosenSize, Math.floor(pool.length)));
+  const cards = [];
+  picked.forEach((w, i) => {
+    cards.push({ uid:'e'+i, wid:w.id, side:'en' });
+    cards.push({ uid:'j'+i, wid:w.id, side:'ja' });
+  });
+  shuffle(cards);
+
+  g = {
+    pairs: picked.length,
+    cards,
+    open: [],
+    moves: 0,
+    matched: 0,
+    combo: 0,
+    maxCombo: 0,
+    missed: new Map(),     // id -> 回数
+    lock: false,
+    t0: Date.now(),
+    timer: null
+  };
+
+  // 熟語は文字数が多いので札を大きめに配る
+  const wide = chosenCat === 'i' || drillMode || chosenCat === 'all';
+  document.documentElement.style.setProperty('--min-card', chosenCat === 'i' ? '104px' : (wide ? '84px' : '74px'));
+
+  renderBoard();
+  resetReadout();
+  updateHud();
+  g.timer = setInterval(updateHud, 250);
+  show('s-game');
+}
+
+function fontFor(card){
+  const w = BY_ID.get(card.wid);
+  const t = card.side === 'en' ? w.e : w.j;
+  const n = t.length;
+  if (card.side === 'en') return n<=6?17:n<=9?15:n<=12?13:n<=16?11.5:10;
+  return n<=4?16:n<=7?14:n<=10?12:10.5;
+}
+
+function renderBoard(){
+  const board = $('board');
+  board.innerHTML = '';
+  g.cards.forEach(c => {
+    const w = BY_ID.get(c.wid);
+    const text = c.side === 'en' ? w.e : w.j;
+    const btn = document.createElement('button');
+    btn.className = 'card ' + c.side;
+    btn.dataset.uid = c.uid;
+    btn.setAttribute('aria-label', '伏せ札');
+    btn.innerHTML =
+      '<span class="inner">' +
+        '<span class="face face-back" aria-hidden="true"></span>' +
+        '<span class="face face-front"><span class="w" style="--fs:' + fontFor(c) + 'px"></span></span>' +
+      '</span>';
+    btn.querySelector('.w').textContent = text;
+    btn.addEventListener('click', () => flip(c, btn));
+    board.appendChild(btn);
+    c.el = btn;
+  });
+}
+
+function flip(c, btn){
+  if (g.lock || btn.classList.contains('done') || btn.classList.contains('open')) return;
+  btn.classList.add('open');
+  btn.setAttribute('aria-label', (c.side === 'en' ? '英語札 ' : '日本語札 ') + btn.querySelector('.w').textContent);
+  g.open.push(c);
+
+  const w = BY_ID.get(c.wid);
+  if (c.side === 'en') speak(w.e);
+
+  if (g.open.length < 2) return;
+
+  g.moves++;
+  const [a, b] = g.open;
+  g.open = [];
+
+  if (a.wid === b.wid && a.side !== b.side) {
+    // そろった
+    g.matched++;
+    g.combo++;
+    g.maxCombo = Math.max(g.maxCombo, g.combo);
+    [a, b].forEach(x => { x.el.classList.remove('open'); x.el.classList.add('done'); x.el.disabled = true; });
+    const s = stat(a.wid); s.ok++; s.streak++;
+    saveStore();
+    showHit(BY_ID.get(a.wid));
+    speak(BY_ID.get(a.wid).e);
+    updateHud();
+    if (g.matched === g.pairs) finish();
+  } else {
+    // 外した ― 意味を見せてから伏せる（ここが学習の山場）
+    g.combo = 0;
+    g.lock = true;
+    [a, b].forEach(x => x.el.classList.add('miss'));
+    [a, b].forEach(x => {
+      const s = stat(x.wid); s.miss++; s.streak = 0;
+      g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
+    });
+    saveStore();
+    showSlip(BY_ID.get(a.wid), BY_ID.get(b.wid));
+    updateHud();
+    setTimeout(() => {
+      [a, b].forEach(x => {
+        x.el.classList.remove('open','miss');
+        x.el.setAttribute('aria-label','伏せ札');
+      });
+      g.lock = false;
+    }, 1600);
+  }
+}
+
+function updateHud(){
+  if (!g) return;
+  $('h-pairs').textContent = g.matched + '/' + g.pairs;
+  $('h-moves').textContent = g.moves;
+  $('h-time').textContent = clock(elapsed());
+  const c = $('h-combo');
+  if (g.combo >= 2) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
+  else c.classList.remove('on');
+}
+const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
+const clock = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+
+/* ---------- 解説帯 ---------- */
+function resetReadout(){
+  const r = $('readout');
+  r.className = 'readout';
+  r.innerHTML = '<p class="idle">札を2枚めくって、英語と意味をそろえよう。</p>';
+}
+function wordBlock(w){
+  return '<div class="head">' +
+      '<span class="en">' + esc(w.e) + '</span>' +
+      '<span class="pos">' + esc(w.p) + '</span>' +
+      '<span class="ja">' + esc(w.j) + '</span>' +
+      '<button class="speak" data-say="' + esc(w.e) + '" aria-label="' + esc(w.e) + ' を読み上げる">♪</button>' +
+    '</div>' +
+    '<p class="ex">' + esc(w.x) + '<br><span class="exja">' + esc(w.xj) + '</span></p>';
+}
+function showHit(w){
+  const r = $('readout');
+  r.className = 'readout hit';
+  r.innerHTML = '<p class="tag ok">そろった</p>' + wordBlock(w);
+  bindSay(r);
+}
+function showSlip(a, b){
+  const r = $('readout');
+  r.className = 'readout slip';
+  r.innerHTML = '<p class="tag">はずれ ― この2語を覚えて</p>' +
+    '<div style="display:grid;gap:10px">' + wordBlock(a) + wordBlock(b) + '</div>';
+  bindSay(r);
+}
+function bindSay(root){
+  root.querySelectorAll('.speak').forEach(b =>
+    b.addEventListener('click', () => speak(b.dataset.say)));
+}
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+/* ---------- 終了 ---------- */
+function finish(){
+  clearInterval(g.timer);
+  const secs = elapsed();
+  const extra = Math.max(0, g.moves - g.pairs);
+  const score = Math.max(0,
+    g.pairs * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
+  const eff = g.pairs / Math.max(1, g.moves);
+  const rank = eff >= 0.85 ? ['S','ほぼ完璧'] :
+               eff >= 0.65 ? ['A','みごと'] :
+               eff >= 0.50 ? ['B','まあまあ'] : ['C','もう一回'];
+
+  store.cleared++;
+  store.best = Math.max(store.best, score);
+  saveStore();
+
+  $('r-range').textContent = (drillMode ? 'にがて札' : (CATS.find(c => c.k === chosenCat)?.label || '')) + ' / ' + g.pairs + 'ペア';
+  $('r-rank').textContent = rank[0];
+  $('r-rank').appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
+  $('r-score').textContent = score;
+  $('r-moves').textContent = g.moves;
+  $('r-time').textContent = clock(secs);
+  $('r-combo').textContent = g.maxCombo;
+
+  const list = $('r-list');
+  if (g.missed.size === 0) {
+    $('r-list-title').textContent = '取りこぼし';
+    list.innerHTML = '<div class="empty">ノーミス。一枚も外していません。</div>';
+  } else {
+    $('r-list-title').textContent = 'この回に外した ' + g.missed.size + ' 語';
+    list.innerHTML = '<div class="wordlist">' +
+      [...g.missed.entries()]
+        .sort((x,y) => y[1] - x[1])
+        .map(([id, n]) => { const w = BY_ID.get(id);
+          return '<div class="row"><span class="e">' + esc(w.e) + '</span>' +
+                 '<span class="j">' + esc(w.j) + '</span>' +
+                 '<span class="c">' + n + '回</span></div>'; })
+        .join('') + '</div>';
+  }
+  show('s-result');
+}
+
+/* ============================================================
+   ホーム／にがて札の描画
+   ============================================================ */
+function renderHome(){
+  const cw = $('pick-cat');
+  cw.innerHTML = '';
+  CATS.forEach(c => {
+    const n = c.k === 'all' ? WORDS.length : WORDS.filter(w => w.c === c.k).length;
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(c.k === chosenCat));
+    b.innerHTML = esc(c.label) + '<span class="n">' + n + '</span>';
+    b.addEventListener('click', () => { chosenCat = c.k; renderHome(); });
+    cw.appendChild(b);
+  });
+
+  const sw = $('pick-size');
+  sw.innerHTML = '';
+  SIZES.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', String(s.n === chosenSize));
+    b.innerHTML = esc(s.label) + '<span class="n">' + esc(s.hint) + '</span>';
+    b.addEventListener('click', () => { chosenSize = s.n; renderHome(); });
+    sw.appendChild(b);
+  });
+
+  const seen = Object.keys(store.stats).length;
+  const mastered = Object.keys(store.stats).filter(isMastered).length;
+  $('l-stage').textContent = store.cleared;
+  $('l-learned').textContent = seen;
+  $('l-mastered').textContent = mastered;
+  $('l-best').textContent = store.best || '—';
+  $('weak-n').textContent = weakWords().length ? '(' + weakWords().length + ')' : '';
+}
+
+function renderWeak(){
+  const weak = weakWords();
+  const list = $('w-list');
+  if (!weak.length) {
+    list.innerHTML = '<div class="empty">にがて札はまだありません。外した語がここに集まります。</div>';
+    $('w-drill').disabled = true;
+    $('w-drill').style.opacity = .45;
+  } else {
+    list.innerHTML = '<div class="wordlist">' + weak.map(w => {
+      const s = store.stats[w.id];
+      return '<div class="row"><span class="e">' + esc(w.e) + '</span>' +
+             '<span class="j">' + esc(w.j) + '</span>' +
+             '<span class="c">×' + s.miss + '</span></div>';
+    }).join('') + '</div>';
+    $('w-drill').disabled = false;
+    $('w-drill').style.opacity = 1;
+  }
+  show('s-weak');
+}
+
+/* ============================================================
+   起動
+   ============================================================ */
+function boot(data){
+  loadStore(data && data.store);
+  renderHome();
+
+  $('go').addEventListener('click', () => { drillMode = false; deal(); });
+  $('again').addEventListener('click', () => deal());
+  $('to-weak').addEventListener('click', renderWeak);
+  $('w-home').addEventListener('click', () => { renderHome(); show('s-home'); });
+  $('r-home').addEventListener('click', () => { renderHome(); show('s-home'); });
+  $('w-drill').addEventListener('click', () => { drillMode = true; deal(); });
+  $('quit').addEventListener('click', () => {
+    if (g && g.timer) clearInterval(g.timer);
+    renderHome(); show('s-home');
+  });
+  $('sound-toggle').addEventListener('click', e => {
+    soundOn = !soundOn;
+    e.currentTarget.textContent = '音声 ' + (soundOn ? 'ON' : 'OFF');
+    e.currentTarget.setAttribute('aria-pressed', String(soundOn));
+  });
+
+  show('s-home');
+}
+
+window.claude?.hot?.snapshot?.(() => ({ store }));
+if (window.claude?.hot?.ready) window.claude.hot.ready(boot);
+else boot(window.claude?.hot?.data ?? {});
+</script>
