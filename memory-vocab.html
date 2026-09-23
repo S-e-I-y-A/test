@@ -197,8 +197,16 @@
     color:var(--text-dim);
     white-space:nowrap;
   }
-  .turnpill.you{border-color:var(--gold);color:var(--gold);}
-  .turnpill.cpu{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  .turnpill.p1{border-color:var(--gold);color:var(--gold);}
+  .turnpill.p2{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  /* 手番が移ったことを見落とさないように一度だけ脈打たせる */
+  @keyframes handover{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.13)}
+    100%{transform:scale(1)}
+  }
+  .turnpill.swap{animation:handover .42s cubic-bezier(.3,.7,.3,1);}
+  @media (prefers-reduced-motion:reduce){ .turnpill.swap{animation:none;} }
   /* あいての番のあいだは盤面を触れなくする */
   .board.waiting{pointer-events:none;opacity:.88;}
 
@@ -524,7 +532,7 @@
     </div>
 
     <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。<br>
-      あいてを選ぶと対戦になる。強さは<strong>めくられた札をどれだけ覚えているか</strong>の差で、「よわい」は何も覚えずに毎回でたらめにめくる。そろえた側がもう一度めくれる。<strong>にがて記録に残るのは自分が外した語だけ</strong>。</p>
+      <strong>ふたりで</strong>を選ぶと、1台を回して交代で対戦できる。CPUと戦うなら強さは3段階で、その差は<strong>めくられた札をどれだけ覚えているか</strong>だけ。「よわい」は何も覚えずに毎回でたらめにめくる。どちらもそろえた側がもう一度めくれる。<strong>にがて記録に残るのは1Pが外した語だけ</strong>なので、誰と遊んでも自分の記録は濁らない。</p>
     <p class="credit">語彙は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。例文は124語のみ収録。<br>出典: &copy; 英語漬け.com（えいぷら）2025</p>
   </section>
 
@@ -2084,6 +2092,7 @@ const BANDS = [
    p=0 なら記憶ゼロ、つまり毎回まっさらな乱数でめくるだけになる。 */
 const FOES = [
   {k:'solo', label:'ひとりで', hint:'記録だけ'},
+  {k:'duo',  label:'ふたりで', hint:'同じ端末で交代'},
   {k:'easy', label:'よわい',   hint:'まぐれ',   p:0,    cap:0,  pace:620},
   {k:'mid',  label:'ふつう',   hint:'半分覚える', p:0.55, cap:8,  pace:560},
   {k:'hard', label:'つよい',   hint:'ほぼ覚える', p:0.92, cap:24, pace:470}
@@ -2312,11 +2321,13 @@ function deal(){
     lock: false,
     t0: Date.now(),
     timer: null,
-    vs: foe.k !== 'solo',
+    vs: foe.k !== 'solo',                       // 2人で取り合う回かどうか
+    auto: foe.k !== 'solo' && foe.k !== 'duo',  // 後手がCPUかどうか
     foe,
-    turn: 'you',
-    score: { you:0, cpu:0 },
-    mem: new Map()         // あいてが覚えている札 uid -> wid
+    turn: 'p1',
+    score: { p1:0, p2:0 },
+    names: foe.k === 'duo' ? { p1:'1P', p2:'2P' } : { p1:'あなた', p2:'あいて' },
+    mem: new Map()         // CPUが覚えている札 uid -> wid
   };
 
   // 狭い画面でも4列を保ち、盤面全体が一目に入るようにする
@@ -2335,7 +2346,7 @@ function deal(){
    cap は「同時に覚えていられる枚数」。p=0 なら毎回ただの乱数になる。
    ============================================================ */
 function memorize(c){
-  if (!g.vs || !g.foe.p) return;
+  if (!g.auto || !g.foe.p) return;
   if (Math.random() > g.foe.p) return;
   g.mem.delete(c.uid);                 // 入れ直して新しい記憶にする
   g.mem.set(c.uid, c.wid);
@@ -2425,7 +2436,7 @@ function renderBoard(){
 
 /* 自分がめくる */
 function flip(c, btn){
-  if (g.lock || g.turn === 'cpu') return;
+  if (g.lock || (g.auto && g.turn === 'p2')) return;   // CPUの番だけは触らせない
   if (btn.classList.contains('done') || btn.classList.contains('open')) return;
   reveal(c);
   g.open.push(c);
@@ -2449,7 +2460,8 @@ function reveal(c){
 /* 2枚めくり終えたときの判定。自分の番のときだけ学習記録に書く */
 function resolve(a, b){
   g.moves++;
-  const mine = !g.vs || g.turn === 'you';
+  // 学習記録に書くのは1Pの手だけ。2PやCPUの結果で端末の持ち主の記録を汚さない
+  const mine = !g.vs || g.turn === 'p1';
   const hit = (a.wid === b.wid && a.side !== b.side);
 
   if (hit) {
@@ -2502,25 +2514,27 @@ function nextTurn(swap){
   if (!g) return;
   if (g.matched === g.pairs) { finish(); return; }
   if (!g.vs) { g.lock = false; return; }
-  if (swap) g.turn = (g.turn === 'you') ? 'cpu' : 'you';
-  updateHud();
-  if (g.turn === 'cpu') cpuPlay();
-  else g.lock = false;
+  if (swap) g.turn = (g.turn === 'p1') ? 'p2' : 'p1';
+  updateHud(swap);
+  if (g.auto && g.turn === 'p2') cpuPlay();
+  else g.lock = false;                     // ふたりで対戦なら次の人が自分でめくる
 }
 
-function updateHud(){
+function updateHud(swapped){
   if (!g) return;
   const pill = $('h-turn'), board = $('board');
   if (g.vs) {
-    $('h-pairs').textContent = g.score.you;
-    $('h-pairs-k').textContent = 'あなた';
-    $('h-moves').textContent = g.score.cpu;
-    $('h-moves-k').textContent = 'あいて';
+    $('h-pairs').textContent = g.score.p1;
+    $('h-pairs-k').textContent = g.names.p1;
+    $('h-moves').textContent = g.score.p2;
+    $('h-moves-k').textContent = g.names.p2;
     pill.hidden = false;
-    pill.textContent = g.turn === 'you' ? 'あなたの番' : 'あいての番';
-    pill.classList.toggle('you', g.turn === 'you');
-    pill.classList.toggle('cpu', g.turn === 'cpu');
-    board.classList.toggle('waiting', g.turn === 'cpu');
+    pill.textContent = g.names[g.turn] + 'の番';
+    pill.classList.toggle('p1', g.turn === 'p1');
+    pill.classList.toggle('p2', g.turn === 'p2');
+    // 盤面を止めるのはCPUの番だけ。ふたりで対戦なら2Pがめくる
+    board.classList.toggle('waiting', g.auto && g.turn === 'p2');
+    if (swapped) { pill.classList.remove('swap'); void pill.offsetWidth; pill.classList.add('swap'); }
   } else {
     $('h-pairs').textContent = g.matched + '/' + g.pairs;
     $('h-pairs-k').textContent = 'ペア';
@@ -2530,7 +2544,7 @@ function updateHud(){
     board.classList.remove('waiting');
   }
   const c = $('h-combo');
-  if (g.combo >= 2 && (!g.vs || g.turn === 'you')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
+  if (g.combo >= 2 && (!g.vs || g.turn === 'p1')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
   else c.classList.remove('on');
 }
 const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
@@ -2613,7 +2627,7 @@ function finish(){
   clearInterval(g.timer);
   const secs = elapsed();
   const extra = Math.max(0, g.moves - g.pairs);
-  const won = g.vs ? g.score.you : g.pairs;
+  const won = g.vs ? g.score.p1 : g.pairs;
   const score = Math.max(0,
     won * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
   const eff = g.pairs / Math.max(1, g.moves);
@@ -2627,14 +2641,14 @@ function finish(){
 
   $('r-range').textContent =
     (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア' +
-    (g.vs ? ' / あいて「' + g.foe.label + '」' : '');
+    (g.vs ? ' / ' + g.foe.label : '');
   const rankEl = $('r-rank');
   rankEl.classList.toggle('vs', !!g.vs);
   if (g.vs) {
-    const you = g.score.you, cpu = g.score.cpu;
-    rankEl.textContent = you + '－' + cpu;
+    const a = g.score.p1, b = g.score.p2;
+    rankEl.textContent = a + '－' + b;
     rankEl.appendChild(Object.assign(document.createElement('small'),
-      { textContent: you > cpu ? 'あなたの勝ち' : you < cpu ? 'あいての勝ち' : '引き分け' }));
+      { textContent: a > b ? g.names.p1 + 'の勝ち' : a < b ? g.names.p2 + 'の勝ち' : '引き分け' }));
   } else {
     rankEl.textContent = rank[0];
     rankEl.appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
