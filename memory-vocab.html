@@ -197,8 +197,16 @@
     color:var(--text-dim);
     white-space:nowrap;
   }
-  .turnpill.you{border-color:var(--gold);color:var(--gold);}
-  .turnpill.cpu{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  .turnpill.p1{border-color:var(--gold);color:var(--gold);}
+  .turnpill.p2{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  /* 手番が移ったことを見落とさないように一度だけ脈打たせる */
+  @keyframes handover{
+    0%{transform:scale(1)}
+    35%{transform:scale(1.13)}
+    100%{transform:scale(1)}
+  }
+  .turnpill.swap{animation:handover .42s cubic-bezier(.3,.7,.3,1);}
+  @media (prefers-reduced-motion:reduce){ .turnpill.swap{animation:none;} }
   /* あいての番のあいだは盤面を触れなくする */
   .board.waiting{pointer-events:none;opacity:.88;}
 
@@ -524,8 +532,8 @@
     </div>
 
     <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。<br>
-      あいてを選ぶと対戦になる。強さは<strong>めくられた札をどれだけ覚えているか</strong>の差で、「よわい」は何も覚えずに毎回でたらめにめくる。そろえた側がもう一度めくれる。<strong>にがて記録に残るのは自分が外した語だけ</strong>。</p>
-    <p class="credit">語彙は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。例文は124語のみ収録。<br>出典: &copy; 英語漬け.com（えいぷら）2025</p>
+      <strong>ふたりで</strong>を選ぶと、1台を回して交代で対戦できる。CPUと戦うなら強さは3段階で、その差は<strong>めくられた札をどれだけ覚えているか</strong>だけ。「よわい」は何も覚えずに毎回でたらめにめくる。どちらもそろえた側がもう一度めくれる。<strong>にがて記録に残るのは1Pが外した語だけ</strong>なので、誰と遊んでも自分の記録は濁らない。</p>
+    <p class="credit">語彙（英単語と和訳）は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。<br>出典: &copy; 英語漬け.com（えいぷら）2025<br>例文と例文訳は全1479語ぶんをこのアプリのために書き下ろしたもので、出典には含まれません。</p>
   </section>
 
   <!-- ============ 盤面 ============ -->
@@ -587,1489 +595,1492 @@
 
 <script>
 /* ============================================================
-   語彙データ ― 英検準2級「出た単語一覧」全1480語（出典: 英語漬け.com）
-   重複掲載の direction を1件整理して 1479 語。
-   1行 = 出た順|英語|日本語|例文|例文訳   （例文があるのは124語）
+   語彙データ ― 1479語
+   出た順・英語・日本語は英検準2級「出た単語一覧」全1480語（出典:
+   英語漬け.com）より。重複掲載の direction を1件整理して1479語。
+   例文と例文訳は全語ぶんをこのアプリのために書き下ろしたもので、
+   出典には含まれない。
+   1行 = 出た順|英語|日本語|例文|例文訳
    ============================================================ */
-const DATA = `1|as a result|結果として||
-2|look up|を調べる||
+const DATA = `1|as a result|結果として|As a result, the game was canceled.|結果として、試合は中止になった。
+2|look up|を調べる|I looked up the word in a dictionary.|辞書でその単語を調べた。
 3|available|利用できる|Tickets are available online.|チケットはネットで入手できる。
-4|at first|最初は||
-5|in the past|過去に||
-6|nowadays|最近，近頃||
+4|at first|最初は|At first I did not like natto.|最初は納豆が好きではなかった。
+5|in the past|過去に|People traveled by ship in the past.|過去には人々は船で旅をした。
+6|nowadays|最近，近頃|Nowadays many students study online.|最近は多くの学生がオンラインで学ぶ。
 7|information|情報|I need more information.|もっと情報が必要だ。
-8|drop by|ちょっと立ち寄る||
-9|gain|得る||
-10|traditional|伝統的な||
+8|drop by|ちょっと立ち寄る|Please drop by my house tonight.|今夜うちにちょっと寄ってください。
+9|gain|得る|She gained useful experience there.|彼女はそこで有益な経験を得た。
+10|traditional|伝統的な|This is a traditional Japanese dish.|これは伝統的な日本料理だ。
 11|quality|質，特性|This shirt is of high quality.|このシャツは品質が高い。
 12|improve|を改善する，改良する|My English has improved a lot.|私の英語はかなり上達した。
-13|however|しかしながら，どんなに～でも||
-14|collect|集める||
-15|extra|余分の，特別の||
-16|clothing|衣料品||
+13|however|しかしながら，どんなに～でも|It was cold. However, we went out.|寒かった。しかし私たちは出かけた。
+14|collect|集める|My brother collects old coins.|弟は古い硬貨を集めている。
+15|extra|余分の，特別の|I brought an extra pencil.|余分の鉛筆を持ってきた。
+16|clothing|衣料品|This shop sells winter clothing.|この店は冬物の衣料品を売っている。
 17|comfortable|心地の良い，快適な|This chair is very comfortable.|この椅子はとても快適だ。
-18|disappoint|がっかりさせる||
-19|instead|代わりに，その代わり||
-20|originally|はじめは，元々は||
+18|disappoint|がっかりさせる|The ending disappointed many fans.|その結末は多くのファンをがっかりさせた。
+19|instead|代わりに，その代わり|The tea was cold, so I had juice instead.|紅茶が冷めていたので代わりにジュースを飲んだ。
+20|originally|はじめは，元々は|This building was originally a school.|この建物は元々学校だった。
 21|take part in|に参加する|I took part in the contest.|私はコンテストに参加した。
-22|dress up|着飾る||
-23|certainly|確かに，間違いなく||
+22|dress up|着飾る|We dressed up for the party.|私たちはパーティーのために着飾った。
+23|certainly|確かに，間違いなく|He will certainly come on time.|彼は確かに時間どおりに来る。
 24|find out|見つけ出す|I found out the truth.|私は真実を知った。
-25|search for|を探索する||
+25|search for|を探索する|They searched for the missing dog.|彼らは迷子の犬を探した。
 26|come up with|を思いつく，を考え出す|He came up with a great idea.|彼はすばらしい案を思いついた。
-27|company|会社||
-28|details|詳細||
-29|melt|溶ける，を溶かす||
-30|direction|方向，方角||
-31|injury|怪我，負傷||
-32|silence|沈黙||
-33|tight|狭い，締まった||
-34|protect|を守る、保護する||
-35|sharp|鋭い||
-36|behind|背後に||
-37|bother|面倒／迷惑をかける||
-38|emergency|緊急，急ぎ||
-39|waste|を浪費する／浪費，廃棄物||
+27|company|会社|My father works for a small company.|父は小さな会社に勤めている。
+28|details|詳細|Please check the details carefully.|詳細を注意深く確認してください。
+29|melt|溶ける，を溶かす|The snow melted in the sun.|雪が日なたで溶けた。
+30|direction|方向，方角|We walked in the wrong direction.|私たちは間違った方向に歩いた。
+31|injury|怪我，負傷|He missed the game because of an injury.|彼は怪我で試合を欠場した。
+32|silence|沈黙|A long silence followed her question.|彼女の質問のあと長い沈黙が続いた。
+33|tight|狭い，締まった|These shoes are too tight.|この靴はきつすぎる。
+34|protect|を守る、保護する|We must protect the forest.|私たちは森を守らねばならない。
+35|sharp|鋭い|Be careful, the knife is sharp.|気をつけて、そのナイフは鋭い。
+36|behind|背後に|Someone was standing behind me.|誰かが私の背後に立っていた。
+37|bother|面倒／迷惑をかける|Sorry to bother you now.|今お邪魔してすみません。
+38|emergency|緊急，急ぎ|Call this number in an emergency.|緊急のときはこの番号に電話して。
+39|waste|を浪費する／浪費，廃棄物|Don't waste your time on that.|そんなことに時間を浪費するな。
 40|amount|量，額|A large amount of rain fell.|大量の雨が降った。
-41|advantage|有利，利点||
-42|object|物体||
-43|add|足し算する，合計する||
-44|surface|表面，水面||
-45|destroy|を破壊する||
+41|advantage|有利，利点|Speaking English is a big advantage.|英語を話せるのは大きな利点だ。
+42|object|物体|A strange object appeared in the sky.|奇妙な物体が空に現れた。
+43|add|足し算する，合計する|Add these two numbers together.|この2つの数を足しなさい。
+44|surface|表面，水面|The surface of the lake was calm.|湖の水面は穏やかだった。
+45|destroy|を破壊する|The fire destroyed the old building.|火事が古い建物を破壊した。
 46|knowledge|知識|He has deep knowledge of history.|彼は歴史に深い知識がある。
-47|continue|をし続ける||
+47|continue|をし続ける|He continued reading until midnight.|彼は深夜まで読み続けた。
 48|immediately|即座に|Call me immediately.|すぐに電話して。
 49|correct|正確な／を訂正する|Choose the correct answer.|正しい答えを選びなさい。
 50|government|政府，行政府，内閣|The government announced a new plan.|政府は新しい計画を発表した。
-51|raise|を上げる，持ち上げる||
-52|hurt|を傷つける||
-53|experiment|実験，試み||
-54|fail|失敗する||
+51|raise|を上げる，持ち上げる|Please raise your hand to answer.|答えるときは手を上げてください。
+52|hurt|を傷つける|Her words hurt my feelings.|彼女の言葉は私の気持ちを傷つけた。
+53|experiment|実験，試み|We did a simple science experiment.|簡単な理科の実験をした。
+54|fail|失敗する|He failed the test twice.|彼は試験に2度失敗した。
 55|material|材料，原料|Wood is a natural material.|木は天然の材料だ。
 56|recently|最近，このごろ|I recently moved to Tokyo.|最近東京に引っ越した。
-57|spread|を広げる，広がる||
+57|spread|を広げる，広がる|She spread a map on the table.|彼女は地図をテーブルに広げた。
 58|traffic|交通，運輸|The traffic was heavy this morning.|今朝は交通量が多かった。
 59|modern|現代的な，現代の|This is a modern building.|これは現代的な建物だ。
 60|reduce|を減らす，縮小する|We must reduce plastic waste.|プラスチックごみを減らさねばならない。
-61|distance|距離||
+61|distance|距離|The distance to the station is short.|駅までの距離は短い。
 62|opportunity|機会，好機|This is a great opportunity.|これは絶好の機会だ。
-63|activity|活動||
-64|abroad|外国で，外国へ||
-65|prefer|より好む||
+63|activity|活動|Club activity starts after lunch.|部活動は昼食後に始まる。
+64|abroad|外国で，外国へ|My sister studies abroad.|姉は外国で勉強している。
+65|prefer|より好む|I prefer tea to coffee.|コーヒーより紅茶が好きだ。
 66|mention|言及する|He never mentioned the accident.|彼はその事故に一度も触れなかった。
-67|although|だけれども||
-68|climate|気候||
+67|although|だけれども|Although it rained, we enjoyed the trip.|雨が降ったけれど旅行を楽しんだ。
+68|climate|気候|The climate here is very mild.|ここの気候はとても穏やかだ。
 69|condition|状態，条件|The car is in good condition.|その車は良い状態だ。
-70|impression|印象||
-71|item|項目，品目||
-72|profit|利益，もうけ||
-73|survey|調査／を見渡す||
-74|sink|沈む||
-75|illness|病気||
-76|flavor|風味，味||
+70|impression|印象|She made a good impression on us.|彼女は私たちに良い印象を与えた。
+71|item|項目，品目|Check each item on the list.|リストの各項目を確認して。
+72|profit|利益，もうけ|The shop made a small profit.|その店は少しの利益を出した。
+73|survey|調査／を見渡す|We did a survey of students.|生徒の調査を行った。
+74|sink|沈む|The boat slowly began to sink.|船はゆっくり沈み始めた。
+75|illness|病気|He was absent because of illness.|彼は病気で欠席した。
+76|flavor|風味，味|This ice cream has a rich flavor.|このアイスは濃い風味がある。
 77|expert|専門家|She is an expert on birds.|彼女は鳥の専門家だ。
 78|borrow|を借りる|May I borrow your umbrella?|傘を借りてもいい？
 79|notice|気づく／通知|I didn't notice you standing there.|そこに立っているのに気づかなかった。
-80|quit|やめる||
-81|silly|馬鹿な，愚かな||
-82|wealthy|裕福な||
-83|behave|振る舞う||
+80|quit|やめる|He quit his job last month.|彼は先月仕事をやめた。
+81|silly|馬鹿な，愚かな|That was a silly mistake.|それは馬鹿な間違いだった。
+82|wealthy|裕福な|Her family is very wealthy.|彼女の家族はとても裕福だ。
+83|behave|振る舞う|Please behave politely at the party.|パーティーでは礼儀正しく振る舞って。
 84|decrease|減少する，を減らす／減少|The population is decreasing.|人口が減少している。
-85|divide|を分割する，分ける||
-86|ignore|を無視する||
-87|judge|を判断する／裁判官||
-88|organize|を組織する，を編成する||
-89|overcome|を克服する||
-90|narrow|幅が狭い||
-91|attract|引きつける||
-92|breathe|呼吸をする||
-93|confuse|を混乱させる，区別がつかない||
-94|reserve|を取っておく||
-95|asleep|眠っている||
+85|divide|を分割する，分ける|Divide the cake into six pieces.|ケーキを6つに分けなさい。
+86|ignore|を無視する|Don't ignore the warning sign.|警告の標識を無視するな。
+87|judge|を判断する／裁判官|Don't judge people by their looks.|見た目で人を判断するな。
+88|organize|を組織する，を編成する|She organized a school event.|彼女は学校行事を企画した。
+89|overcome|を克服する|He overcame many difficulties.|彼は多くの困難を克服した。
+90|narrow|幅が狭い|This road is very narrow.|この道はとても狭い。
+91|attract|引きつける|The show attracted many visitors.|その催しは多くの客を引きつけた。
+92|breathe|呼吸をする|It is hard to breathe here.|ここは呼吸するのが苦しい。
+93|confuse|を混乱させる，区別がつかない|The map confused me completely.|その地図は私を完全に混乱させた。
+94|reserve|を取っておく|I reserved a table for two.|2人分の席を取っておいた。
+95|asleep|眠っている|The baby is asleep now.|赤ちゃんは今眠っている。
 96|nervous|神経質な，びくびくして|I felt nervous before the speech.|スピーチの前は緊張した。
 97|discuss|について議論する，検討する|We discussed the problem for hours.|何時間もその問題を話し合った。
-98|rarely|めったに～ない||
-99|thanks to|のおかげで||
-100|anyway|ともかく||
-101|by the time|するまでには||
-102|in particular|特に，とりわけ||
-103|take over|を引き継ぐ||
+98|rarely|めったに～ない|He rarely eats breakfast.|彼はめったに朝食を食べない。
+99|thanks to|のおかげで|Thanks to your help, I passed.|あなたの助けのおかげで合格した。
+100|anyway|ともかく|Anyway, let's start the meeting.|ともかく会議を始めよう。
+101|by the time|するまでには|By the time we arrived, it had ended.|私たちが着くまでにそれは終わっていた。
+102|in particular|特に，とりわけ|I like fruit, in particular grapes.|果物、特にぶどうが好きだ。
+103|take over|を引き継ぐ|His son will take over the shop.|息子が店を引き継ぐ。
 104|in addition|追加として，さらに|In addition, the price is low.|加えて、値段も安い。
-105|be filled with|で満たされている||
-106|even though|～だけれども，～であるのに||
-107|refrigerator|冷蔵庫||
-108|and so on|などなど||
-109|at most|多くとも，せいぜい||
-110|do me a favor|お願いをする||
+105|be filled with|で満たされている|The hall was filled with music.|ホールは音楽で満たされていた。
+106|even though|～だけれども，～であるのに|Even though he was tired, he studied.|疲れていたけれど彼は勉強した。
+107|refrigerator|冷蔵庫|Put the milk in the refrigerator.|牛乳を冷蔵庫に入れて。
+108|and so on|などなど|We sell pens, notebooks, and so on.|ペンやノートなどを売っている。
+109|at most|多くとも，せいぜい|It takes ten minutes at most.|多くとも10分しかかからない。
+110|do me a favor|お願いをする|Could you do me a favor?|お願いを聞いてもらえますか。
 111|get along with|とうまくやっていく|He gets along with everyone.|彼は誰とでも仲良くやる。
-112|get back|取り戻す||
-113|in spite of|にもかかわらず||
-114|keep in mind|を心に留めておく||
-115|on the way to|道の途中で||
-116|put down|置く||
-117|rely on|に頼る，を当てにする||
+112|get back|取り戻す|I want to get back my book.|私は本を取り戻したい。
+113|in spite of|にもかかわらず|In spite of the rain, we walked.|雨にもかかわらず私たちは歩いた。
+114|keep in mind|を心に留めておく|Keep in mind that time is short.|時間が短いことを心に留めておいて。
+115|on the way to|道の途中で|I met him on the way to school.|学校へ行く途中で彼に会った。
+116|put down|置く|He put down the heavy box.|彼は重い箱を置いた。
+117|rely on|に頼る，を当てにする|You can rely on her.|彼女には頼っていい。
 118|run out of|を使い果たす|We ran out of milk.|牛乳を切らしてしまった。
-119|so far|これまでは||
-120|appeal to|に訴える||
-121|as well|同様に，その上||
-122|be good at|～が上手である||
-123|be responsible for|に対して責任がある||
-124|call off|を中止する||
-125|in case|万一に備えて||
-126|on average|平均して||
-127|on foot|歩いて||
-128|out of order|故障して||
-129|on purpose|故意に，わざと||
-130|stay away from|離れている||
-131|suffer from|で苦しむ，悩まされる||
-132|apologize|謝る，謝罪する||
-133|succeed in|に成功する||
-134|after all|結局||
-135|be popular with|に人気がある||
-136|be sick of|にうんざりしている||
-137|be unlikely to|起こりそうにない||
-138|catch up with|に追いつく||
-139|differ from|とは違って，との違い||
-140|in advance|前もって，事前に||
-141|in a hurry|急いで||
-142|participate in|に参加する||
-143|sooner or later|遅かれ早かれ||
-144|try on|試着する||
-145|similar to|に似ている||
-146|show off|見せびらかす||
+119|so far|これまでは|So far everything is going well.|これまでは全て順調だ。
+120|appeal to|に訴える|This song appeals to young people.|この歌は若者に訴えかける。
+121|as well|同様に，その上|She speaks French as well.|彼女はフランス語も同様に話す。
+122|be good at|～が上手である|My sister is good at math.|姉は数学が上手だ。
+123|be responsible for|に対して責任がある|You are responsible for this work.|あなたはこの仕事に責任がある。
+124|call off|を中止する|They called off the concert.|彼らはコンサートを中止した。
+125|in case|万一に備えて|Take an umbrella in case it rains.|雨に備えて傘を持って行って。
+126|on average|平均して|I sleep seven hours on average.|平均して7時間眠る。
+127|on foot|歩いて|I go to school on foot.|私は歩いて学校へ行く。
+128|out of order|故障して|This elevator is out of order.|このエレベーターは故障している。
+129|on purpose|故意に，わざと|He broke the cup on purpose.|彼はわざとカップを割った。
+130|stay away from|離れている|Stay away from that dog.|あの犬から離れていなさい。
+131|suffer from|で苦しむ，悩まされる|She suffers from headaches.|彼女は頭痛に苦しんでいる。
+132|apologize|謝る，謝罪する|He apologized for being late.|彼は遅れたことを謝った。
+133|succeed in|に成功する|She succeeded in her new business.|彼女は新しい事業に成功した。
+134|after all|結局|After all, we chose the cheaper one.|結局、安いほうを選んだ。
+135|be popular with|に人気がある|This game is popular with children.|このゲームは子どもに人気がある。
+136|be sick of|にうんざりしている|I am sick of this noise.|この騒音にうんざりしている。
+137|be unlikely to|起こりそうにない|He is unlikely to come today.|彼は今日来そうにない。
+138|catch up with|に追いつく|Run faster to catch up with them.|彼らに追いつくためにもっと速く走れ。
+139|differ from|とは違って，との違い|My idea differs from yours.|私の考えはあなたのとは違う。
+140|in advance|前もって，事前に|Please pay in advance.|前もってお支払いください。
+141|in a hurry|急いで|He left the room in a hurry.|彼は急いで部屋を出た。
+142|participate in|に参加する|Many students participated in the event.|多くの生徒が行事に参加した。
+143|sooner or later|遅かれ早かれ|Sooner or later he will notice.|遅かれ早かれ彼は気づく。
+144|try on|試着する|May I try on this jacket?|この上着を試着してもいいですか。
+145|similar to|に似ている|Your bag is similar to mine.|あなたのかばんは私のに似ている。
+146|show off|見せびらかす|He likes to show off his car.|彼は車を見せびらかすのが好きだ。
 147|turn down|断る|She turned down the offer.|彼女はその申し出を断った。
 148|fill out|書き込む|Please fill out this form.|この用紙に記入してください。
-149|mostly|主に，ほとんど||
-150|dig|を掘る||
-151|muscle|筋肉||
-152|bite|を噛む，かじる||
-153|treat|を扱う，待遇する||
-154|rather|むしろ，どちらかといえば||
-155|apparently|明らかに||
-156|spend|を費やす，使う||
+149|mostly|主に，ほとんど|The audience was mostly students.|観客は主に学生だった。
+150|dig|を掘る|They dug a hole in the yard.|彼らは庭に穴を掘った。
+151|muscle|筋肉|Exercise makes your muscles stronger.|運動は筋肉を強くする。
+152|bite|を噛む，かじる|The dog bit my finger.|その犬は私の指を噛んだ。
+153|treat|を扱う，待遇する|Treat the machine with care.|その機械は丁寧に扱って。
+154|rather|むしろ，どちらかといえば|I would rather stay home today.|今日はむしろ家にいたい。
+155|apparently|明らかに|He was apparently very tired.|彼は明らかにとても疲れていた。
+156|spend|を費やす，使う|I spend two hours studying daily.|毎日2時間勉強に費やす。
 157|discover|を発見する|Scientists discovered a new planet.|科学者が新しい惑星を発見した。
-158|discovery|発見||
-159|arrival|到着||
+158|discovery|発見|The discovery surprised many scientists.|その発見は多くの科学者を驚かせた。
+159|arrival|到着|We waited for his arrival.|私たちは彼の到着を待った。
 160|degree|程度，度|I agree to some degree.|ある程度は同意する。
 161|achieve|を達成する，到達する|He achieved his dream of becoming a pilot.|彼はパイロットになる夢を達成した。
-162|attitude|態度||
+162|attitude|態度|I like his positive attitude.|彼の前向きな態度が好きだ。
 163|explain|を説明する|Let me explain the rules.|ルールを説明させてください。
-164|establish|を設立する，創設する||
-165|tax|税金||
-166|belief|信念||
-167|demonstrate|実証する，証明する||
+164|establish|を設立する，創設する|They established the school in 1920.|彼らは1920年に学校を設立した。
+165|tax|税金|The price includes tax.|価格には税金が含まれている。
+166|belief|信念|Nothing can change his belief.|何も彼の信念を変えられない。
+167|demonstrate|実証する，証明する|The test demonstrated the new method.|その試験は新しい方法を実証した。
 168|ancient|古代の，大昔の|We visited an ancient temple.|古代の寺を訪れた。
-169|formal|形式の，形式的な||
-170|allow|を許可する，許す||
+169|formal|形式の，形式的な|Please wear formal clothes.|正式な服装で来てください。
+170|allow|を許可する，許す|My parents allowed me to go.|両親は私が行くのを許可した。
 171|article|記事|I read an article about AI.|AIについての記事を読んだ。
 172|contain|を含む，が入っている|This drink contains no sugar.|この飲み物は砂糖を含まない。
-173|temperature|温度，気温||
+173|temperature|温度，気温|The temperature fell below zero.|気温が0度を下回った。
 174|common|共通の，共同の|Music is a common interest.|音楽は共通の趣味だ。
-175|mean|を意味する||
-176|hardly|ほとんどない||
-177|unable|できない||
-178|argument|議論，口論||
-179|ancestor|祖先，先祖||
-180|capital|資本，首都||
-181|disaster|災害，災難||
-182|height|高さ||
-183|ideal|理想||
-184|popularity|人気，流行||
-185|blow|吹く||
-186|decision|決定，結論||
-187|agent|代理人||
-188|praise|をほめる／賞賛||
-189|punish|を罰する，懲らしめる||
-190|chemical|化学物質／化学の||
-191|negative|否定の||
-192|consist|成り立つ||
-193|criticize|を批評する||
-194|import|輸入する||
-195|promote|を促進する||
-196|recover|回復する||
-197|release|解き放つ||
-198|translate|を翻訳する，通訳する||
-199|warn|警告する||
-200|childhood|子供時代||
-201|thought|考えること，意見||
-202|accomplish|を成し遂げる，完成する||
-203|combine|を結合させる，合同する||
+175|mean|を意味する|What does this word mean?|この単語は何を意味しますか。
+176|hardly|ほとんどない|I can hardly hear you.|あなたの声がほとんど聞こえない。
+177|unable|できない|He was unable to answer.|彼は答えることができなかった。
+178|argument|議論，口論|They had a long argument.|彼らは長い議論をした。
+179|ancestor|祖先，先祖|Our ancestors lived in this valley.|私たちの祖先はこの谷に住んでいた。
+180|capital|資本，首都|Paris is the capital of France.|パリはフランスの首都だ。
+181|disaster|災害，災難|The country recovered from the disaster.|その国は災害から回復した。
+182|height|高さ|What is the height of the tower?|その塔の高さはどのくらいですか。
+183|ideal|理想|This is my ideal house.|これは私の理想の家だ。
+184|popularity|人気，流行|The singer's popularity is growing.|その歌手の人気が高まっている。
+185|blow|吹く|A cold wind blew all night.|冷たい風が一晩中吹いた。
+186|decision|決定，結論|It was a difficult decision.|それは難しい決定だった。
+187|agent|代理人|Our agent will call you soon.|代理人がすぐご連絡します。
+188|praise|をほめる／賞賛|The teacher praised his effort.|先生は彼の努力をほめた。
+189|punish|を罰する，懲らしめる|They punished him for lying.|彼らは嘘をついた彼を罰した。
+190|chemical|化学物質／化学の|This factory uses strong chemicals.|この工場は強い化学物質を使う。
+191|negative|否定の|His answer was clearly negative.|彼の答えは明らかに否定的だった。
+192|consist|成り立つ|Water consists of two elements.|水は2つの元素から成る。
+193|criticize|を批評する|Don't criticize others so quickly.|他人をそんなに早く批評するな。
+194|import|輸入する|Japan imports much of its food.|日本は食料の多くを輸入する。
+195|promote|を促進する|The city promotes local tourism.|市は地域の観光を促進している。
+196|recover|回復する|She recovered from her cold.|彼女は風邪から回復した。
+197|release|解き放つ|They released the bird outside.|彼らは鳥を外に放した。
+198|translate|を翻訳する，通訳する|Can you translate this letter?|この手紙を翻訳できますか。
+199|warn|警告する|The sign warns of falling rocks.|その標識は落石を警告している。
+200|childhood|子供時代|He spent his childhood in Osaka.|彼は子供時代を大阪で過ごした。
+201|thought|考えること，意見|Tell me your honest thoughts.|率直な意見を聞かせて。
+202|accomplish|を成し遂げる，完成する|She accomplished her goal alone.|彼女は一人で目標を成し遂げた。
+203|combine|を結合させる，合同する|Combine the eggs and the flour.|卵と小麦粉を混ぜ合わせなさい。
 204|complain|不満を言う|He complained about the noise.|彼は騒音について苦情を言った。
-205|favorite|特に好きな||
+205|favorite|特に好きな|Blue is my favorite color.|青は私の特に好きな色だ。
 206|responsible|責任がある，責任が伴う|You are responsible for your words.|自分の言葉に責任がある。
-207|tiny|ごく小さい||
-208|look down on|を下に見る||
-209|get rid of|を取り除く||
+207|tiny|ごく小さい|A tiny bird sat on the branch.|ごく小さな鳥が枝にとまった。
+208|look down on|を下に見る|Never look down on other people.|決して他人を見下すな。
+209|get rid of|を取り除く|I want to get rid of this desk.|この机を処分したい。
 210|instead of|の代わりに|I had tea instead of coffee.|コーヒーの代わりに紅茶を飲んだ。
-211|plenty of|たくさんの||
-212|stomach|腹||
-213|vision|未来像||
-214|expansion|拡張，拡大||
-215|occur|発生する，起こる||
-216|indeed|実に，全く||
+211|plenty of|たくさんの|We have plenty of time today.|今日はたくさん時間がある。
+212|stomach|腹|My stomach hurts a little.|お腹が少し痛い。
+213|vision|未来像|The leader shared his vision.|指導者は自らの未来像を語った。
+214|expansion|拡張，拡大|The company planned an expansion.|会社は拡張を計画した。
+215|occur|発生する，起こる|The accident occurred at night.|その事故は夜に起きた。
+216|indeed|実に，全く|The film was indeed wonderful.|その映画は実にすばらしかった。
 217|solution|解決法，解明|We found a simple solution.|簡単な解決策を見つけた。
-218|ease|容易さ，気楽さ||
-219|elect|を選出する||
-220|unit|単位||
-221|fact|事実||
-222|educational|教育の||
-223|manner|やり方，方法||
-224|suffering|苦しみ||
-225|crucial|重要な，決定的な||
-226|tear|を引き裂く||
-227|govern|統治する||
-228|enforcement|執行，実施||
-229|brain|頭脳，脳||
-230|talented|才能のある||
+218|ease|容易さ，気楽さ|He solved the problem with ease.|彼はその問題を容易に解いた。
+219|elect|を選出する|They elected her as leader.|彼らは彼女を指導者に選出した。
+220|unit|単位|A meter is a unit of length.|メートルは長さの単位だ。
+221|fact|事実|Tell me the simple fact.|単純な事実を教えて。
+222|educational|教育の|This program is highly educational.|この番組はとても教育的だ。
+223|manner|やり方，方法|He explained it in a kind manner.|彼は優しいやり方で説明した。
+224|suffering|苦しみ|The war caused great suffering.|戦争は大きな苦しみをもたらした。
+225|crucial|重要な，決定的な|Sleep is crucial for health.|睡眠は健康に極めて重要だ。
+226|tear|を引き裂く|Don't tear the paper.|その紙を引き裂かないで。
+227|govern|統治する|A king governed this land long ago.|昔、王がこの地を統治した。
+228|enforcement|執行，実施|Law enforcement improved in the city.|市の法執行が改善した。
+229|brain|頭脳，脳|The brain needs enough rest.|脳は十分な休息を必要とする。
+230|talented|才能のある|She is a talented pianist.|彼女は才能のあるピアニストだ。
 231|research|研究／研究する|He is doing research on plants.|彼は植物の研究をしている。
-232|firm|しっかりした，堅い||
+232|firm|しっかりした，堅い|He gave a firm answer.|彼はしっかりした答えを返した。
 233|community|共同社会|Our community holds a summer festival.|私たちの地域は夏祭りを開く。
-234|force|力，勢い||
-235|past|過去の，終わった||
-236|right|正しい||
-237|impressive|印象的な||
-238|salary|給与||
-239|deal|を扱う，分配する||
-240|prompt|即座の||
-241|let A do|Aにさせる||
-242|vote|投票する／投票権||
-243|president|社長，大統領||
-244|range|範囲，幅||
-245|vital|極めて重要な，生命の||
-246|estate|財産||
-247|responsibility|責任||
-248|unknown|未知の||
-249|grant|給付金||
-250|perceive|知覚する||
+234|force|力，勢い|The force of the wind broke it.|風の力がそれを壊した。
+235|past|過去の，終わった|I learned from past mistakes.|過去の失敗から学んだ。
+236|right|正しい|You gave the right answer.|君は正しい答えを出した。
+237|impressive|印象的な|The view was truly impressive.|その眺めは実に印象的だった。
+238|salary|給与|He earns a good salary.|彼は良い給与を得ている。
+239|deal|を扱う，分配する|This book deals with history.|この本は歴史を扱っている。
+240|prompt|即座の|Thank you for your prompt reply.|即座のご返信をありがとう。
+241|let A do|Aにさせる|Let me carry your bag.|かばんを持たせてください。
+242|vote|投票する／投票権|Many young people voted yesterday.|昨日多くの若者が投票した。
+243|president|社長，大統領|The president gave a short speech.|社長は短い演説をした。
+244|range|範囲，幅|The store sells a wide range of goods.|その店は幅広い範囲の品を売っている。
+245|vital|極めて重要な，生命の|Water is vital for life.|水は生命に極めて重要だ。
+246|estate|財産|He left his estate to his son.|彼は財産を息子に残した。
+247|responsibility|責任|Caring for pets is a responsibility.|ペットの世話は責任だ。
+248|unknown|未知の|The cause is still unknown.|原因はまだ未知だ。
+249|grant|給付金|She received a research grant.|彼女は研究の給付金を受けた。
+250|perceive|知覚する|Dogs perceive sounds we cannot hear.|犬は人に聞こえない音を知覚する。
 251|especially|特に|I like fruit, especially peaches.|果物、特に桃が好きだ。
-252|client|顧客||
-253|mysterious|不可解な，不思議な||
-254|steel|鋼鉄||
-255|concept|概念，観念||
-256|nevertheless|にも関わらず||
-257|attribute|に帰する||
-258|prevent|を妨げる，予防する||
-259|manufacturer|製造元，製造業者||
+252|client|顧客|Our client asked for changes.|顧客が変更を求めた。
+253|mysterious|不可解な，不思議な|A mysterious light appeared.|不可解な光が現れた。
+254|steel|鋼鉄|This bridge is made of steel.|この橋は鋼鉄でできている。
+255|concept|概念，観念|The concept is hard to explain.|その概念は説明しにくい。
+256|nevertheless|にも関わらず|It was late. Nevertheless, he called.|遅かった。にも関わらず彼は電話した。
+257|attribute|に帰する|She attributes her success to luck.|彼女は成功を運のおかげだとする。
+258|prevent|を妨げる，予防する|Wash your hands to prevent illness.|病気を防ぐために手を洗って。
+259|manufacturer|製造元，製造業者|The manufacturer fixed the problem.|製造元がその問題を直した。
 260|effect|効果，影響，結果|Music has a calming effect.|音楽には落ち着かせる効果がある。
-261|million|100万||
-262|encounter|遭遇する||
-263|accuse|告発する||
-264|briefly|簡単に，手短に||
-265|so-called|いわゆる||
-266|global|地球の||
+261|million|100万|The city has two million people.|その市には200万人が住む。
+262|encounter|遭遇する|We encountered a bear once.|一度クマに遭遇した。
+263|accuse|告発する|They accused him of stealing.|彼らは彼を窃盗で告発した。
+264|briefly|簡単に，手短に|He explained the plan briefly.|彼は計画を簡単に説明した。
+265|so-called|いわゆる|This is the so-called golden rule.|これがいわゆる黄金律だ。
+266|global|地球の|Global warming worries many people.|地球温暖化が多くの人を心配させる。
 267|according to|によると|According to the news, it will snow.|ニュースによると雪が降るそうだ。
-268|lack|不足，欠乏||
-269|essay|論文，小説||
-270|approach|に近づく，接近する||
-271|bear|我慢する，を圧迫する||
-272|natural|当然の，自然の||
-273|administration|機関，運営||
+268|lack|不足，欠乏|A lack of sleep hurts your study.|睡眠の不足は勉強に悪い。
+269|essay|論文，小説|I wrote an essay about music.|音楽についての論文を書いた。
+270|approach|に近づく，接近する|A ship approached the island.|船が島に近づいた。
+271|bear|我慢する，を圧迫する|I cannot bear this heat.|この暑さは我慢できない。
+272|natural|当然の，自然の|It is natural to feel nervous.|緊張するのは当然だ。
+273|administration|機関，運営|The administration changed the rules.|運営側が規則を変えた。
 274|audience|聴衆，観客|The audience clapped loudly.|観客は大きな拍手をした。
-275|production|生産，製造||
-276|qualify|に資格を与える||
-277|intention|意図||
-278|previously|以前は，前もって||
-279|language|言語||
-280|fee|料金，手数料||
-281|nor|もない||
-282|negotiation|交渉，話し合い||
-283|automobile|自動車||
-284|dust|ほこり||
-285|extremely|極端に，過度に||
-286|echo|こだま||
-287|detailed|詳細の||
-288|maximum|最大，最大の||
-289|pan|フライパン||
-290|improvement|改善，改良||
-291|genius|天才||
-292|credit|信用||
-293|debt|借金，負債||
-294|resource|資源，資産||
-295|therapy|治療||
-296|glance|一目見る／一目||
-297|storage|保管||
-298|academic|学術の，大学の||
-299|permit|を許可する||
-300|concern|心配する，に関係する||
-301|strain|張る||
-302|role|役割||
-303|nowhere|どこにも||
-304|recent|最近の，新しい||
-305|mate|友達，仲間||
-306|distinguish|を区別する||
-307|sophisticated|洗練された||
-308|upset|気持ちが動揺した，ひっくり返す||
-309|disturb|を阻害する，(人の)邪魔をする||
-310|invest|に投資する||
-311|intense|激しい，熱心な||
-312|retire|退職する，引退する||
-313|wildlife|野生動物||
+275|production|生産，製造|Car production increased last year.|昨年、自動車の生産が増えた。
+276|qualify|に資格を与える|This course qualifies you to teach.|この講座は教える資格を与える。
+277|intention|意図|I had no intention of lying.|嘘をつく意図はなかった。
+278|previously|以前は，前もって|She previously worked in Tokyo.|彼女は以前東京で働いていた。
+279|language|言語|He speaks four languages well.|彼は4つの言語を上手に話す。
+280|fee|料金，手数料|The entrance fee is five hundred yen.|入場料は500円だ。
+281|nor|もない|He cannot swim, nor can I.|彼は泳げないし、私も泳げない。
+282|negotiation|交渉，話し合い|The negotiation lasted three hours.|交渉は3時間続いた。
+283|automobile|自動車|This city has an automobile factory.|この市には自動車工場がある。
+284|dust|ほこり|There is dust on the shelf.|棚にほこりがある。
+285|extremely|極端に，過度に|It was extremely hot yesterday.|昨日は極端に暑かった。
+286|echo|こだま|We heard an echo in the valley.|谷でこだまが聞こえた。
+287|detailed|詳細の|She gave a detailed explanation.|彼女は詳細な説明をした。
+288|maximum|最大，最大の|The maximum speed here is fifty.|ここの最大速度は50だ。
+289|pan|フライパン|Heat the oil in a pan.|フライパンで油を熱して。
+290|improvement|改善，改良|There is room for improvement.|改善の余地がある。
+291|genius|天才|Everyone calls him a genius.|皆が彼を天才と呼ぶ。
+292|credit|信用|The shop gave him credit.|店は彼に信用を与えた。
+293|debt|借金，負債|He paid back all his debt.|彼は借金を全て返した。
+294|resource|資源，資産|Water is a precious resource.|水は貴重な資源だ。
+295|therapy|治療|She started a new therapy.|彼女は新しい治療を始めた。
+296|glance|一目見る／一目|He glanced at his watch.|彼は時計を一目見た。
+297|storage|保管|We need more storage space.|もっと保管場所が必要だ。
+298|academic|学術の，大学の|His academic record is excellent.|彼の学術的な成績は優秀だ。
+299|permit|を許可する|They do not permit smoking here.|ここでは喫煙を許可していない。
+300|concern|心配する，に関係する|Her health concerns me.|彼女の健康が心配だ。
+301|strain|張る|The rope strained under the weight.|ロープが重さで張った。
+302|role|役割|She played an important role.|彼女は重要な役割を果たした。
+303|nowhere|どこにも|The key was nowhere to be found.|鍵はどこにも見つからなかった。
+304|recent|最近の，新しい|I read a recent news report.|最近の報道を読んだ。
+305|mate|友達，仲間|My mate lent me his bike.|仲間が自転車を貸してくれた。
+306|distinguish|を区別する|I cannot distinguish the twins.|私はその双子を区別できない。
+307|sophisticated|洗練された|She wore a sophisticated dress.|彼女は洗練されたドレスを着ていた。
+308|upset|気持ちが動揺した，ひっくり返す|He was upset about the result.|彼は結果に動揺していた。
+309|disturb|を阻害する，(人の)邪魔をする|Please don't disturb me now.|今は邪魔しないでください。
+310|invest|に投資する|They invested in a new company.|彼らは新しい会社に投資した。
+311|intense|激しい，熱心な|The heat was intense that day.|その日は暑さが激しかった。
+312|retire|退職する，引退する|My father retired last spring.|父は昨春退職した。
+313|wildlife|野生動物|This park protects local wildlife.|この公園は地域の野生動物を守る。
 314|polite|礼儀正しい|He is always polite to guests.|彼は客にいつも礼儀正しい。
-315|entertain|を楽しませる||
-316|competition|競争||
-317|inquiry|問い合わせ，質問||
-318|period|期間||
-319|bind|縛りつける，束ねる||
+315|entertain|を楽しませる|The clown entertained the children.|道化師は子どもたちを楽しませた。
+316|competition|競争|The competition was very close.|その競争は非常に接戦だった。
+317|inquiry|問い合わせ，質問|We received many inquiries today.|今日は多くの問い合わせを受けた。
+318|period|期間|He stayed for a short period.|彼は短い期間滞在した。
+319|bind|縛りつける，束ねる|They bound the box with rope.|彼らは箱をロープで縛った。
 320|certain|ある，確信している|I'm certain he will come.|彼が来るのは確かだ。
-321|passenger|乗客||
-322|behavior|振る舞い，態度||
-323|meanwhile|一方で，他方で||
-324|earn|稼ぐ||
-325|enter|入る||
-326|complex|複雑な，複合の||
-327|moreover|さらに，その上||
-328|structure|構造，建造物||
-329|annoy|いらだたせる||
+321|passenger|乗客|Every passenger must wear a belt.|乗客は全員ベルトを締めねばならない。
+322|behavior|振る舞い，態度|His behavior surprised everyone.|彼の振る舞いは皆を驚かせた。
+323|meanwhile|一方で，他方で|Meanwhile, I washed the dishes.|一方で、私は皿を洗った。
+324|earn|稼ぐ|She earns money by teaching.|彼女は教えて金を稼ぐ。
+325|enter|入る|Please enter through this door.|このドアから入ってください。
+326|complex|複雑な，複合の|This is a complex problem.|これは複雑な問題だ。
+327|moreover|さらに，その上|It is cheap. Moreover, it lasts long.|安い。さらに長持ちする。
+328|structure|構造，建造物|The bridge has a simple structure.|その橋は単純な構造をしている。
+329|annoy|いらだたせる|The loud music annoyed me.|大音量の音楽が私をいらだたせた。
 331|influence|影響／影響を及ぼす|His words had a big influence on me.|彼の言葉は私に大きな影響を与えた。
 332|rapidly|素早く|The city grew rapidly.|その都市は急速に発展した。
-333|detail|詳細||
+333|detail|詳細|He explained every detail.|彼はあらゆる詳細を説明した。
 334|culture|文化，教養|I'm interested in Japanese culture.|日本文化に興味がある。
-335|prior|優先の，前の||
-336|fire|首にする，火をつける／火，火事||
-337|assessment|評価，査定||
-338|engaged|に従事して，忙しくして||
-339|regret|後悔する／後悔，遺憾||
-340|excuse|言い訳／を許す||
-341|court|裁判所，中庭||
-342|solve|を解決する||
-343|threaten|を脅かす||
-344|enable|に可能にさせる||
-345|unfortunately|残念なことに，不幸にも||
-346|representation|表現||
-347|procedure|手続き，手順||
-348|expectation|期待，予想||
-349|asset|資産||
-350|dump|投げ捨てる||
-351|citizen|市民，国民||
-352|occupation|職業||
-353|restore|を元に戻す，を修復する||
-354|significance|重要性||
-355|flow|流れる||
-356|failure|失敗||
-357|earnings|収益，稼ぎ||
-358|disease|病気，疾患||
-359|peer|同僚，仲間||
-360|strategy|戦略||
-361|remarkable|目立った||
-362|heel|かかと||
-363|definitely|絶対に，確実に||
-364|ordinary|ふつうの，いつもの||
-365|isolate|を孤立させる，隔離する||
-366|competitive|競争力のある，競争による||
+335|prior|優先の，前の|Prior experience is not necessary.|前の経験は必要ない。
+336|fire|首にする，火をつける／火，火事|The company fired two workers.|会社は2人の労働者を首にした。
+337|assessment|評価，査定|The teacher wrote an assessment.|先生は評価を書いた。
+338|engaged|に従事して，忙しくして|She is engaged in medical research.|彼女は医学研究に従事している。
+339|regret|後悔する／後悔，遺憾|I regret saying those words.|あの言葉を言ったことを後悔している。
+340|excuse|言い訳／を許す|That is a poor excuse.|それはお粗末な言い訳だ。
+341|court|裁判所，中庭|The case finally went to court.|その事件はついに裁判所へ行った。
+342|solve|を解決する|Can you solve this puzzle?|このパズルを解けますか。
+343|threaten|を脅かす|Pollution threatens many animals.|汚染が多くの動物を脅かす。
+344|enable|に可能にさせる|This tool enables quick work.|この道具は速い作業を可能にする。
+345|unfortunately|残念なことに，不幸にも|Unfortunately, the shop was closed.|残念なことに店は閉まっていた。
+346|representation|表現|The painting is a representation of peace.|その絵は平和の表現だ。
+347|procedure|手続き，手順|Follow the safety procedure.|安全の手順に従いなさい。
+348|expectation|期待，予想|The result matched our expectations.|結果は私たちの期待に合った。
+349|asset|資産|His house is his main asset.|彼の家が主な資産だ。
+350|dump|投げ捨てる|Do not dump trash here.|ここにごみを投げ捨てるな。
+351|citizen|市民，国民|Every citizen has the right to vote.|市民には皆投票の権利がある。
+352|occupation|職業|Please write your occupation here.|ここに職業を書いてください。
+353|restore|を元に戻す，を修復する|They restored the old temple.|彼らは古い寺を元に戻した。
+354|significance|重要性|I understand the significance now.|今その重要性が分かる。
+355|flow|流れる|The river flows to the sea.|その川は海へ流れる。
+356|failure|失敗|Failure teaches us many things.|失敗は多くを教えてくれる。
+357|earnings|収益，稼ぎ|The company reported higher earnings.|会社はより高い収益を報告した。
+358|disease|病気，疾患|This disease spreads quickly.|この病気は急速に広がる。
+359|peer|同僚，仲間|He respects his peers.|彼は仲間を尊敬している。
+360|strategy|戦略|We need a better strategy.|もっと良い戦略が必要だ。
+361|remarkable|目立った|She made remarkable progress.|彼女は目立った進歩をした。
+362|heel|かかと|My heel hurts after running.|走ったあとかかとが痛い。
+363|definitely|絶対に，確実に|I will definitely be there.|絶対にそこへ行きます。
+364|ordinary|ふつうの，いつもの|It was an ordinary weekday.|それはふつうの平日だった。
+365|isolate|を孤立させる，隔離する|The storm isolated the village.|嵐がその村を孤立させた。
+366|competitive|競争力のある，競争による|The price is very competitive.|その価格は非常に競争力がある。
 367|progress|進歩，前進|She is making good progress.|彼女は順調に進歩している。
 368|typical|典型的な|It was a typical summer day.|典型的な夏の日だった。
-369|compete|競争する||
-370|assault|暴行，攻撃||
-371|conviction|信念||
-372|terrible|ひどい，恐ろしい||
-373|bill|請求書||
-374|pain|痛み，苦痛||
-375|emphasize|を強調する，力説する||
-376|weather|天候，天気||
-377|immigrant|移民||
-378|interpret|を解釈する，受け取る||
-379|thick|厚い||
-380|merchant|商人||
-381|physics|物理学||
-382|trigger|引き金||
-383|status|状態，身分||
+369|compete|競争する|Ten teams competed yesterday.|昨日10チームが競争した。
+370|assault|暴行，攻撃|The assault happened at night.|その暴行は夜に起きた。
+371|conviction|信念|He spoke with deep conviction.|彼は深い信念をもって語った。
+372|terrible|ひどい，恐ろしい|The weather was terrible today.|今日は天気がひどかった。
+373|bill|請求書|Please pay the bill by Friday.|金曜までに請求書を払ってください。
+374|pain|痛み，苦痛|I felt a sharp pain.|鋭い痛みを感じた。
+375|emphasize|を強調する，力説する|He emphasized the main point.|彼は要点を強調した。
+376|weather|天候，天気|The weather changed suddenly.|天候が急に変わった。
+377|immigrant|移民|Many immigrants settled here.|多くの移民がここに定住した。
+378|interpret|を解釈する，受け取る|How do you interpret this poem?|この詩をどう解釈しますか。
+379|thick|厚い|The book is very thick.|その本はとても厚い。
+380|merchant|商人|A rich merchant built this house.|裕福な商人がこの家を建てた。
+381|physics|物理学|She studies physics at college.|彼女は大学で物理学を学ぶ。
+382|trigger|引き金|He pulled the trigger of the toy.|彼はおもちゃの引き金を引いた。
+383|status|状態，身分|Check the status of your order.|注文の状態を確認して。
 384|worth|の価値がある，(～するに)値する|The book is worth reading.|その本は読む価値がある。
-385|relation|関係性||
-386|later|後に||
-387|political|政治の||
-388|truth|真実||
-389|partly|部分的に||
-390|observe|を観察する||
-391|stream|流れ||
-392|oppose|反対する||
-393|quite|かなり||
-394|conscious|意識して||
-395|intend|意図する||
-396|operation|操作，作用||
+385|relation|関係性|There is no relation between them.|それらの間に関係性はない。
+386|later|後に|I will call you later.|後で電話します。
+387|political|政治の|He wrote a political article.|彼は政治の記事を書いた。
+388|truth|真実|Please tell me the truth.|真実を話してください。
+389|partly|部分的に|The story is partly true.|その話は部分的に本当だ。
+390|observe|を観察する|We observed the stars all night.|一晩中星を観察した。
+391|stream|流れ|A small stream runs behind the house.|家の裏を小さな流れが走る。
+392|oppose|反対する|Many people opposed the plan.|多くの人がその計画に反対した。
+393|quite|かなり|The test was quite difficult.|その試験はかなり難しかった。
+394|conscious|意識して|He is conscious of his mistakes.|彼は自分の誤りを意識している。
+395|intend|意図する|I intend to study abroad.|私は留学するつもりだ。
+396|operation|操作，作用|The operation of this machine is easy.|この機械の操作は簡単だ。
 397|recommend|を推薦する，を勧める|I recommend this restaurant.|このレストランをおすすめします。
-398|feature|特徴／を目玉とする||
-399|consideration|考慮，考察||
-400|diet|食事，食事療法||
-401|horror|恐怖||
+398|feature|特徴／を目玉とする|This camera has a useful feature.|このカメラには便利な特徴がある。
+399|consideration|考慮，考察|Your idea needs more consideration.|あなたの案はもっと考慮が必要だ。
+400|diet|食事，食事療法|A balanced diet keeps you healthy.|釣り合いの取れた食事が健康を保つ。
+401|horror|恐怖|She screamed in horror.|彼女は恐怖で叫んだ。
 402|population|人口，国民|The population of the town is falling.|町の人口が減っている。
-403|necessarily|必然的に||
-404|agree|同意する||
-405|whether|どちらか||
-406|analysis|分析||
-407|conflict|対立，争い||
-408|extreme|極端な||
-409|wherever|どこでも||
-410|source|情報源，原因||
-411|objective|目標，目的地||
-412|rural|田舎の||
-413|headline|見出し，表題||
-414|analyst|分析者||
-415|sign|標識，印，合図||
-416|clue|手がかり，糸口||
-417|controversial|議論の的になる，論争上の||
+403|necessarily|必然的に|Cheap does not necessarily mean bad.|安いことは必然的に悪いとは限らない。
+404|agree|同意する|I agree with your opinion.|あなたの意見に同意する。
+405|whether|どちらか|I don't know whether he will come.|彼が来るかどうか分からない。
+406|analysis|分析|The analysis took three days.|その分析は3日かかった。
+407|conflict|対立，争い|The conflict lasted many years.|その対立は何年も続いた。
+408|extreme|極端な|We had extreme cold last winter.|昨冬は極端な寒さだった。
+409|wherever|どこでも|Sit wherever you like.|好きなところどこでも座って。
+410|source|情報源，原因|Name the source of this news.|この報道の情報源を挙げて。
+411|objective|目標，目的地|Our objective is very clear.|私たちの目標はとても明確だ。
+412|rural|田舎の|He grew up in a rural town.|彼は田舎の町で育った。
+413|headline|見出し，表題|The headline caught my eye.|その見出しが目を引いた。
+414|analyst|分析者|The analyst studied the data.|分析者がそのデータを調べた。
+415|sign|標識，印，合図|The sign shows the way.|その標識は道を示している。
+416|clue|手がかり，糸口|The police found a small clue.|警察は小さな手がかりを見つけた。
+417|controversial|議論の的になる，論争上の|The decision was very controversial.|その決定は非常に議論の的になった。
 418|realize|だとわかる，実現する|I realized my mistake too late.|自分の間違いに気づくのが遅すぎた。
-419|surround|を取り囲む，を包囲する||
-420|commission|手数料，委任状||
-421|seek|求める，捜し出す||
+419|surround|を取り囲む，を包囲する|Trees surround the small lake.|木々が小さな湖を取り囲む。
+420|commission|手数料，委任状|The agent takes a small commission.|代理人は少額の手数料を取る。
+421|seek|求める，捜し出す|Many people seek peace.|多くの人が平和を求める。
 422|independent|独立した|He became independent at eighteen.|彼は18歳で自立した。
-423|proposed|提案した||
-424|international|国際的な||
-425|several|幾つかの||
-426|theory|理論，学説||
-427|fellow|仲間||
-428|elderly|年配の||
-429|extension|拡張，延長||
-430|proper|適切な，ふさわしい||
-431|enhance|強調する，(さらに)高める||
-432|beyond|～を越えたところに||
-433|hear from|から便りがある，連絡をもらう||
-434|due|期限の，納期の||
-435|existing|既存の||
-436|expand|拡大する，広がる||
-437|wrong|間違い，誤った||
-438|rebel|反逆者||
-439|suffer|を患う，苦しむ||
-440|within|以内で||
-441|taste|味／な味がする||
-442|democrat|民主主義者||
-443|personally|個人的に，本人自ら||
-444|throughout|至るところに，終始||
-445|preserve|保存／を保存する||
-446|intelligent|かしこい，知能の高い||
-447|slide|滑る||
-448|popular|人気のある||
-449|murder|殺人||
+423|proposed|提案した|The proposed plan was accepted.|提案された計画は受け入れられた。
+424|international|国際的な|This is an international event.|これは国際的な行事だ。
+425|several|幾つかの|I bought several apples.|幾つかのりんごを買った。
+426|theory|理論，学説|His theory explains the result.|彼の理論が結果を説明する。
+427|fellow|仲間|He helped his fellow students.|彼は仲間の生徒を助けた。
+428|elderly|年配の|An elderly man sat beside me.|年配の男性が隣に座った。
+429|extension|拡張，延長|We asked for an extension.|私たちは延長を求めた。
+430|proper|適切な，ふさわしい|Wear proper shoes for hiking.|ハイキングには適切な靴を履いて。
+431|enhance|強調する，(さらに)高める|Practice enhances your skill.|練習は技術をさらに高める。
+432|beyond|～を越えたところに|The village lies beyond the hill.|その村は丘を越えたところにある。
+433|hear from|から便りがある，連絡をもらう|I heard from my old friend.|旧友から便りがあった。
+434|due|期限の，納期の|The report is due on Monday.|報告書は月曜が期限だ。
+435|existing|既存の|We improved the existing system.|既存の仕組みを改善した。
+436|expand|拡大する，広がる|The company expanded quickly.|会社は急速に拡大した。
+437|wrong|間違い，誤った|You took the wrong train.|間違った電車に乗った。
+438|rebel|反逆者|The rebels finally left the city.|反逆者たちはついに街を去った。
+439|suffer|を患う，苦しむ|He suffered a serious injury.|彼は重い怪我を患った。
+440|within|以内で|Please answer within three days.|3日以内で答えてください。
+441|taste|味／な味がする|This soup has a strong taste.|このスープは濃い味がする。
+442|democrat|民主主義者|He is a lifelong democrat.|彼は生涯の民主主義者だ。
+443|personally|個人的に，本人自ら|Personally, I like this design.|個人的にはこのデザインが好きだ。
+444|throughout|至るところに，終始|Flowers bloom throughout the park.|公園の至るところに花が咲く。
+445|preserve|保存／を保存する|We must preserve these old books.|これらの古い本を保存せねばならない。
+446|intelligent|かしこい，知能の高い|Dolphins are very intelligent animals.|イルカはとてもかしこい動物だ。
+447|slide|滑る|The children slid down the hill.|子どもたちは丘を滑り降りた。
+448|popular|人気のある|This singer is popular now.|この歌手は今人気がある。
+449|murder|殺人|The novel is about a murder.|その小説は殺人についてだ。
 450|attend|出席する，付き添う|All students must attend the ceremony.|生徒は全員式に出席しなければならない。
-451|constantly|常に||
-452|drift|漂流||
+451|constantly|常に|He is constantly checking his phone.|彼は常に電話を確認している。
+452|drift|漂流|The boat began to drift away.|船は漂流し始めた。
 453|result|結果|The result surprised everyone.|その結果は皆を驚かせた。
-454|priority|優先度，優先権||
-455|joint|継目，関節||
-456|viewer|観察者，視聴者||
-457|satellite|衛星||
-458|distant|遠く離れた||
-459|delivery|配達||
+454|priority|優先度，優先権|Safety is our first priority.|安全が最も高い優先度だ。
+455|joint|継目，関節|My knee joint hurts today.|今日はひざの関節が痛い。
+456|viewer|観察者，視聴者|The show has many viewers.|その番組には多くの視聴者がいる。
+457|satellite|衛星|The satellite sends weather data.|衛星が天気のデータを送る。
+458|distant|遠く離れた|We saw a distant mountain.|遠く離れた山が見えた。
+459|delivery|配達|The delivery arrived this morning.|配達は今朝届いた。
 460|anxious|心配して，不安な|She is anxious about the result.|彼女は結果を心配している。
-461|towards|の方へ||
-462|employee|従業員||
-463|significant|重要な||
+461|towards|の方へ|He walked towards the station.|彼は駅の方へ歩いた。
+462|employee|従業員|The shop has ten employees.|その店には従業員が10人いる。
+463|significant|重要な|This is a significant change.|これは重要な変化だ。
 464|particular|特定の|Do you have a particular plan?|特定の計画はありますか。
-465|pick up|拾う||
-466|criticism|批判||
+465|pick up|拾う|Please pick up that pen.|そのペンを拾ってください。
+466|criticism|批判|He accepted the criticism calmly.|彼は批判を冷静に受け入れた。
 467|appear|現れる|A rainbow appeared after the rain.|雨のあとに虹が現れた。
-468|permission|許可，認可||
-469|virus|ウイルス||
-470|deny|を否定する||
-471|valuable|貴重な，価値のある||
-472|comprehensive|包括的な，理解力のある||
-473|till|まで||
-474|properly|適切に||
-475|vulnerable|傷つきやすい||
-476|directly|直接，直接的に||
-477|occupy|占める||
+468|permission|許可，認可|You need permission to enter.|入るには許可が必要だ。
+469|virus|ウイルス|A virus spread across the country.|ウイルスが国中に広がった。
+470|deny|を否定する|He denied taking the money.|彼は金を取ったことを否定した。
+471|valuable|貴重な，価値のある|This is valuable advice.|これは貴重な助言だ。
+472|comprehensive|包括的な，理解力のある|We made a comprehensive plan.|包括的な計画を作った。
+473|till|まで|Wait here till I return.|戻るまでここで待って。
+474|properly|適切に|Close the door properly.|ドアを適切に閉めて。
+475|vulnerable|傷つきやすい|Young plants are vulnerable to cold.|若い植物は寒さに傷つきやすい。
+476|directly|直接，直接的に|Please speak to me directly.|直接私に話してください。
+477|occupy|占める|Books occupy most of the shelf.|本が棚の大半を占めている。
 478|curious|好奇心が強い|Children are naturally curious.|子どもは生まれつき好奇心が強い。
-479|vary|多様化する，異なる||
-480|stare|じっと見つめる||
-481|decade|10年間||
-482|armed|武装した||
-483|seem|の様に見える，思われる||
-484|fate|運命，宿命||
-485|convince|を納得させる||
-486|criminal|犯罪の||
-487|stable|安定した||
-488|naked|裸の||
-489|Jewish|ユダヤ人||
-490|senate|上院||
-491|hide|隠す，隠れる||
-492|recovery|回復||
-493|bond|拘束，束縛||
-494|portrait|肖像画||
-495|intervention|介在，仲裁||
-496|consistent|一貫した，矛盾のない||
-497|investigator|捜査官||
-498|normally|通常は，普通に||
-499|conclude|を締めくくる，終える||
-500|well-known|よく知られた，有名な||
-501|development|発展，発達，開発||
-502|desire|願望／切望する||
+479|vary|多様化する，異なる|Prices vary from shop to shop.|値段は店によって異なる。
+480|stare|じっと見つめる|He stared at the painting.|彼はその絵をじっと見つめた。
+481|decade|10年間|The city changed in one decade.|その都市は10年間で変わった。
+482|armed|武装した|Armed guards stood at the gate.|武装した警備員が門に立っていた。
+483|seem|の様に見える，思われる|You seem tired today.|今日は疲れているように見える。
+484|fate|運命，宿命|Nobody knows his fate.|誰も彼の運命を知らない。
+485|convince|を納得させる|She convinced me to join.|彼女は私を参加するよう納得させた。
+486|criminal|犯罪の|He studied criminal law.|彼は犯罪の法律を学んだ。
+487|stable|安定した|Prices have been stable lately.|最近、値段は安定している。
+488|naked|裸の|The baby was naked and crying.|赤ちゃんは裸で泣いていた。
+489|Jewish|ユダヤ人|They visited a Jewish museum.|彼らはユダヤ人の博物館を訪れた。
+490|senate|上院|The senate voted on the bill.|上院はその法案を採決した。
+491|hide|隠す，隠れる|He hid the letter quickly.|彼はすぐ手紙を隠した。
+492|recovery|回復|Her recovery took two months.|彼女の回復には2か月かかった。
+493|bond|拘束，束縛|Nothing could break their bond.|何も彼らの結びつきを断てなかった。
+494|portrait|肖像画|A portrait hangs on the wall.|肖像画が壁に掛かっている。
+495|intervention|介在，仲裁|His intervention stopped the fight.|彼の仲裁が喧嘩を止めた。
+496|consistent|一貫した，矛盾のない|Her answers were consistent.|彼女の答えは一貫していた。
+497|investigator|捜査官|The investigator asked many questions.|捜査官は多くの質問をした。
+498|normally|通常は，普通に|I normally wake up at six.|通常は6時に起きる。
+499|conclude|を締めくくる，終える|He concluded his speech politely.|彼は演説を丁寧に締めくくった。
+500|well-known|よく知られた，有名な|She is a well-known writer.|彼女はよく知られた作家だ。
+501|development|発展，発達，開発|The development of this town continues.|この町の発展は続いている。
+502|desire|願望／切望する|He has a strong desire to win.|彼には強い勝利への願望がある。
 503|probably|おそらく|It will probably rain tonight.|今夜はたぶん雨だ。
-504|respond|反応する，と返答する||
-505|involvement|関与，関わり合い||
-506|minister|大臣，牧師||
-507|patch|当て布，布切れ||
-508|chairman|会長||
-509|ethnic|民族の，民族特有の||
-510|lap|ひざ||
-511|refer|を参考にする，参照する||
-512|repair|を修理する，修繕する||
-513|current|現在の，現行の||
-514|obviously|明らかに，明白に||
-515|ceiling|天井||
-516|philosopher|哲学者||
-517|suicide|自殺||
-518|social|社会の||
-519|potential|潜在的な||
-520|sum|合計||
-521|draw|描く，引っ張る||
-522|rough|ごつごつした，粗い||
-523|fundamental|基本的な，基礎の||
-524|association|協会，連合||
-525|yield|産出する，生ずる||
-526|politician|政治家||
-527|department|部門||
-528|palm|手のひら||
-529|phenomenon|現象||
+504|respond|反応する，と返答する|She responded to my email quickly.|彼女は私のメールにすぐ返答した。
+505|involvement|関与，関わり合い|His involvement was very small.|彼の関与はごく小さかった。
+506|minister|大臣，牧師|The minister visited the school.|大臣が学校を訪れた。
+507|patch|当て布，布切れ|She sewed a patch on the jeans.|彼女はジーンズに当て布を縫った。
+508|chairman|会長|The chairman opened the meeting.|会長が会議を開いた。
+509|ethnic|民族の，民族特有の|The city holds an ethnic festival.|その市は民族の祭りを開く。
+510|lap|ひざ|The cat sat on my lap.|猫が私のひざに座った。
+511|refer|を参考にする，参照する|Please refer to page ten.|10ページを参照してください。
+512|repair|を修理する，修繕する|He repaired my broken watch.|彼は壊れた時計を修理した。
+513|current|現在の，現行の|What is the current price?|現在の値段はいくらですか。
+514|obviously|明らかに，明白に|He was obviously very happy.|彼は明らかにとても喜んでいた。
+515|ceiling|天井|A lamp hangs from the ceiling.|ランプが天井から下がっている。
+516|philosopher|哲学者|The philosopher wrote many books.|その哲学者は多くの本を書いた。
+517|suicide|自殺|The film deals with suicide.|その映画は自殺を扱っている。
+518|social|社会の|Language is a social tool.|言語は社会の道具だ。
+519|potential|潜在的な|He is a potential leader.|彼は潜在的な指導者だ。
+520|sum|合計|The sum of these numbers is ten.|これらの数の合計は10だ。
+521|draw|描く，引っ張る|She drew a picture of her dog.|彼女は犬の絵を描いた。
+522|rough|ごつごつした，粗い|The road was rough and narrow.|道はごつごつして狭かった。
+523|fundamental|基本的な，基礎の|This is a fundamental rule.|これは基本的な規則だ。
+524|association|協会，連合|He joined a local association.|彼は地域の協会に入った。
+525|yield|産出する，生ずる|This field yields much rice.|この畑は多くの米を産出する。
+526|politician|政治家|The politician answered our questions.|政治家は私たちの質問に答えた。
+527|department|部門|She works in the sales department.|彼女は営業部門で働いている。
+528|palm|手のひら|He held a coin in his palm.|彼は手のひらに硬貨を握っていた。
+529|phenomenon|現象|This is a rare natural phenomenon.|これは珍しい自然現象だ。
 530|admit|を認める，入ることを許す|He admitted that he was wrong.|彼は自分が間違っていたと認めた。
-531|critical|極めて重要な，批判的な||
-532|throat|のど||
-533|adapt|に適合させる||
-534|largely|主として||
-535|belong|に属する||
-536|attempt|試み||
-537|impress|感銘を与える||
-538|submit|を提出する，に服従する||
-539|bored|退屈した||
-540|electric|電気の||
-541|civilized|発達した文明をもつ，教養の高い||
-542|combat|戦闘||
-543|destruction|破壊||
-544|ally|と同盟する||
-545|similarly|同様に||
-546|complete|完全な，全部の||
-547|complicated|複雑な||
-548|mad|狂った||
-549|hate|ひどく嫌う||
-550|urban|都会の||
-551|reputation|評判||
-552|phase|段階||
-553|philosophy|哲学||
-554|shooting|撮影，射撃||
-555|include|を含む||
-556|medium|中間の||
-557|contemporary|現在の，現代の||
-558|jury|陪審員||
-559|huge|巨大な，莫大な||
-560|die|死ぬ||
+531|critical|極めて重要な，批判的な|This step is critical for safety.|この段階は安全に極めて重要だ。
+532|throat|のど|My throat hurts this morning.|今朝はのどが痛い。
+533|adapt|に適合させる|Plants adapt to their climate.|植物は気候に適合する。
+534|largely|主として|The audience was largely young.|観客は主として若かった。
+535|belong|に属する|This book belongs to me.|この本は私に属している。
+536|attempt|試み|His first attempt failed.|彼の最初の試みは失敗した。
+537|impress|感銘を与える|Her speech impressed everyone.|彼女の演説は皆に感銘を与えた。
+538|submit|を提出する，に服従する|Submit your report by noon.|正午までに報告書を提出して。
+539|bored|退屈した|The children looked bored.|子どもたちは退屈そうに見えた。
+540|electric|電気の|We bought an electric fan.|電気の扇風機を買った。
+541|civilized|発達した文明をもつ，教養の高い|They built a civilized society.|彼らは教養の高い社会を築いた。
+542|combat|戦闘|The soldiers trained for combat.|兵士たちは戦闘の訓練をした。
+543|destruction|破壊|The storm caused great destruction.|嵐は大きな破壊をもたらした。
+544|ally|と同盟する|The country allied with its neighbor.|その国は隣国と同盟した。
+545|similarly|同様に|Similarly, the second test failed.|同様に2度目の試験も失敗した。
+546|complete|完全な，全部の|We need a complete list.|完全な一覧が必要だ。
+547|complicated|複雑な|The rules are too complicated.|規則が複雑すぎる。
+548|mad|狂った|The noise drove him mad.|騒音が彼を狂わせた。
+549|hate|ひどく嫌う|I hate waiting in line.|列に並ぶのがひどく嫌いだ。
+550|urban|都会の|Urban life can be stressful.|都会の生活は疲れることがある。
+551|reputation|評判|The restaurant has a good reputation.|そのレストランは評判が良い。
+552|phase|段階|We finished the first phase.|最初の段階を終えた。
+553|philosophy|哲学|He teaches philosophy at college.|彼は大学で哲学を教える。
+554|shooting|撮影，射撃|The shooting of the film ended.|その映画の撮影は終わった。
+555|include|を含む|The price includes breakfast.|値段は朝食を含む。
+556|medium|中間の|I wear a medium size shirt.|私は中間のサイズのシャツを着る。
+557|contemporary|現在の，現代の|She likes contemporary art.|彼女は現代の美術が好きだ。
+558|jury|陪審員|The jury reached a decision.|陪審員は結論に達した。
+559|huge|巨大な，莫大な|A huge tree fell down.|巨大な木が倒れた。
+560|die|死ぬ|The old dog died peacefully.|その老犬は安らかに死んだ。
 561|examine|を検査する|The doctor examined my throat.|医者は私ののどを調べた。
-562|element|要素，元素||
-563|mainly|主に，もっぱら||
-564|success|成功||
-565|exist|存在する，実在する||
-566|gentle|穏やかな，物柔らかな||
-567|occasion|特定の時，行事，祭典||
-568|accompany|に付き添う，に同行する||
-569|virtually|実質的に||
-570|withdraw|を撤回する，引き下がる/引き出す||
-571|leisure|余暇||
-572|representative|代表者，代理人||
-573|mass|塊，大部分||
-574|honest|正直な||
-575|imply|をほのめかす||
-576|mixture|混合物||
+562|element|要素，元素|Trust is a key element.|信頼は重要な要素だ。
+563|mainly|主に，もっぱら|We mainly eat rice.|私たちは主に米を食べる。
+564|success|成功|His success surprised no one.|彼の成功は誰も驚かせなかった。
+565|exist|存在する，実在する|Such a machine does not exist.|そんな機械は存在しない。
+566|gentle|穏やかな，物柔らかな|She has a gentle voice.|彼女は穏やかな声をしている。
+567|occasion|特定の時，行事，祭典|We met on a special occasion.|特別な行事で私たちは会った。
+568|accompany|に付き添う，に同行する|My mother accompanied me there.|母が私にそこへ同行した。
+569|virtually|実質的に|The work is virtually finished.|その仕事は実質的に終わっている。
+570|withdraw|を撤回する，引き下がる/引き出す|He withdrew his question.|彼は質問を撤回した。
+571|leisure|余暇|I read books in my leisure time.|余暇に本を読む。
+572|representative|代表者，代理人|She is our class representative.|彼女は私たちのクラス代表者だ。
+573|mass|塊，大部分|A mass of snow fell down.|雪の塊が落ちてきた。
+574|honest|正直な|He is an honest person.|彼は正直な人だ。
+575|imply|をほのめかす|Her smile implied agreement.|彼女の笑みは同意をほのめかした。
+576|mixture|混合物|This is a mixture of sand and salt.|これは砂と塩の混合物だ。
 577|aware|気づいている，知っている|Are you aware of the risk?|その危険に気づいていますか。
-578|device|装置，仕掛け||
-579|deputy|代理||
-580|smell|においがする||
-581|overall|全体的な，全部の||
+578|device|装置，仕掛け|This device measures temperature.|この装置は温度を測る。
+579|deputy|代理|The deputy answered for the mayor.|代理が市長に代わって答えた。
+580|smell|においがする|The kitchen smells wonderful.|台所がすばらしいにおいがする。
+581|overall|全体的な，全部の|The overall result was good.|全体的な結果は良かった。
 582|custom|習慣|Bowing is a Japanese custom.|おじぎは日本の習慣だ。
-583|roll|転がる||
-584|exposure|暴露，さらすこと||
-585|term|期間，専門用語||
+583|roll|転がる|The ball rolled under the desk.|ボールが机の下に転がった。
+584|exposure|暴露，さらすこと|Long exposure to sun is harmful.|日光に長くさらすのは有害だ。
+585|term|期間，専門用語|This term is hard to explain.|この専門用語は説明しにくい。
 586|industry|産業|The car industry is changing fast.|自動車産業は急速に変化している。
-587|otherwise|さもなければ||
-588|electronic|電子の||
+587|otherwise|さもなければ|Hurry, otherwise we will be late.|急いで、さもなければ遅れる。
+588|electronic|電子の|I sent an electronic message.|電子のメッセージを送った。
 589|proud|自慢に思って，誇らしげな|I'm proud of my brother.|弟を誇りに思う。
-590|task|仕事||
-591|concentration|集中，専念||
-592|debate|討論||
+590|task|仕事|This task takes about an hour.|この仕事は約1時間かかる。
+591|concentration|集中，専念|Study needs deep concentration.|勉強には深い集中が必要だ。
+592|debate|討論|The class held a short debate.|クラスは短い討論を行った。
 593|suggest|を提案する|I suggest we leave early.|早めに出発することを提案します。
-594|derive|を引き出す||
-595|lawn|芝生||
-596|compose|を構成する，作曲する||
-597|react|反応する||
-598|proportion|比率，割合||
-599|confident|自信のある||
-600|manufacturing|製造している||
-601|multiple|掛け算する||
-602|chest|たんす，チェスト||
-603|authority|権威，権力||
-604|creature|生き物||
-605|wear|身につけている||
-606|swear|誓う||
-607|survival|生存||
-608|attractive|魅力的な，興味をそそる||
-609|union|統合，一致||
-610|prisoner|囚人||
-611|sight|見ること，視力||
-612|expose|明らかにする||
-613|therefore|それゆえ，だから||
-614|prosecutor|検察官||
-615|present|現在の，出席して||
-616|publication|出版物||
-617|dull|面白みのない，鈍い||
-618|aspect|局面，側面，表情||
+594|derive|を引き出す|We derive energy from food.|私たちは食物からエネルギーを引き出す。
+595|lawn|芝生|He cut the lawn yesterday.|彼は昨日芝生を刈った。
+596|compose|を構成する，作曲する|Twelve members compose the team.|12人がチームを構成する。
+597|react|反応する|How did she react to the news?|彼女はその知らせにどう反応したか。
+598|proportion|比率，割合|The proportion of girls increased.|女子の比率が増えた。
+599|confident|自信のある|He looks confident today.|彼は今日自信がありそうだ。
+600|manufacturing|製造している|The manufacturing cost is high.|製造している費用が高い。
+601|multiple|掛け算する|She has multiple reasons to go.|彼女には行く理由が複数ある。
+602|chest|たんす，チェスト|He keeps his socks in the chest.|彼はたんすに靴下をしまう。
+603|authority|権威，権力|The police have full authority here.|警察はここで完全な権限を持つ。
+604|creature|生き物|Strange creatures live in the deep sea.|奇妙な生き物が深海に住む。
+605|wear|身につけている|She wears glasses for reading.|彼女は読書用の眼鏡をかけている。
+606|swear|誓う|He swore to tell the truth.|彼は真実を話すと誓った。
+607|survival|生存|Water is necessary for survival.|水は生存に必要だ。
+608|attractive|魅力的な，興味をそそる|The offer sounds very attractive.|その申し出はとても魅力的だ。
+609|union|統合，一致|The two clubs formed a union.|2つのクラブが統合体を作った。
+610|prisoner|囚人|The prisoner escaped last night.|囚人が昨夜逃げた。
+611|sight|見ること，視力|His sight is getting weaker.|彼の視力は弱くなっている。
+612|expose|明らかにする|The report exposed the truth.|その報告は真実を明らかにした。
+613|therefore|それゆえ，だから|It rained. Therefore, we stayed home.|雨が降った。それゆえ家にいた。
+614|prosecutor|検察官|The prosecutor asked a sharp question.|検察官が鋭い質問をした。
+615|present|現在の，出席して|All members were present today.|全会員が今日出席していた。
+616|publication|出版物|This publication comes out monthly.|この出版物は毎月出る。
+617|dull|面白みのない，鈍い|The lecture was rather dull.|その講義はかなり面白みがなかった。
+618|aspect|局面，側面，表情|Consider every aspect of the plan.|計画のあらゆる側面を考えて。
 619|advice|助言|Thank you for your advice.|助言をありがとう。
-620|fair|公平な||
-621|via|～経由で||
-622|mayor|市長，町長||
-623|lose|失う||
-624|judgement|判断||
-625|observer|観察者||
-626|tongue|言葉，舌||
-627|defendant|被告人||
-628|handle|を手で扱う，に対処する／取っ手||
-629|component|成分||
-630|declare|を宣言する，公表する||
-631|squeeze|絞る，押しつぶす||
-632|maintain|を維持する||
-633|passage|一節||
-634|bitter|苦い||
-635|whom|誰を||
-636|split|割る，裂く||
-637|capable|可能性がある，才能のある||
+620|fair|公平な|The judge made a fair decision.|審判は公平な判定をした。
+621|via|～経由で|We flew to Rome via Paris.|パリ経由でローマへ飛んだ。
+622|mayor|市長，町長|The mayor opened the new library.|市長が新しい図書館を開いた。
+623|lose|失う|Don't lose your ticket.|切符を失くすな。
+624|judgement|判断|I trust your judgement.|君の判断を信頼する。
+625|observer|観察者|An observer recorded the results.|観察者が結果を記録した。
+626|tongue|言葉，舌|He burned his tongue on the soup.|彼はスープで舌をやけどした。
+627|defendant|被告人|The defendant said nothing at all.|被告人は何も言わなかった。
+628|handle|を手で扱う，に対処する／取っ手|Handle this box with care.|この箱は丁寧に手で扱って。
+629|component|成分|Salt is a component of seawater.|塩は海水の成分だ。
+630|declare|を宣言する，公表する|They declared the race over.|彼らはレースの終了を宣言した。
+631|squeeze|絞る，押しつぶす|Squeeze the lemon into the glass.|レモンをグラスに絞って。
+632|maintain|を維持する|He maintains a healthy diet.|彼は健康的な食事を維持している。
+633|passage|一節|Read this passage aloud.|この一節を声に出して読んで。
+634|bitter|苦い|This coffee tastes bitter.|このコーヒーは苦い味がする。
+635|whom|誰を|The man whom I met was kind.|私が会った男性は親切だった。
+636|split|割る，裂く|He split the wood with an axe.|彼は斧で木を割った。
+637|capable|可能性がある，才能のある|She is capable of great work.|彼女は優れた仕事をする才能がある。
 638|habit|習慣|Reading before bed is a good habit.|寝る前の読書は良い習慣だ。
-639|concrete|具体的な||
-640|remaining|残りの||
-641|depend|依存する||
-642|dependent|依存している||
-643|so that|とても…なので||
-644|argue|だと主張する，感情的に論じる||
-645|consequence|結果，影響||
-646|outcome|結果，成果||
-647|heritage|遺産||
-648|ban|を禁止する／禁止||
-649|master|主人，支配人||
-650|biological|生物学上の||
-651|voter|投票者||
-652|landscape|風景，眺め||
-653|moment|瞬間，瞬時||
-654|occasionally|時折，たまに||
-655|practical|実用的な||
-656|wipe|を拭く||
+639|concrete|具体的な|Give me a concrete example.|具体的な例を挙げて。
+640|remaining|残りの|Eat the remaining bread.|残りのパンを食べて。
+641|depend|依存する|Children depend on their parents.|子どもは親に依存する。
+642|dependent|依存している|He is dependent on his family.|彼は家族に依存している。
+643|so that|とても…なので|He spoke slowly so that we understood.|私たちが分かるよう彼はゆっくり話した。
+644|argue|だと主張する，感情的に論じる|She argued that the rule was unfair.|彼女はその規則が不公平だと主張した。
+645|consequence|結果，影響|He accepted the consequences calmly.|彼はその結果を冷静に受け入れた。
+646|outcome|結果，成果|The outcome pleased everyone.|その結果は皆を喜ばせた。
+647|heritage|遺産|This castle is a world heritage.|この城は世界の遺産だ。
+648|ban|を禁止する／禁止|The city banned smoking outside.|市は屋外の喫煙を禁止した。
+649|master|主人，支配人|The dog waited for its master.|犬は主人を待った。
+650|biological|生物学上の|We studied biological changes.|生物学上の変化を学んだ。
+651|voter|投票者|Many voters came early today.|今日は多くの投票者が早く来た。
+652|landscape|風景，眺め|The landscape here is beautiful.|ここの風景は美しい。
+653|moment|瞬間，瞬時|Please wait a moment.|少しの間お待ちください。
+654|occasionally|時折，たまに|I occasionally visit my aunt.|時折おばを訪ねる。
+655|practical|実用的な|This bag is very practical.|このかばんはとても実用的だ。
+656|wipe|を拭く|Wipe the table before dinner.|夕食前にテーブルを拭いて。
 657|tradition|伝統|This festival is an old tradition.|この祭りは古い伝統だ。
-658|affair|事柄||
-659|reward|褒美，報酬||
-660|award|賞||
+658|affair|事柄|That is a private affair.|それは個人的な事柄だ。
+659|reward|褒美，報酬|He received a small reward.|彼は小さな褒美を受け取った。
+660|award|賞|She won an award for singing.|彼女は歌で賞を取った。
 661|purpose|目的，目標|What is the purpose of your visit?|訪問の目的は何ですか。
-662|gather|を集める||
-663|respect|尊敬||
-664|advertise|宣伝する，広告する||
-665|eventually|結局は，やがて||
-666|approval|承認||
-667|reach|到着する||
-668|afraid|心配して，恐れて||
-669|commercial|商業の||
-670|harmful|有害な||
-671|suggestion|提案||
-672|contrast|対照||
-673|coal|石炭||
-674|headquarters|本部||
-675|absorb|を吸収する||
-676|proposal|提案||
-677|consumer|消費者||
-678|historic|由緒のある，歴史に残る||
-679|pursue|追い求める，追跡する||
-680|immediate|即座の||
-681|knee|膝||
+662|gather|を集める|We gathered leaves in the park.|公園で葉を集めた。
+663|respect|尊敬|I have great respect for her.|彼女に大きな尊敬を抱いている。
+664|advertise|宣伝する，広告する|They advertise on television.|彼らはテレビで宣伝する。
+665|eventually|結局は，やがて|Eventually he found the key.|結局は彼が鍵を見つけた。
+666|approval|承認|We need your approval first.|まずあなたの承認が必要だ。
+667|reach|到着する|We reached the top at noon.|正午に頂上に到着した。
+668|afraid|心配して，恐れて|I am afraid of high places.|私は高い所を恐れている。
+669|commercial|商業の|This is a commercial building.|これは商業の建物だ。
+670|harmful|有害な|Too much salt is harmful.|塩の取りすぎは有害だ。
+671|suggestion|提案|Thank you for your suggestion.|提案をありがとう。
+672|contrast|対照|The contrast between them is clear.|両者の対照は明らかだ。
+673|coal|石炭|This country still burns coal.|この国はまだ石炭を燃やす。
+674|headquarters|本部|Their headquarters is in Osaka.|彼らの本部は大阪にある。
+675|absorb|を吸収する|The cloth absorbs water quickly.|その布は水を素早く吸収する。
+676|proposal|提案|The proposal was finally rejected.|その提案はついに拒否された。
+677|consumer|消費者|Consumers want lower prices.|消費者はより安い値段を望む。
+678|historic|由緒のある，歴史に残る|It was a historic moment.|それは歴史に残る瞬間だった。
+679|pursue|追い求める，追跡する|She pursued her dream for years.|彼女は何年も夢を追い求めた。
+680|immediate|即座の|We need an immediate answer.|即座の答えが必要だ。
+681|knee|膝|He hurt his knee while running.|彼は走っていて膝を痛めた。
 682|apply|適用する|She applied for a part-time job.|彼女はアルバイトに応募した。
-683|existence|存在||
-684|dismiss|を退出させる||
-685|regional|地方の||
-686|war|戦争||
-687|factor|要因||
-688|constant|絶え間ない，一定の||
+683|existence|存在|Nobody knew of its existence.|誰もその存在を知らなかった。
+684|dismiss|を退出させる|The teacher dismissed the class early.|先生は早くクラスを退出させた。
+685|regional|地方の|This is a regional newspaper.|これは地方の新聞だ。
+686|war|戦争|The war ended fifty years ago.|その戦争は50年前に終わった。
+687|factor|要因|Price is an important factor.|値段は重要な要因だ。
+688|constant|絶え間ない，一定の|The constant noise tired me.|絶え間ない騒音に疲れた。
 689|encourage|を勇気づける，励ます|My teacher encouraged me to try.|先生は挑戦するよう励ましてくれた。
-690|prayer|祈り，礼拝||
-691|forward|前方へ||
-692|principle|原理||
-693|supporter|支援者||
-694|stimulate|を刺激する，元気づける||
-695|address|住所||
-696|accept|受け入れる||
+690|prayer|祈り，礼拝|She said a short prayer.|彼女は短い祈りを唱えた。
+691|forward|前方へ|Please step forward slowly.|ゆっくり前方へ進んでください。
+692|principle|原理|This machine works on a simple principle.|この機械は単純な原理で動く。
+693|supporter|支援者|The team has loyal supporters.|そのチームには忠実な支援者がいる。
+694|stimulate|を刺激する，元気づける|Music stimulates the brain.|音楽は脳を刺激する。
+695|address|住所|Please write your address here.|ここに住所を書いてください。
+696|accept|受け入れる|He accepted my apology.|彼は私の謝罪を受け入れた。
 697|increase|を増やす，増大させる|Sales increased by ten percent.|売上が10パーセント増加した。
 698|remind|に思い出させる，に気付かせる|Please remind me to call him.|彼に電話するよう言ってね。
-699|proof|証拠||
-700|appropriate|適当な||
-701|deserve|値する||
-702|establishment|設立||
-703|definition|定義||
-704|economic|経済の||
+699|proof|証拠|Do you have any proof?|何か証拠はありますか。
+700|appropriate|適当な|Choose an appropriate word.|適当な語を選びなさい。
+701|deserve|値する|She deserves this award.|彼女はこの賞に値する。
+702|establishment|設立|The establishment of the school took years.|学校の設立には何年もかかった。
+703|definition|定義|Look up the definition online.|定義をネットで調べて。
+704|economic|経済の|The economic news was good.|経済の知らせは良かった。
 705|introduce|紹介する|Let me introduce my sister.|妹を紹介させてください。
-706|convey|伝える，運ぶ||
-707|partnership|共同，提携||
-708|attorney|弁護士，代理人||
-709|index|索引||
-710|circumstance|状況，環境||
-711|conversation|会話||
-712|poet|詩人||
-713|craft|工芸，技能||
-714|spill|をこぼす||
-715|reject|拒絶する，断る||
-716|province|州||
-717|admission|入場，入場料||
-718|consumption|消費，消費高||
-719|bishop|司教||
-720|fuel|燃料||
-721|guess|推測する||
-722|economy|経済，節約||
-723|construct|を組み立てる，建設する||
-724|assistance|支援，手伝い||
-725|implement|実施する／道具，手段||
-726|peak|頂上||
-727|sculpture|彫刻||
+706|convey|伝える，運ぶ|Words cannot convey my feelings.|言葉では私の気持ちを伝えられない。
+707|partnership|共同，提携|They formed a new partnership.|彼らは新しい共同関係を結んだ。
+708|attorney|弁護士，代理人|Her attorney spoke to the judge.|彼女の弁護士が裁判官に話した。
+709|index|索引|Use the index to find it.|索引を使って探しなさい。
+710|circumstance|状況，環境|Under these circumstances, we waited.|この状況では私たちは待った。
+711|conversation|会話|We had a long conversation.|私たちは長い会話をした。
+712|poet|詩人|The poet read his own work.|詩人は自作を読んだ。
+713|craft|工芸，技能|This village is famous for craft.|この村は工芸で有名だ。
+714|spill|をこぼす|He spilled milk on the floor.|彼は床に牛乳をこぼした。
+715|reject|拒絶する，断る|They rejected my idea quickly.|彼らは私の考えをすぐ拒絶した。
+716|province|州|She lives in a northern province.|彼女は北の州に住んでいる。
+717|admission|入場，入場料|Admission is free for children.|子どもの入場は無料だ。
+718|consumption|消費，消費高|Water consumption rose in summer.|夏に水の消費が増えた。
+719|bishop|司教|The bishop visited the old church.|司教が古い教会を訪れた。
+720|fuel|燃料|The car needs more fuel.|その車はもっと燃料が要る。
+721|guess|推測する|Can you guess my age?|私の年齢を推測できますか。
+722|economy|経済，節約|The economy is growing slowly.|経済はゆっくり成長している。
+723|construct|を組み立てる，建設する|They constructed a wooden bridge.|彼らは木の橋を組み立てた。
+724|assistance|支援，手伝い|Thank you for your assistance.|支援をありがとう。
+725|implement|実施する／道具，手段|The school implemented a new rule.|学校は新しい規則を実施した。
+726|peak|頂上|We reached the peak at dawn.|夜明けに頂上に着いた。
+727|sculpture|彫刻|A stone sculpture stands here.|石の彫刻がここに立っている。
 728|various|様々な|We tried various methods.|さまざまな方法を試した。
-729|symptom|症状||
-730|tribe|部族||
-731|agriculture|農業||
-732|dealer|販売業者||
-733|unlike|と異なって，とは違って||
-734|invent|を発明する||
-735|treaty|条約||
-736|trust|信頼，信用||
-737|instruction|指示，指導||
-738|comedy|喜劇||
-739|absolutely|絶対に||
-740|alliance|同盟，協定||
-741|law|法律||
-742|evil|邪悪な||
-743|chamber|小部屋||
-744|suppose|だと思う，と仮定する||
-745|develop|を発達させる，を開発する||
-746|remember|覚えている，を思い出す||
-747|entitle|と題する，権利を与える||
-748|significantly|かなり||
-749|confidence|自信，信頼||
-750|national|国の，国民の||
-751|whenever|する時はいつでも||
-752|rush|突進する，急ぐ，急ぎ||
-753|female|雌の，女性の||
-754|identity|同一性||
-755|independence|独立，自立||
-756|match|試合||
-757|fix|固定する||
-758|cooperation|協力||
-759|coalition|連立，連合||
-760|detect|を検出する，を感知する||
-761|interior|内部の||
-762|alter|を変える||
-763|retirement|退職，引退||
-764|sensitive|敏感な||
-765|reply|返答する||
-766|opposition|反対，対立||
-767|export|を輸出する||
-768|psychologist|心理学者||
-769|pension|年金||
-770|correspondent|特派員||
-771|duty|職務，関税||
-772|attach|を貼り付ける||
-773|personality|人格，性格||
-774|fully|十分に，完全に||
-775|scheme|計画，案||
-776|install|導入する||
-777|ingredient|材料，原料，成分||
-778|flood|洪水||
-779|folk|人々||
-780|election|選挙||
-781|despite|にも関わらず||
-782|revolution|革命||
-783|promotion|昇進，進級||
-784|industrial|産業の||
-785|dramatic|劇的な||
-786|lean|傾く，寄りかかる||
-787|exhibition|展示||
-788|compromise|妥協，和解||
-789|anxiety|心配，不安||
-790|relevant|関連のある，適切な||
-791|observation|観察||
-792|manager|部長，支配人||
-793|defeat|負かす，打ち破る||
-794|surgery|手術，外科||
-795|reaction|反応||
-796|abandon|を捨て去る||
-797|crisis|危機，難局||
-798|comfort|快適さ／慰める||
-799|wise|賢い||
-800|sustain|保持する，続けてする||
-801|hire|雇う||
-802|slip|滑る||
-803|entirely|完全に，全く||
-804|totally|完全に，全く||
-805|extensive|広範な||
-806|represent|を表す，を代表する||
-807|receive|を受理する，受け取る||
-808|employ|雇う||
-809|hang|つるす，掛ける||
-810|context|文脈||
-811|famous|有名な||
-812|assumption|想定，仮説||
-813|charge|非難，料金，管理／に請求する||
-814|civilization|文明||
-815|aid|援助／助ける||
-816|poll|投票||
-817|scientific|科学の||
-818|pleasure|楽しみ，喜び||
-819|dislike|嫌がる，嫌い||
+729|symptom|症状|A cough is a common symptom.|咳はよくある症状だ。
+730|tribe|部族|The tribe lives near the river.|その部族は川の近くに住む。
+731|agriculture|農業|Agriculture supports this small village.|農業がこの小さな村を支えている。
+732|dealer|販売業者|The car dealer offered a discount.|自動車の販売業者は割引を申し出た。
+733|unlike|と異なって，とは違って|Unlike his brother, he is quiet.|兄と異なって彼は静かだ。
+734|invent|を発明する|He invented a useful tool.|彼は便利な道具を発明した。
+735|treaty|条約|The two nations signed a treaty.|両国は条約に署名した。
+736|trust|信頼，信用|Trust is hard to build.|信頼は築くのが難しい。
+737|instruction|指示，指導|Read the instructions carefully.|指示を注意深く読んで。
+738|comedy|喜劇|We watched a funny comedy.|面白い喜劇を見た。
+739|absolutely|絶対に|You are absolutely right.|君は絶対に正しい。
+740|alliance|同盟，協定|The two countries formed an alliance.|両国は同盟を結んだ。
+741|law|法律|Everyone must obey the law.|誰もが法律に従わねばならない。
+742|evil|邪悪な|The story has an evil king.|その話には邪悪な王が出る。
+743|chamber|小部屋|A small chamber lies below.|小部屋が下にある。
+744|suppose|だと思う，と仮定する|I suppose he is right.|彼は正しいと思う。
+745|develop|を発達させる，を開発する|She developed her own method.|彼女は独自の方法を発達させた。
+746|remember|覚えている，を思い出す|I remember his kind face.|彼の優しい顔を覚えている。
+747|entitle|と題する，権利を与える|The book is entitled Hope.|その本は「希望」と題されている。
+748|significantly|かなり|Sales rose significantly last month.|先月、売上がかなり増えた。
+749|confidence|自信，信頼|He answered with confidence.|彼は自信をもって答えた。
+750|national|国の，国民の|Today is a national holiday.|今日は国の祝日だ。
+751|whenever|する時はいつでも|Come whenever you like.|好きな時はいつでも来て。
+752|rush|突進する，急ぐ，急ぎ|He rushed out of the room.|彼は部屋から突進して出た。
+753|female|雌の，女性の|A female bird built the nest.|雌の鳥が巣を作った。
+754|identity|同一性|The police checked his identity.|警察は彼の同一性を確認した。
+755|independence|独立，自立|The country won its independence.|その国は独立を勝ち取った。
+756|match|試合|The match starts at three.|試合は3時に始まる。
+757|fix|固定する|Fix the shelf to the wall.|棚を壁に固定して。
+758|cooperation|協力|Thank you for your cooperation.|協力をありがとう。
+759|coalition|連立，連合|A coalition formed a new government.|連立が新しい政府を作った。
+760|detect|を検出する，を感知する|The device detects smoke quickly.|その装置は煙を素早く検出する。
+761|interior|内部の|The interior wall is white.|内部の壁は白い。
+762|alter|を変える|She altered her plan slightly.|彼女は計画を少し変えた。
+763|retirement|退職，引退|He enjoys his quiet retirement.|彼は静かな退職生活を楽しんでいる。
+764|sensitive|敏感な|My skin is sensitive to soap.|私の肌は石鹸に敏感だ。
+765|reply|返答する|Please reply by tomorrow.|明日までに返答してください。
+766|opposition|反対，対立|The plan met strong opposition.|その計画は強い反対に遭った。
+767|export|を輸出する|This country exports rice.|この国は米を輸出する。
+768|psychologist|心理学者|The psychologist studied young children.|心理学者は幼い子どもを研究した。
+769|pension|年金|He lives on a small pension.|彼は少ない年金で暮らす。
+770|correspondent|特派員|Our correspondent sent a report.|特派員が報告を送った。
+771|duty|職務，関税|It is my duty to help.|助けるのが私の職務だ。
+772|attach|を貼り付ける|Attach the photo to the form.|写真を用紙に貼り付けて。
+773|personality|人格，性格|She has a bright personality.|彼女は明るい人格だ。
+774|fully|十分に，完全に|I fully understand your point.|あなたの言い分を十分に理解した。
+775|scheme|計画，案|They planned a clever scheme.|彼らは巧妙な計画を立てた。
+776|install|導入する|We installed new software yesterday.|昨日新しいソフトを導入した。
+777|ingredient|材料，原料，成分|Mix all the ingredients well.|材料を全てよく混ぜて。
+778|flood|洪水|The flood damaged many houses.|洪水が多くの家を壊した。
+779|folk|人々|The local folk are friendly.|地元の人々は親切だ。
+780|election|選挙|The election takes place in May.|選挙は5月に行われる。
+781|despite|にも関わらず|Despite the rain, we walked home.|雨にも関わらず歩いて帰った。
+782|revolution|革命|The revolution changed the country.|革命がその国を変えた。
+783|promotion|昇進，進級|He received a promotion last year.|彼は昨年昇進した。
+784|industrial|産業の|This is an industrial area.|ここは産業の地域だ。
+785|dramatic|劇的な|There was a dramatic change.|劇的な変化があった。
+786|lean|傾く，寄りかかる|Do not lean on that door.|そのドアに寄りかかるな。
+787|exhibition|展示|The exhibition opens tomorrow.|展示は明日始まる。
+788|compromise|妥協，和解|They finally reached a compromise.|彼らはついに妥協に達した。
+789|anxiety|心配，不安|Her anxiety slowly disappeared.|彼女の心配は徐々に消えた。
+790|relevant|関連のある，適切な|Please give relevant examples.|関連のある例を挙げてください。
+791|observation|観察|His observation was very sharp.|彼の観察はとても鋭かった。
+792|manager|部長，支配人|The manager approved my plan.|部長は私の計画を承認した。
+793|defeat|負かす，打ち破る|Our team defeated theirs easily.|我々のチームは彼らを楽に負かした。
+794|surgery|手術，外科|He had surgery last week.|彼は先週手術を受けた。
+795|reaction|反応|Her reaction surprised me.|彼女の反応は私を驚かせた。
+796|abandon|を捨て去る|They abandoned the old house.|彼らは古い家を捨て去った。
+797|crisis|危機，難局|The company faced a serious crisis.|会社は深刻な危機に直面した。
+798|comfort|快適さ／慰める|This chair gives great comfort.|この椅子は大きな快適さを与える。
+799|wise|賢い|That was a wise choice.|それは賢い選択だった。
+800|sustain|保持する，続けてする|Plants sustain life on earth.|植物が地上の生命を保持する。
+801|hire|雇う|The shop hired two students.|その店は学生を2人雇った。
+802|slip|滑る|She slipped on the wet floor.|彼女は濡れた床で滑った。
+803|entirely|完全に，全く|The story is entirely true.|その話は完全に本当だ。
+804|totally|完全に，全く|I totally forgot the meeting.|会議を完全に忘れていた。
+805|extensive|広範な|He has extensive knowledge of birds.|彼は鳥について広範な知識を持つ。
+806|represent|を表す，を代表する|This line represents a river.|この線は川を表す。
+807|receive|を受理する，受け取る|I received your letter today.|今日あなたの手紙を受け取った。
+808|employ|雇う|The factory employs many people.|その工場は多くの人を雇う。
+809|hang|つるす，掛ける|Hang your coat on the hook.|コートをフックにつるして。
+810|context|文脈|Guess the meaning from context.|文脈から意味を推測して。
+811|famous|有名な|This town is famous for cheese.|この町はチーズで有名だ。
+812|assumption|想定，仮説|Your assumption was completely wrong.|君の想定は完全に間違っていた。
+813|charge|非難，料金，管理／に請求する|There is no charge for delivery.|配達に料金はかからない。
+814|civilization|文明|An ancient civilization lived here.|古代の文明がここにあった。
+815|aid|援助／助ける|They sent aid to the village.|彼らは村に援助を送った。
+816|poll|投票|The poll showed a close race.|投票は接戦を示した。
+817|scientific|科学の|We need scientific evidence.|科学の証拠が必要だ。
+818|pleasure|楽しみ，喜び|Reading is my greatest pleasure.|読書は私の最大の楽しみだ。
+819|dislike|嫌がる，嫌い|I dislike loud places.|私は騒がしい場所を嫌がる。
 820|environment|環境|We must protect the environment.|私たちは環境を守らねばならない。
-821|girlfriend|女友達||
-822|coast|海岸，沿岸地域||
-823|evolution|進化，発展||
-824|recall|呼び戻す，思い出す||
-825|agreement|同意||
-826|county|州||
-827|nation|国家||
-828|negotiate|交渉する||
-829|depth|深さ||
-830|musician|音楽家||
-831|threat|脅威||
-832|transform|を変える||
+821|girlfriend|女友達|He introduced his girlfriend to us.|彼は女友達を私たちに紹介した。
+822|coast|海岸，沿岸地域|We drove along the coast.|海岸沿いを車で走った。
+823|evolution|進化，発展|The book explains evolution simply.|その本は進化を分かりやすく説明する。
+824|recall|呼び戻す，思い出す|I cannot recall his name.|彼の名前を思い出せない。
+825|agreement|同意|We finally reached an agreement.|私たちはついに同意に達した。
+826|county|州|This county has many farms.|この州には農場が多い。
+827|nation|国家|The whole nation celebrated together.|国家全体が共に祝った。
+828|negotiate|交渉する|They negotiated for two hours.|彼らは2時間交渉した。
+829|depth|深さ|What is the depth of the pool?|プールの深さはどのくらいですか。
+830|musician|音楽家|The musician played beautifully.|その音楽家は美しく演奏した。
+831|threat|脅威|Fire is a serious threat.|火は深刻な脅威だ。
+832|transform|を変える|Technology transformed our daily lives.|科学技術が日常生活を変えた。
 833|method|方法|This method saves time.|この方法は時間を節約する。
-834|jail|刑務所，拘置所||
-835|university|大学||
-836|primitive|原始的な||
-837|emerge|現れる||
-838|physical|身体の，肉体の||
-839|false|誤った||
-840|highlight|目立たせる，最も明るい部分||
-841|estimate|を推定する，評価する||
-842|reasonable|理性のある||
-843|efficient|効率のいい||
-844|initiative|主導権，独創力||
-845|recommendation|推薦||
-846|according|による，準じて||
-847|implication|含み，裏の意味||
-848|seldom|めったに～しない||
-849|pregnant|妊娠している||
+834|jail|刑務所，拘置所|He spent a year in jail.|彼は1年刑務所で過ごした。
+835|university|大学|She teaches at a university.|彼女は大学で教えている。
+836|primitive|原始的な|They used primitive stone tools.|彼らは原始的な石の道具を使った。
+837|emerge|現れる|The sun emerged from the clouds.|太陽が雲から現れた。
+838|physical|身体の，肉体の|Physical exercise keeps you fit.|身体の運動が体調を保つ。
+839|false|誤った|That statement is completely false.|その発言は完全に誤っている。
+840|highlight|目立たせる，最も明るい部分|Highlight the important words here.|ここの重要な語を目立たせて。
+841|estimate|を推定する，評価する|We estimated the cost roughly.|費用をおおよそ推定した。
+842|reasonable|理性のある|He gave a reasonable answer.|彼は理性のある答えをした。
+843|efficient|効率のいい|This is an efficient method.|これは効率のいい方法だ。
+844|initiative|主導権，独創力|She took the initiative quickly.|彼女は素早く主導権を取った。
+845|recommendation|推薦|I need a recommendation letter.|推薦状が必要だ。
+846|according|による，準じて|According to him, it is safe.|彼によると、それは安全だ。
+847|implication|含み，裏の意味|I understood the implication at once.|その含みをすぐ理解した。
+848|seldom|めったに～しない|He seldom watches television.|彼はめったにテレビを見ない。
+849|pregnant|妊娠している|His sister is pregnant now.|彼の姉は今妊娠している。
 850|society|社会|Technology changes society.|科学技術は社会を変える。
-851|breath|息，呼吸||
-852|employer|雇用者||
-853|advertising|広告||
+851|breath|息，呼吸|Take a deep breath now.|今深く息を吸って。
+852|employer|雇用者|My employer is very kind.|私の雇用者はとても親切だ。
+853|advertising|広告|Advertising costs a lot of money.|広告は多くの費用がかかる。
 854|equipment|装置，設備|The team bought new equipment.|チームは新しい用具を買った。
-855|universe|宇宙||
-856|addition|追加||
-857|visible|目に見える||
+855|universe|宇宙|The universe keeps expanding.|宇宙は広がり続けている。
+856|addition|追加|We need one addition here.|ここに1つ追加が必要だ。
+857|visible|目に見える|The stars are clearly visible.|星がはっきり目に見える。
 858|opinion|意見，考え|In my opinion, he is right.|私の意見では彼は正しい。
-859|decline|断る，拒否する||
-860|male|男性，雄||
-861|somehow|どうにか||
-862|suit|適合する||
-863|latter|後者の，後半の||
-864|merely|単に||
-865|appearance|出現，外見||
-866|fairly|かなり，公平に||
-867|chapter|章，区切り||
-868|nearby|近くの||
-869|settle|決着させる，解決する||
-870|contribute|に寄付する，捧げる||
+859|decline|断る，拒否する|He declined our kind invitation.|彼は私たちの親切な招待を断った。
+860|male|男性，雄|A male lion has long hair.|雄のライオンは長い毛がある。
+861|somehow|どうにか|Somehow we finished on time.|どうにか時間内に終えた。
+862|suit|適合する|This color suits you well.|この色はあなたによく適合する。
+863|latter|後者の，後半の|I prefer the latter choice.|後者の選択のほうが好きだ。
+864|merely|単に|He is merely a beginner.|彼は単に初心者だ。
+865|appearance|出現，外見|Her sudden appearance surprised us.|彼女の突然の出現は私たちを驚かせた。
+866|fairly|かなり，公平に|The test was fairly easy.|試験はかなり簡単だった。
+867|chapter|章，区切り|Read the first chapter tonight.|今夜最初の章を読んで。
+868|nearby|近くの|A nearby shop sells fresh bread.|近くの店が新鮮なパンを売っている。
+869|settle|決着させる，解決する|They settled the argument calmly.|彼らは口論を冷静に決着させた。
+870|contribute|に寄付する，捧げる|He contributed money to the school.|彼は学校に金を寄付した。
 871|foreign|外国の|She speaks three foreign languages.|彼女は外国語を3つ話す。
-872|extend|延びる，延長する||
-873|policy|政策，方針||
-874|cope|対処する||
-875|religion|宗教，信仰||
-876|conclusion|結論||
-877|treatment|扱い，処理||
-878|alternative|代替物，代案||
-879|reverse|反対の，裏側の||
-880|former|前の||
-881|victim|犠牲者||
-882|distinction|区別，相違||
-883|lab|研究室||
-884|literary|文学の||
-885|twin|ふたご||
+872|extend|延びる，延長する|They extended the deadline by a week.|彼らは締切を1週間延長した。
+873|policy|政策，方針|The new policy starts in April.|新しい政策は4月に始まる。
+874|cope|対処する|She copes with stress well.|彼女はストレスにうまく対処する。
+875|religion|宗教，信仰|He studies world religions.|彼は世界の宗教を研究する。
+876|conclusion|結論|We came to a clear conclusion.|明確な結論に達した。
+877|treatment|扱い，処理|The treatment took two weeks.|その処置は2週間かかった。
+878|alternative|代替物，代案|Is there any other alternative?|他に何か代替物はありますか。
+879|reverse|反対の，裏側の|Write on the reverse side.|反対の側に書いてください。
+880|former|前の|The former teacher visited us.|前の先生が訪ねてきた。
+881|victim|犠牲者|The victim received quick help.|犠牲者はすぐ助けを受けた。
+882|distinction|区別，相違|There is a clear distinction.|明確な区別がある。
+883|lab|研究室|We worked in the lab all day.|私たちは一日中研究室で作業した。
+884|literary|文学の|She won a literary prize.|彼女は文学の賞を取った。
+885|twin|ふたご|The twins look exactly alike.|そのふたごはそっくりだ。
 886|patient|我慢強い，患者|The nurse cared for the patient.|看護師は患者を看病した。
-887|state|状態||
-888|forever|永遠に||
-889|propose|を提案する，申し出る||
-890|pleasant|楽しい||
-891|content|中身，内容，目次||
-892|order|命令||
-893|superior|より優れた||
-894|pretend|のふりをする||
+887|state|状態|The house is in poor state.|その家は悪い状態だ。
+888|forever|永遠に|I will remember this forever.|これを永遠に覚えているだろう。
+889|propose|を提案する，申し出る|He proposed a simple solution.|彼は単純な解決策を提案した。
+890|pleasant|楽しい|We had a pleasant evening.|楽しい夜を過ごした。
+891|content|中身，内容，目次|Check the content of the box.|箱の中身を確認して。
+892|order|命令|The captain gave a clear order.|隊長は明確な命令を出した。
+893|superior|より優れた|This model is superior to that one.|この型はあれより優れている。
+894|pretend|のふりをする|He pretended to be asleep.|彼は眠っているふりをした。
 895|unique|他に類を見ない，唯一の|Her style is unique.|彼女のスタイルは独特だ。
-896|preparation|準備||
+896|preparation|準備|Preparation takes the most time.|準備が最も時間がかかる。
 897|afford|余裕がある|We can't afford a new car.|新しい車を買う余裕はない。
-898|congress|会議||
-899|nuclear|核の||
-900|regarding|に関して||
-901|party|政党||
-902|finance|財政||
-903|financial|財政の||
-904|intelligently|かしこく||
+898|congress|会議|The congress met last week.|その会議は先週開かれた。
+899|nuclear|核の|They discussed nuclear power.|彼らは核の力について議論した。
+900|regarding|に関して|I wrote regarding your letter.|あなたの手紙に関して書いた。
+901|party|政党|Which party did you vote for?|どの政党に投票しましたか。
+902|finance|財政|The city's finance is improving.|市の財政は改善している。
+903|financial|財政の|They faced serious financial trouble.|彼らは深刻な財政の問題に直面した。
+904|intelligently|かしこく|She answered the question intelligently.|彼女はその質問にかしこく答えた。
 905|describe|を述べる，描写する|Can you describe the man?|その男の特徴を説明できますか。
-906|operate|操作する||
-907|embrace|を抱きしめる，を抱擁する||
-908|resistance|抵抗||
-909|dozen|12の||
-910|corridor|廊下||
-911|background|背景||
-912|strike|叩く，打つ||
-913|educate|教育する，訓練する||
-914|fabric|織物||
-915|clerk|事務員，社員||
-916|evidence|証拠||
-917|concentrate|に集中する||
-918|funding|資金調達||
-919|extraordinary|普通でない，異常な||
-920|civilian|民間人，一般市民||
-921|history|歴史||
-922|maintenance|持続，保全||
-923|faith|信頼，信用||
-924|alike|よく似た||
-925|grammar|文法||
-926|vehicle|乗り物，車||
-927|remain|のままである，残る||
+906|operate|操作する|Can you operate this machine?|この機械を操作できますか。
+907|embrace|を抱きしめる，を抱擁する|The mother embraced her child.|母は子どもを抱きしめた。
+908|resistance|抵抗|The plan met little resistance.|その計画はほとんど抵抗に遭わなかった。
+909|dozen|12の|I bought a dozen eggs.|卵を12個買った。
+910|corridor|廊下|Do not run in the corridor.|廊下を走るな。
+911|background|背景|The background of the photo is dark.|写真の背景は暗い。
+912|strike|叩く，打つ|He struck the drum hard.|彼は太鼓を強く叩いた。
+913|educate|教育する，訓練する|Schools educate young citizens.|学校は若い市民を教育する。
+914|fabric|織物|This fabric feels very soft.|この織物はとても柔らかい。
+915|clerk|事務員，社員|The clerk checked my ticket.|事務員が切符を確認した。
+916|evidence|証拠|There is no clear evidence.|明確な証拠がない。
+917|concentrate|に集中する|I cannot concentrate on study today.|今日は勉強に集中できない。
+918|funding|資金調達|The project needs more funding.|その事業はもっと資金調達が必要だ。
+919|extraordinary|普通でない，異常な|It was an extraordinary event.|それは普通でない出来事だった。
+920|civilian|民間人，一般市民|Many civilians left the area.|多くの民間人が地域を離れた。
+921|history|歴史|He teaches Japanese history.|彼は日本の歴史を教える。
+922|maintenance|持続，保全|The old building needs maintenance.|その古い建物は保全が必要だ。
+923|faith|信頼，信用|I have faith in you.|私はあなたを信頼している。
+924|alike|よく似た|The brothers look very alike.|その兄弟はとてもよく似ている。
+925|grammar|文法|English grammar is not easy.|英文法は簡単ではない。
+926|vehicle|乗り物，車|No vehicle can pass here.|ここは乗り物が通れない。
+927|remain|のままである，残る|Please remain seated until then.|それまで座ったままでいてください。
 928|benefit|利益／に利益をもたらす|Exercise has many benefits.|運動には多くの利点がある。
-929|length|長さ||
-930|carbon|炭素||
+929|length|長さ|Measure the length of the rope.|ロープの長さを測って。
+930|carbon|炭素|Plants take in carbon dioxide.|植物は二酸化炭素を取り込む。
 931|useful|役に立つ|This app is really useful.|このアプリは本当に役に立つ。
-932|fat|太った||
-933|provision|供給，支給||
-934|subject|教科，主題||
-935|region|地域||
-936|boundary|境界||
-937|adopt|を自分のものにする，を取り入れる||
-938|wisdom|知恵，賢明さ||
+932|fat|太った|The cat is getting fat.|その猫は太ってきている。
+933|provision|供給，支給|The provision of water stopped.|水の供給が止まった。
+934|subject|教科，主題|Math is my favorite subject.|数学は私の好きな教科だ。
+935|region|地域|This region grows good apples.|この地域は良いりんごを育てる。
+936|boundary|境界|The river forms the boundary.|その川が境界をなす。
+937|adopt|を自分のものにする，を取り入れる|They adopted a new rule.|彼らは新しい規則を取り入れた。
+938|wisdom|知恵，賢明さ|Age often brings wisdom.|年齢はしばしば知恵をもたらす。
 939|express|表現する，を言い表す|She expressed her thanks in a letter.|彼女は手紙で感謝を表した。
-940|brick|れんが||
-941|creation|創造||
-942|greet|を出迎える，に挨拶する||
-943|block|を妨げる||
+940|brick|れんが|The wall is made of brick.|その壁はれんがでできている。
+941|creation|創造|The creation of art takes time.|芸術の創造には時間がかかる。
+942|greet|を出迎える，に挨拶する|She greeted us at the door.|彼女は玄関で私たちを出迎えた。
+943|block|を妨げる|A large truck blocked the road.|大きなトラックが道を妨げた。
 944|escape|逃れる，脱走する|The bird escaped from its cage.|鳥がかごから逃げた。
-945|obtain|を手に入れる，を獲得する||
-946|gradually|次第に，だんだんに||
+945|obtain|を手に入れる，を獲得する|He obtained a very rare book.|彼はとても珍しい本を手に入れた。
+946|gradually|次第に，だんだんに|The sky gradually grew dark.|空が次第に暗くなった。
 947|obvious|明白な|The answer is obvious.|答えは明らかだ。
-948|innocent|罪のない，無罪の||
-949|distribution|分布，配分||
-950|exactly|正確に||
-951|continent|大陸||
-952|arms|武器||
-953|compound|調合する||
-954|public|公共の||
-955|awareness|気づき||
-956|remove|を取り除く，を除去する||
-957|opponent|相手||
-958|neighborhood|近所||
-959|while|一方で||
-960|council|議会，会議||
-961|suitable|適した，好都合な||
-962|secretary|秘書||
-963|participate|参加する||
-964|politics|政治||
-965|accurate|正確な，的確な||
-966|drug|麻薬，薬||
-967|strange|奇妙な，異常な||
-968|conventional|従来の||
-969|organization|組織，団体，協会||
-970|desperate|やけくその||
-971|moral|道徳の，道徳的な||
-972|intellectual|知的な||
-973|emphasis|強調||
-974|particularly|特に，とりわけ||
-975|founder|創設者||
+948|innocent|罪のない，無罪の|The court found him innocent.|裁判所は彼を罪のない者とした。
+949|distribution|分布，配分|The distribution of food began.|食料の配分が始まった。
+950|exactly|正確に|Tell me exactly what happened.|何が起きたか正確に教えて。
+951|continent|大陸|Africa is a large continent.|アフリカは大きな大陸だ。
+952|arms|武器|The soldiers carried heavy arms.|兵士たちは重い武器を携えていた。
+953|compound|調合する|The pharmacist compounded the medicine.|薬剤師が薬を調合した。
+954|public|公共の|This is a public park.|これは公共の公園だ。
+955|awareness|気づき|Public awareness is slowly growing.|人々の気づきが徐々に高まっている。
+956|remove|を取り除く，を除去する|Please remove your shoes here.|ここで靴を取り除いてください。
+957|opponent|相手|My opponent played very well.|相手はとても上手に戦った。
+958|neighborhood|近所|This neighborhood is very quiet.|この近所はとても静かだ。
+959|while|一方で|He likes tea, while I like coffee.|彼は紅茶が好きで一方で私はコーヒーだ。
+960|council|議会，会議|The council approved the plan.|議会はその計画を承認した。
+961|suitable|適した，好都合な|This film is suitable for children.|この映画は子どもに適している。
+962|secretary|秘書|The secretary answered the phone.|秘書が電話に出た。
+963|participate|参加する|Everyone can participate freely.|誰でも自由に参加できる。
+964|politics|政治|He has no interest in politics.|彼は政治に興味がない。
+965|accurate|正確な，的確な|Your measurement is quite accurate.|あなたの測定はかなり正確だ。
+966|drug|麻薬，薬|Take this drug after meals.|食後にこの薬を飲んで。
+967|strange|奇妙な，異常な|I heard a strange sound.|奇妙な音が聞こえた。
+968|conventional|従来の|We used a conventional method.|従来の方法を使った。
+969|organization|組織，団体，協会|She works for a small organization.|彼女は小さな組織で働く。
+970|desperate|やけくその|He made a desperate attempt.|彼はやけくその試みをした。
+971|moral|道徳の，道徳的な|The story teaches a moral lesson.|その話は道徳の教訓を教える。
+972|intellectual|知的な|They had an intellectual discussion.|彼らは知的な議論をした。
+973|emphasis|強調|He put emphasis on daily practice.|彼は毎日の練習に強調を置いた。
+974|particularly|特に，とりわけ|I particularly like this song.|特にこの歌が好きだ。
+975|founder|創設者|The founder started it alone.|創設者は一人で始めた。
 976|consider|について考える，だと見なす|Please consider my offer.|私の申し出をよく考えてください。
-977|emotional|感情の，情緒の||
-978|infection|感染||
-979|identify|を見分ける||
-980|demand|要求，需要／を要求する||
-981|given|与えられた||
-982|transition|遷移，変遷||
-983|author|著者||
-984|considerable|かなりの，重要な||
+977|emotional|感情の，情緒の|It was an emotional moment.|それは感情のこもった瞬間だった。
+978|infection|感染|Wash your hands to prevent infection.|感染を防ぐため手を洗って。
+979|identify|を見分ける|Can you identify this bird?|この鳥を見分けられますか。
+980|demand|要求，需要／を要求する|The workers made a strong demand.|労働者は強い要求をした。
+981|given|与えられた|Finish it in the given time.|与えられた時間内に終えて。
+982|transition|遷移，変遷|The transition went smoothly.|その遷移は順調に進んだ。
+983|author|著者|The author signed my book.|著者が私の本に署名した。
+984|considerable|かなりの，重要な|It took considerable effort.|かなりの努力がかかった。
 985|graduate|を卒業する|He graduated from high school last year.|彼は昨年高校を卒業した。
-986|conduct|行為||
-987|crowd|群衆||
-988|nature|自然||
-989|broad|広い||
-990|physician|医師，内科医||
-991|persuade|を説得する||
-992|achievement|達成||
-993|witness|目撃者，証人／を目撃する||
-994|face|直面する／顔||
-995|focus|焦点||
-996|federal|連邦の||
-997|associate|結びつけて考える，賛同する||
-998|aim|ねらいをつける||
-999|deficit|赤字||
-1000|activist|活動家||
-1001|primary|最初の||
-1002|joy|喜び，歓喜||
-1003|inspector|検査官，監査人||
+986|conduct|行為|His conduct was very polite.|彼の行為はとても礼儀正しかった。
+987|crowd|群衆|A large crowd gathered outside.|大きな群衆が外に集まった。
+988|nature|自然|I love walking in nature.|自然の中を歩くのが好きだ。
+989|broad|広い|The river is very broad here.|ここでは川がとても広い。
+990|physician|医師，内科医|The physician examined her carefully.|医師は彼女を注意深く診察した。
+991|persuade|を説得する|He persuaded me to stay.|彼は私を残るよう説得した。
+992|achievement|達成|Passing was a great achievement.|合格は大きな達成だった。
+993|witness|目撃者，証人／を目撃する|The witness described the man.|目撃者はその男の特徴を述べた。
+994|face|直面する／顔|We face a difficult problem.|私たちは難しい問題に直面している。
+995|focus|焦点|The focus of the talk was money.|話の焦点は金だった。
+996|federal|連邦の|This is a federal law.|これは連邦の法律だ。
+997|associate|結びつけて考える，賛同する|I associate summer with the sea.|夏と海を結びつけて考える。
+998|aim|ねらいをつける|He aimed at the target carefully.|彼は的に慎重にねらいをつけた。
+999|deficit|赤字|The company reported a large deficit.|会社は大きな赤字を報告した。
+1000|activist|活動家|The activist gave a short speech.|その活動家は短い演説をした。
+1001|primary|最初の|This is our primary goal.|これが私たちの最初の目標だ。
+1002|joy|喜び，歓喜|Her face showed pure joy.|彼女の顔は純粋な喜びを示した。
+1003|inspector|検査官，監査人|The inspector checked the factory.|検査官が工場を調べた。
 1004|actually|実際に，現実に|Actually, I've never been there.|実は一度も行ったことがない。
-1005|previous|前の||
-1006|variation|変化||
-1007|stupid|馬鹿な，愚かな||
-1008|poverty|貧困，貧乏||
-1009|appeal|訴える，告発する||
-1010|substance|物質，実態||
-1011|regulation|規制，規定||
-1012|bare|裸の||
-1013|awake|目を覚ましている||
-1014|suspect|疑う，だと思う||
-1015|battery|電池||
-1016|income|所得||
-1017|fault|欠点，短所||
-1018|tissue|組織||
-1019|stranger|他人||
+1005|previous|前の|I read the previous chapter again.|前の章をもう一度読んだ。
+1006|variation|変化|There is little variation in price.|値段に変化はほとんどない。
+1007|stupid|馬鹿な，愚かな|That was a stupid question.|それは馬鹿な質問だった。
+1008|poverty|貧困，貧乏|Many families live in poverty.|多くの家族が貧困の中で暮らす。
+1009|appeal|訴える，告発する|She appealed for help loudly.|彼女は大声で助けを訴えた。
+1010|substance|物質，実態|This substance melts easily.|この物質は簡単に溶ける。
+1011|regulation|規制，規定|New regulations start in April.|新しい規制が4月に始まる。
+1012|bare|裸の|He walked on the bare floor.|彼は裸の床を歩いた。
+1013|awake|目を覚ましている|Are you still awake?|まだ目を覚ましていますか。
+1014|suspect|疑う，だと思う|The police suspect the driver.|警察は運転手を疑っている。
+1015|battery|電池|The battery is almost empty.|電池がほとんど切れている。
+1016|income|所得|His income increased this year.|彼の所得は今年増えた。
+1017|fault|欠点，短所|Everyone has some faults.|誰にでも欠点はある。
+1018|tissue|組織|Muscle tissue repairs itself slowly.|筋肉の組織はゆっくり自ら修復する。
+1019|stranger|他人|Don't talk to strangers.|他人に話しかけるな。
 1020|expensive|高価な，費用のかかる|That watch is too expensive.|あの時計は高すぎる。
-1021|difference|違い，差分||
-1022|percentage|割合||
-1023|own|自身の||
-1024|brief|短い，短時間の||
-1025|useless|役に立たない，むだな||
-1026|predict|を予想する，を予測する||
-1027|personnel|人事，職員||
+1021|difference|違い，差分|Can you see the difference?|その違いが分かりますか。
+1022|percentage|割合|A small percentage of students agreed.|わずかな割合の生徒が同意した。
+1023|own|自身の|She has her own room.|彼女は自身の部屋を持っている。
+1024|brief|短い，短時間の|He gave a brief answer.|彼は短い答えをした。
+1025|useless|役に立たない，むだな|This old map is useless.|この古い地図は役に立たない。
+1026|predict|を予想する，を予測する|No one can predict the future.|誰も未来を予想できない。
+1027|personnel|人事，職員|The personnel office is upstairs.|人事の部屋は上の階だ。
 1028|sudden|突然の|There was a sudden change.|突然の変化があった。
-1029|transfer|を移す||
-1030|solid|固い，固形の||
-1031|mess|混乱，錯乱||
-1032|flee|逃げる||
-1033|drain|排出させる，排水をする||
-1034|remark|ことば||
-1035|lecture|講義||
-1036|resolution|解決，決意||
-1037|desert|砂漠||
-1038|advocate|提唱する||
-1039|bet|賭ける||
-1040|characteristic|特有の，独特の||
-1041|education|教育||
-1042|whatever|なんでも||
+1029|transfer|を移す|They transferred him to Osaka.|彼らは彼を大阪に移した。
+1030|solid|固い，固形の|The ice is solid enough.|その氷は十分固い。
+1031|mess|混乱，錯乱|Your room is a complete mess.|あなたの部屋は完全な混乱だ。
+1032|flee|逃げる|The birds fled from the noise.|鳥は騒音から逃げた。
+1033|drain|排出させる，排水をする|Drain the water from the pot.|鍋から水を排出させて。
+1034|remark|ことば|His remark surprised us all.|彼のことばは皆を驚かせた。
+1035|lecture|講義|The lecture lasted two hours.|講義は2時間続いた。
+1036|resolution|解決，決意|They found a peaceful resolution.|彼らは平和的な解決を見つけた。
+1037|desert|砂漠|Few plants grow in the desert.|砂漠ではほとんど植物が育たない。
+1038|advocate|提唱する|She advocates healthy eating.|彼女は健康的な食事を提唱する。
+1039|bet|賭ける|I bet ten dollars on it.|それに10ドル賭けた。
+1040|characteristic|特有の，独特の|This is a characteristic smell.|これは特有のにおいだ。
+1041|education|教育|Education changes people's lives.|教育は人の人生を変える。
+1042|whatever|なんでも|Take whatever you need.|必要なものはなんでも取って。
 1043|cause|原因／の原因となる|The storm caused a lot of damage.|嵐は大きな被害を引き起こした。
-1044|commitment|約束，委託||
-1045|supply|供給||
-1046|temporary|一時的な||
-1047|involve|を含む，を巻き込む||
-1048|meal|食事||
-1049|replace|を取り換える，を交換する||
-1050|expression|表現||
-1051|investor|投資家||
-1052|humanity|人間，人間性||
-1053|majority|大多数||
-1054|possess|を所有する||
-1055|contribution|寄付，貢献||
-1056|frequently|頻繁に||
-1057|shrug|肩をすくめる||
-1058|operator|操作者||
-1059|slightly|わずかに，少し||
-1060|interpretation|解釈，説明||
-1061|rely|頼る||
-1062|reduction|削減，減少||
-1063|whole|全部の||
-1064|purchase|を購入する／購入||
-1065|summit|頂上||
-1066|hell|地獄||
-1067|typically|典型的に||
-1068|admire|を賞賛する||
-1069|literature|文学||
-1070|issue|問題，（雑誌などの）号||
-1071|rent|家賃||
-1072|widely|広範囲に||
-1073|satisfaction|満足||
-1074|worry|心配させる，心配する||
-1075|rub|こする，さする||
-1076|completely|完全に，全く||
-1077|disappear|消える，見えなくなる||
-1078|inflation|膨張||
-1079|maybe|たぶん，おそらく||
-1080|calculate|計算する||
-1081|determine|を決める||
-1082|mexican|メキシコの||
-1083|crop|収穫物，作物||
-1084|prosecution|起訴，告訴||
-1085|toe|つま先，足の指||
-1086|seize|つかむ||
-1087|imagination|想像||
-1088|governor|知事||
-1089|curiosity|好奇心||
-1090|rise|上がる||
-1091|tail|尾||
-1092|except|を除いて||
-1093|lie|横たわる||
-1094|string|紐，糸||
-1095|appoint|任命する，指定する||
-1096|military|軍隊の||
-1097|conference|会議||
-1098|explanation|説明||
-1099|atmosphere|雰囲気||
-1100|toward|向かって，のほうへ||
+1044|commitment|約束，委託|He made a serious commitment.|彼は真剣な約束をした。
+1045|supply|供給|The supply of water is limited.|水の供給は限られている。
+1046|temporary|一時的な|This is only a temporary job.|これは一時的な仕事にすぎない。
+1047|involve|を含む，を巻き込む|The plan involves some risk.|その計画はいくらかの危険を含む。
+1048|meal|食事|We had a light meal.|私たちは軽い食事をとった。
+1049|replace|を取り換える，を交換する|Please replace the old battery.|古い電池を取り換えてください。
+1050|expression|表現|I learned a useful expression.|便利な表現を習った。
+1051|investor|投資家|The investor bought the land.|投資家がその土地を買った。
+1052|humanity|人間，人間性|He showed great humanity there.|彼はそこで大きな人間性を示した。
+1053|majority|大多数|The majority agreed with him.|大多数が彼に同意した。
+1054|possess|を所有する|She possesses a rare talent.|彼女は珍しい才能を所有している。
+1055|contribution|寄付，貢献|Thank you for your contribution.|ご寄付をありがとう。
+1056|frequently|頻繁に|He frequently visits the library.|彼は頻繁に図書館を訪れる。
+1057|shrug|肩をすくめる|He just shrugged and left.|彼は肩をすくめて去った。
+1058|operator|操作者|The operator answered very quickly.|操作者はとても素早く応答した。
+1059|slightly|わずかに，少し|The price rose slightly today.|値段が今日わずかに上がった。
+1060|interpretation|解釈，説明|Her interpretation was quite different.|彼女の解釈はかなり違っていた。
+1061|rely|頼る|You can rely on this map.|この地図には頼っていい。
+1062|reduction|削減，減少|We saw a price reduction.|値段の削減が見られた。
+1063|whole|全部の|He ate the whole cake.|彼はケーキを全部食べた。
+1064|purchase|を購入する／購入|I purchased a new bicycle.|新しい自転車を購入した。
+1065|summit|頂上|We stood on the summit.|私たちは頂上に立った。
+1066|hell|地獄|The heat was like hell.|その暑さは地獄のようだった。
+1067|typically|典型的に|He typically arrives early.|彼は典型的に早く着く。
+1068|admire|を賞賛する|I admire her great courage.|彼女の大きな勇気を賞賛する。
+1069|literature|文学|She studies French literature.|彼女はフランス文学を学ぶ。
+1070|issue|問題，（雑誌などの）号|This is a serious issue.|これは深刻な問題だ。
+1071|rent|家賃|The rent is quite high.|家賃はかなり高い。
+1072|widely|広範囲に|The news spread widely.|その知らせは広範囲に広がった。
+1073|satisfaction|満足|Her smile showed real satisfaction.|彼女の笑みは本当の満足を示した。
+1074|worry|心配させる，心配する|Don't worry about the test.|試験のことを心配するな。
+1075|rub|こする，さする|He rubbed his tired eyes.|彼は疲れた目をこすった。
+1076|completely|完全に，全く|I completely agree with you.|完全にあなたに同意する。
+1077|disappear|消える，見えなくなる|The bird disappeared into the sky.|鳥は空へ消えた。
+1078|inflation|膨張|Inflation raised food prices.|物価の膨張が食料を値上げした。
+1079|maybe|たぶん，おそらく|Maybe he is still sleeping.|たぶん彼はまだ寝ている。
+1080|calculate|計算する|Calculate the total cost first.|まず総費用を計算して。
+1081|determine|を決める|We must determine the date.|日付を決めねばならない。
+1082|mexican|メキシコの|We ate at a Mexican restaurant.|メキシコの料理店で食べた。
+1083|crop|収穫物，作物|The crop grew well this year.|今年は作物がよく育った。
+1084|prosecution|起訴，告訴|The prosecution presented new evidence.|起訴側が新しい証拠を示した。
+1085|toe|つま先，足の指|I hurt my toe on the step.|段差でつま先を痛めた。
+1086|seize|つかむ|He seized my arm suddenly.|彼は突然私の腕をつかんだ。
+1087|imagination|想像|Children have rich imagination.|子どもは豊かな想像力を持つ。
+1088|governor|知事|The governor visited our town.|知事が私たちの町を訪れた。
+1089|curiosity|好奇心|Curiosity finally led him there.|好奇心がついに彼をそこへ導いた。
+1090|rise|上がる|The sun rises in the east.|太陽は東から上がる。
+1091|tail|尾|The dog wagged its tail.|犬は尾を振った。
+1092|except|を除いて|Everyone came except him.|彼を除いて全員来た。
+1093|lie|横たわる|He lay on the warm grass.|彼は温かい草の上に横たわった。
+1094|string|紐，糸|Tie the box with string.|箱を紐で結んで。
+1095|appoint|任命する，指定する|They appointed her as captain.|彼らは彼女を主将に任命した。
+1096|military|軍隊の|He joined a military school.|彼は軍隊の学校に入った。
+1097|conference|会議|The conference starts tomorrow morning.|会議は明日の朝始まる。
+1098|explanation|説明|Your explanation was very clear.|あなたの説明はとても明確だった。
+1099|atmosphere|雰囲気|The shop has a warm atmosphere.|その店は温かい雰囲気がある。
+1100|toward|向かって，のほうへ|He ran toward the river.|彼は川に向かって走った。
 1101|convenient|都合がよい，便利な|The station is convenient for shopping.|その駅は買い物に便利だ。
-1102|examination|試験||
-1103|sort|種類||
-1104|strongly|強く，激しく||
-1105|fear|を恐れる，恐がる／恐れ||
+1102|examination|試験|The examination lasted one hour.|試験は1時間続いた。
+1103|sort|種類|What sort of music do you like?|どんな種類の音楽が好きですか。
+1104|strongly|強く，激しく|I strongly recommend this book.|この本を強く勧める。
+1105|fear|を恐れる，恐がる／恐れ|Many people fear the dark.|多くの人は暗闇を恐れる。
 1106|ability|能力，力量|She has the ability to lead.|彼女には人を導く能力がある。
-1107|weight|重さ，体重||
-1108|exclude|除く||
-1109|discipline|しつけ，規律||
-1110|share|分かち合う／分け前||
-1111|potentially|潜在的に||
-1112|extent|程度，大きさ||
-1113|discussion|議論，討論||
-1114|settlement|移住，定住||
-1115|enormous|非常に大きい||
-1116|presence|存在||
+1107|weight|重さ，体重|Check the weight of the box.|箱の重さを確認して。
+1108|exclude|除く|They excluded him from the team.|彼らは彼をチームから除いた。
+1109|discipline|しつけ，規律|Children need gentle discipline.|子どもには優しいしつけが必要だ。
+1110|share|分かち合う／分け前|Let's share this pizza.|このピザを分かち合おう。
+1111|potentially|潜在的に|This plan is potentially useful.|この計画は潜在的に有用だ。
+1112|extent|程度，大きさ|To some extent, I agree.|ある程度は同意する。
+1113|discussion|議論，討論|We had a long discussion.|私たちは長い議論をした。
+1114|settlement|移住，定住|A small settlement grew here.|小さな定住地がここに育った。
+1115|enormous|非常に大きい|The whale is truly enormous.|そのクジラは本当に非常に大きい。
+1116|presence|存在|His presence calmed everyone.|彼の存在が皆を落ち着かせた。
 1117|effective|効果的な|This is an effective way to study.|これは効果的な勉強法だ。
-1118|rapid|急速な||
-1119|basis|土台，根拠||
-1120|commander|司令官||
-1121|radical|急進的な，抜本的な||
-1122|individual|個人の，個々の||
-1123|journal|日誌，日記||
+1118|rapid|急速な|There was rapid growth here.|ここには急速な成長があった。
+1119|basis|土台，根拠|Trust is the basis of friendship.|信頼は友情の土台だ。
+1120|commander|司令官|The commander gave a clear order.|司令官が明確な命令を出した。
+1121|radical|急進的な，抜本的な|They proposed a radical change.|彼らは急進的な変化を提案した。
+1122|individual|個人の，個々の|Each individual answer differs.|個々の答えはそれぞれ違う。
+1123|journal|日誌，日記|She keeps a daily journal.|彼女は毎日日誌をつけている。
 1124|avoid|を避ける，を回避する|Try to avoid eating too much sugar.|砂糖の取りすぎは避けよう。
-1125|stake|くい||
-1126|possibly|ひょっとすると||
-1127|violence|暴力，乱暴||
-1128|likely|起こりそうな||
-1129|entertainment|娯楽||
-1130|opposite|反対の，向こう側の||
-1131|district|地域||
-1132|domestic|国内の，家庭の||
-1133|pitch|投げる||
-1134|historical|歴史上の||
-1135|bullet|弾丸||
-1136|revenue|収益，所得||
-1137|democracy|民主主義||
-1138|legislation|立法||
-1139|breast|胸部||
-1140|actual|現実の||
-1141|eager|強く望んでいる||
+1125|stake|くい|He drove a stake into the ground.|彼はくいを地面に打ち込んだ。
+1126|possibly|ひょっとすると|He could possibly be right.|ひょっとすると彼は正しいかもしれない。
+1127|violence|暴力，乱暴|The film contains no violence.|その映画に暴力はない。
+1128|likely|起こりそうな|Rain is likely this evening.|今夜は雨が起こりそうだ。
+1129|entertainment|娯楽|This small town lacks entertainment.|この小さな町は娯楽が足りない。
+1130|opposite|反対の，向こう側の|He lives on the opposite side.|彼は反対の側に住んでいる。
+1131|district|地域|This district has good schools.|この地域は良い学校がある。
+1132|domestic|国内の，家庭の|Domestic sales rose slightly.|国内の売上がわずかに増えた。
+1133|pitch|投げる|He pitched the ball very fast.|彼はボールをとても速く投げた。
+1134|historical|歴史上の|This is a historical fact.|これは歴史上の事実だ。
+1135|bullet|弾丸|The bullet missed the target.|弾丸は的を外れた。
+1136|revenue|収益，所得|The city's revenue increased.|市の収益が増えた。
+1137|democracy|民主主義|Democracy needs free speech.|民主主義には言論の自由が要る。
+1138|legislation|立法|New legislation passed last week.|新しい立法が先週通った。
+1139|breast|胸部|He felt a pain in his breast.|彼は胸部に痛みを感じた。
+1140|actual|現実の|The actual cost was much higher.|現実の費用はずっと高かった。
+1141|eager|強く望んでいる|She is eager to learn more.|彼女はもっと学ぶことを強く望んでいる。
 1142|possible|可能な|Come as early as possible.|できるだけ早く来て。
-1143|proverb|ことわざ||
-1144|psychological|心理的な||
-1145|refugee|難民||
-1146|origin|起源||
-1147|transport|を輸送する||
-1148|notion|考え，意見||
-1149|initially|最初は||
-1150|doubt|疑い，疑問||
-1151|sigh|ため息をつく||
-1152|laboratory|実験室，研究所||
-1153|delight|喜び，歓喜||
-1154|shortly|まもなく||
-1155|universal|普遍的な，万能の||
-1156|surely|確かに||
-1157|labor|労働，労働者||
-1158|entire|全体の，全部の||
-1159|blood|血，血液||
-1160|wonder|かなと思う||
-1161|arise|起こる，現れる||
-1162|incorporate|合体させる||
-1163|mere|単なる||
-1164|agenda|議題||
-1165|terror|恐怖||
-1166|truly|真に，正確に||
+1143|proverb|ことわざ|This old proverb is famous.|この古いことわざは有名だ。
+1144|psychological|心理的な|He studied psychological effects.|彼は心理的な影響を研究した。
+1145|refugee|難民|The refugees found a safe place.|難民は安全な場所を見つけた。
+1146|origin|起源|The origin of the word is unclear.|その語の起源は不明だ。
+1147|transport|を輸送する|Trucks transport goods every day.|トラックが毎日品物を輸送する。
+1148|notion|考え，意見|I have no notion of his plan.|彼の計画について何の考えもない。
+1149|initially|最初は|Initially, the plan seemed easy.|最初は計画は簡単に思えた。
+1150|doubt|疑い，疑問|I have no doubt about it.|それについて疑いはない。
+1151|sigh|ため息をつく|She sighed and closed the book.|彼女はため息をつき本を閉じた。
+1152|laboratory|実験室，研究所|The laboratory opens at nine.|実験室は9時に開く。
+1153|delight|喜び，歓喜|The gift brought her great delight.|その贈り物は彼女に大きな喜びをもたらした。
+1154|shortly|まもなく|The train will arrive shortly.|電車はまもなく到着する。
+1155|universal|普遍的な，万能の|Music is a universal language.|音楽は普遍的な言語だ。
+1156|surely|確かに|Surely you remember me.|確かに私を覚えているはずだ。
+1157|labor|労働，労働者|The work required hard labor.|その仕事は厳しい労働を要した。
+1158|entire|全体の，全部の|The entire class stood up.|クラス全体が立ち上がった。
+1159|blood|血，血液|Blood carries oxygen everywhere.|血は酸素を全身へ運ぶ。
+1160|wonder|かなと思う|I wonder where he went.|彼がどこへ行ったのかなと思う。
+1161|arise|起こる，現れる|A new problem may arise.|新しい問題が起こるかもしれない。
+1162|incorporate|合体させる|They incorporated our ideas quickly.|彼らは私たちの考えを素早く合体させた。
+1163|mere|単なる|It was a mere accident.|それは単なる事故だった。
+1164|agenda|議題|The agenda has five items.|議題は5項目ある。
+1165|terror|恐怖|He froze in sudden terror.|彼は突然の恐怖で凍りついた。
+1166|truly|真に，正確に|She is truly kind to everyone.|彼女は皆に真に親切だ。
 1167|necessary|必要な|Sleep is necessary for health.|睡眠は健康に必要だ。
-1168|science|科学||
-1169|favor|親切な行為||
-1170|recession|不況，後退||
-1171|aircraft|航空機||
-1172|prison|刑務所||
-1173|anniversary|～周年，記念日||
-1174|possibility|可能性，実現性||
-1175|sequence|連続||
-1176|slight|かすかな，わずかの||
-1177|customer|顧客，お客様||
-1178|inform|情報を与える，に知らせる||
-1179|illegal|違法の||
-1180|investigation|調査||
-1181|depression|落ち込み，不景気||
-1182|matter|問題，困ったこと||
-1183|unless|でない限り||
-1184|necessity|必要性||
-1185|supreme|最高の||
-1186|severe|厳しい，厳格な||
-1187|bloody|血の||
-1188|apart|離れて||
-1189|cast|投げる||
-1190|airline|航空会社||
-1191|trading|取引||
-1192|path|小道||
-1193|appreciate|感謝する，を高く評価する||
-1194|crack|裂け目，ひび||
-1195|hesitate|ためらう||
-1196|contrary|反対の||
-1197|depending|依存している||
-1198|household|家族，世帯||
-1199|laughter|笑い||
-1200|teenager|十代||
-1201|crime|犯罪||
-1202|frighten|怖がらせる||
-1203|quarter|四半期||
-1204|mortgage|抵当，担保||
-1205|indicate|を指し示す||
-1206|stroke|打撃||
-1207|shortage|不足，欠乏||
-1208|explore|探索する，調査する||
-1209|property|財産，所有物||
-1210|freeze|凍る||
-1211|closely|綿密に||
-1212|venture|冒険的事業||
-1213|pretty|かなり||
-1214|account|銀行口座||
-1215|internal|内部の||
-1216|edge|端，縁||
-1217|environmental|環境の||
-1218|plenty|たくさん||
-1219|amendment|修正||
-1220|fiber|繊維||
-1221|somewhat|いくぶん，いくらか||
-1222|restriction|制限||
+1168|science|科学|Science explains many things.|科学は多くのことを説明する。
+1169|favor|親切な行為|He did me a kind favor.|彼は私に親切な行為をしてくれた。
+1170|recession|不況，後退|The recession hurt small shops.|不況が小さな店を苦しめた。
+1171|aircraft|航空機|The aircraft landed safely.|その航空機は安全に着陸した。
+1172|prison|刑務所|He was sent to prison.|彼は刑務所に送られた。
+1173|anniversary|～周年，記念日|Today is our tenth anniversary.|今日は10周年の記念日だ。
+1174|possibility|可能性，実現性|There is a small possibility.|わずかな可能性がある。
+1175|sequence|連続|The photos show a clear sequence.|写真は明確な連続を示している。
+1176|slight|かすかな，わずかの|I felt a slight pain.|かすかな痛みを感じた。
+1177|customer|顧客，お客様|The customer asked for help.|顧客が助けを求めた。
+1178|inform|情報を与える，に知らせる|Please inform me of any changes.|変更があれば知らせてください。
+1179|illegal|違法の|Parking here is illegal.|ここの駐車は違法だ。
+1180|investigation|調査|The investigation took several months.|その調査は数か月かかった。
+1181|depression|落ち込み，不景気|He recovered from deep depression.|彼は深い落ち込みから回復した。
+1182|matter|問題，困ったこと|This is a private matter.|これは個人的な問題だ。
+1183|unless|でない限り|We go unless it rains.|雨でない限り行く。
+1184|necessity|必要性|Sleep is a real necessity.|睡眠は本当に必要なものだ。
+1185|supreme|最高の|The supreme court decided it.|最高の裁判所がそれを決めた。
+1186|severe|厳しい，厳格な|The winter was very severe.|その冬はとても厳しかった。
+1187|bloody|血の|He wiped his bloody hand.|彼は血のついた手を拭いた。
+1188|apart|離れて|They stood far apart.|彼らは遠く離れて立っていた。
+1189|cast|投げる|He cast a stone into the pond.|彼は石を池に投げた。
+1190|airline|航空会社|The airline changed the schedule.|航空会社は予定を変えた。
+1191|trading|取引|Trading starts at nine.|取引は9時に始まる。
+1192|path|小道|A narrow path leads uphill.|狭い小道が丘へ続く。
+1193|appreciate|感謝する，を高く評価する|I appreciate your kind help.|あなたの親切な助けに感謝する。
+1194|crack|裂け目，ひび|There is a crack in the wall.|壁に裂け目がある。
+1195|hesitate|ためらう|Don't hesitate to ask me.|ためらわずに聞いてください。
+1196|contrary|反対の|His view is contrary to mine.|彼の見解は私のと反対だ。
+1197|depending|依存している|The price varies depending on size.|値段は大きさに依存して変わる。
+1198|household|家族，世帯|Each household received a letter.|各世帯が手紙を受け取った。
+1199|laughter|笑い|Loud laughter filled the room.|大きな笑いが部屋を満たした。
+1200|teenager|十代|My brother is a teenager.|弟は十代だ。
+1201|crime|犯罪|The city has very little crime.|その市は犯罪がとても少ない。
+1202|frighten|怖がらせる|The loud noise frightened the baby.|大きな音が赤ちゃんを怖がらせた。
+1203|quarter|四半期|Sales rose in the first quarter.|第1四半期に売上が増えた。
+1204|mortgage|抵当，担保|They finally paid off the mortgage.|彼らはついに抵当を返済した。
+1205|indicate|を指し示す|The sign indicates the exit.|その標識は出口を指し示す。
+1206|stroke|打撃|One strong stroke broke the glass.|強い一撃がガラスを割った。
+1207|shortage|不足，欠乏|There is a serious water shortage.|深刻な水の不足がある。
+1208|explore|探索する，調査する|They explored the dark cave.|彼らは暗い洞窟を探索した。
+1209|property|財産，所有物|He sold all his property.|彼は財産を全て売った。
+1210|freeze|凍る|The lake freezes every winter.|その湖は毎冬凍る。
+1211|closely|綿密に|Read the contract closely.|契約書を綿密に読んで。
+1212|venture|冒険的事業|They started a new venture.|彼らは新しい冒険的事業を始めた。
+1213|pretty|かなり|The test was pretty hard.|試験はかなり難しかった。
+1214|account|銀行口座|I opened an account yesterday.|昨日口座を開いた。
+1215|internal|内部の|The internal wall is thin.|内部の壁は薄い。
+1216|edge|端，縁|Don't stand near the edge.|端の近くに立つな。
+1217|environmental|環境の|We discussed environmental problems.|環境の問題を議論した。
+1218|plenty|たくさん|There is plenty to eat here.|ここには食べるものがたくさんある。
+1219|amendment|修正|They voted on the amendment.|彼らは修正について投票した。
+1220|fiber|繊維|This bread is rich in fiber.|このパンは繊維が豊富だ。
+1221|somewhat|いくぶん，いくらか|The price is somewhat high.|値段はいくぶん高い。
+1222|restriction|制限|There is no age restriction.|年齢の制限はない。
 1223|in order to|～するために，～の目的で|I got up early in order to study.|勉強するために早起きした。
-1224|not only A but also B|AだけでなくBもまた，Aと同様Bも||
-1225|a number of|たくさんの，多数の||
-1226|be likely to|する可能性が高い，しそうになる||
-1227|end up|最終的に，することになる||
-1228|publish|を出版する，発行する||
-1229|expense|費用，出費，犠牲||
+1224|not only A but also B|AだけでなくBもまた，Aと同様Bも|He speaks not only English but also French.|彼は英語だけでなくフランス語も話す。
+1225|a number of|たくさんの，多数の|A number of people came early.|たくさんの人が早く来た。
+1226|be likely to|する可能性が高い，しそうになる|It is likely to rain tonight.|今夜は雨の可能性が高い。
+1227|end up|最終的に，することになる|We ended up walking home.|私たちは結局歩いて帰ることになった。
+1228|publish|を出版する，発行する|They published the book last year.|彼らは昨年その本を出版した。
+1229|expense|費用，出費，犠牲|The trip was worth the expense.|その旅行は費用に見合った。
 1230|similar|似ている，類似の|Our opinions are similar.|私たちの意見は似ている。
-1231|pollution|汚染，汚れ，汚染物||
-1232|foundation|土台，根拠，設立||
+1231|pollution|汚染，汚れ，汚染物|Air pollution harms our health.|大気汚染は健康を害する。
+1232|foundation|土台，根拠，設立|The foundation of the house is strong.|その家の土台は丈夫だ。
 1233|compare|を比較する，をたとえる|Compare the two plans carefully.|二つの案をよく比較しなさい。
-1234|lead to|に導く，～につながる||
-1235|furthermore|さらに，その上||
-1236|more and more|ますます多くの，更に||
-1237|consume|を消費する，消耗する||
-1238|employment|雇用，採用||
-1239|by chance|偶然に，たまたま||
-1240|until|までに，まで||
-1241|on the other hand|一方で，他方で||
-1242|arrest|を逮捕する，捕まえる||
-1243|betray|を裏切る，をだます||
-1244|affect|に影響を与える，に作用する||
-1245|portable|持ち運べる，携帯用の||
-1246|construction|建設，構造，建造物||
-1247|convert|を変える，転換する||
-1248|resident|住民，居住者||
+1234|lead to|に導く，～につながる|Hard work leads to success.|努力は成功に導く。
+1235|furthermore|さらに，その上|It is cheap. Furthermore, it is light.|安い。さらに軽い。
+1236|more and more|ますます多くの，更に|More and more people ride bicycles.|ますます多くの人が自転車に乗る。
+1237|consume|を消費する，消耗する|This car consumes little fuel.|この車は燃料をあまり消費しない。
+1238|employment|雇用，採用|Employment improved a lot this year.|今年、雇用がかなり改善した。
+1239|by chance|偶然に，たまたま|I met her by chance.|偶然に彼女に会った。
+1240|until|までに，まで|Wait here until noon.|正午までここで待って。
+1241|on the other hand|一方で，他方で|It is cheap. On the other hand, it breaks.|安い。一方で壊れやすい。
+1242|arrest|を逮捕する，捕まえる|The police arrested the thief.|警察は泥棒を逮捕した。
+1243|betray|を裏切る，をだます|He never betrayed his friends.|彼は決して友を裏切らなかった。
+1244|affect|に影響を与える，に作用する|Weather affects our daily mood.|天気は日々の気分に影響を与える。
+1245|portable|持ち運べる，携帯用の|This is a portable radio.|これは持ち運べるラジオだ。
+1246|construction|建設，構造，建造物|Construction began last month.|建設は先月始まった。
+1247|convert|を変える，転換する|They converted the barn into a shop.|彼らは納屋を店に変えた。
+1248|resident|住民，居住者|Local residents opposed the plan.|地元の住民は計画に反対した。
 1249|provide|を供給する，提供する|The hotel provides free breakfast.|そのホテルは朝食を無料で提供する。
-1250|metal|金属，合金||
-1251|currency|通貨，流通||
-1252|in detail|詳細に，具体的に||
-1253|in contrast|対照的に，これに対して||
-1254|for instance|例えば，たとえ… としても||
-1255|additionally|加えて，さらに，追加で||
-1256|in response to|に応じて，に反応して||
-1257|at the same time|同時に，一斉に||
-1258|preserved|保存された，保管された||
-1259|be known as|として知られている，として認知されている||
-1260|analyze|を分析する，分解する||
-1261|a variety of|いろいろな，さまざまな||
-1262|sympathy|同情，思いやり||
-1263|flexibility|しなやかさ，弾力性，柔軟性||
+1250|metal|金属，合金|This box is made of metal.|この箱は金属でできている。
+1251|currency|通貨，流通|What currency do they use?|彼らはどの通貨を使いますか。
+1252|in detail|詳細に，具体的に|Explain the rules in detail.|規則を詳細に説明して。
+1253|in contrast|対照的に，これに対して|In contrast, his brother is quiet.|対照的に、彼の兄は静かだ。
+1254|for instance|例えば，たとえ… としても|Choose a fruit, for instance an apple.|果物、例えばりんごを選んで。
+1255|additionally|加えて，さらに，追加で|Additionally, we need more time.|加えて、もっと時間が必要だ。
+1256|in response to|に応じて，に反応して|In response to complaints, they changed it.|苦情に応じて彼らはそれを変えた。
+1257|at the same time|同時に，一斉に|We arrived at the same time.|私たちは同時に着いた。
+1258|preserved|保存された，保管された|The preserved fruit tastes sweet.|保存された果物は甘い味がする。
+1259|be known as|として知られている，として認知されている|He is known as a kind doctor.|彼は親切な医師として知られている。
+1260|analyze|を分析する，分解する|We analyzed the survey results.|調査の結果を分析した。
+1261|a variety of|いろいろな，さまざまな|The shop sells a variety of goods.|その店はいろいろな品を売る。
+1262|sympathy|同情，思いやり|She felt deep sympathy for him.|彼女は彼に深い同情を感じた。
+1263|flexibility|しなやかさ，弾力性，柔軟性|Stretching improves your flexibility.|ストレッチは柔軟性を高める。
 1264|manage|何とかうまくやる，管理を行う|She managed to finish on time.|彼女はなんとか時間内に終えた。
-1265|reach out|手を延ばす，手を差し出す||
-1266|for fear of|を恐れて，を怖がって||
-1267|on behalf of|の代わりに，代わって||
-1268|on account of|のため，目的の||
-1269|artificial|人工的な，人造の||
-1270|prevent A from B|AをBから防ぐ，AをBから保護する||
-1271|rather than|よりむしろ，ではなくて||
-1272|measure|措置，測るもの/を測る||
-1273|be born with|生まれつき，生来の||
-1274|since then|それ以来，それ以降||
-1275|turn A into B|AをBに(質的に)変える，AをBに(質的に)転換する||
-1276|fertilizer|肥料，育成剤||
-1277|made of|で出来ている，構成されている||
-1278|make sure|を確かめる，必ず手配する||
-1279|tolerate|に耐える，寛大に取り扱う||
-1280|journey|旅，旅行||
-1281|get along|うまくやる，仲良くやる||
+1265|reach out|手を延ばす，手を差し出す|He reached out for the cup.|彼はカップに手を差し出した。
+1266|for fear of|を恐れて，を怖がって|She whispered for fear of waking him.|彼を起こすのを恐れて彼女はささやいた。
+1267|on behalf of|の代わりに，代わって|I speak on behalf of the class.|クラスの代わりに私が話す。
+1268|on account of|のため，目的の|The game stopped on account of rain.|雨のため試合は中止した。
+1269|artificial|人工的な，人造の|This lake is completely artificial.|この湖は完全に人工的だ。
+1270|prevent A from B|AをBから防ぐ，AをBから保護する|Exercise prevents you from getting sick.|運動はあなたが病気になるのを防ぐ。
+1271|rather than|よりむしろ，ではなくて|I walked rather than ran.|走るよりむしろ歩いた。
+1272|measure|措置，測るもの/を測る|The city took strong measures.|市は強い措置を取った。
+1273|be born with|生まれつき，生来の|She was born with a good voice.|彼女は生まれつき良い声だった。
+1274|since then|それ以来，それ以降|Since then, we have been friends.|それ以来、私たちは友人だ。
+1275|turn A into B|AをBに(質的に)変える，AをBに(質的に)転換する|Heat turns water into steam.|熱は水を蒸気に変える。
+1276|fertilizer|肥料，育成剤|Farmers spread fertilizer in spring.|農家は春に肥料をまく。
+1277|made of|で出来ている，構成されている|The table is made of wood.|そのテーブルは木で出来ている。
+1278|make sure|を確かめる，必ず手配する|Make sure the door is locked.|ドアの鍵がかかっているか確かめて。
+1279|tolerate|に耐える，寛大に取り扱う|I cannot tolerate this noise.|この騒音には耐えられない。
+1280|journey|旅，旅行|The journey took three days.|その旅は3日かかった。
+1281|get along|うまくやる，仲良くやる|They get along very well.|彼らはとてもうまくやっている。
 1282|keep up with|に遅れず付いていく，遅れないで追随する|I can't keep up with the class.|授業についていけない。
-1283|cell|細胞，マス目||
-1284|such as|のような，似たような||
-1285|annually|毎年の，年一回ずつ||
-1286|invest in|に投資する，に資本を提供する||
-1287|embarrass|を恥ずかしがらせる，を恥じさせる||
-1288|enlarge|を拡大する，を広げる||
-1289|brilliant|優れた，光り輝く||
-1290|vote for|に賛成する，に投票する||
-1291|frequent|頻繁な，しばしば起こる||
-1292|gravity|重力，引力||
+1283|cell|細胞，マス目|The human body has many cells.|人の体には多くの細胞がある。
+1284|such as|のような，似たような|I like fruit such as peaches.|桃のような果物が好きだ。
+1285|annually|毎年の，年一回ずつ|The festival is held annually.|その祭りは毎年開かれる。
+1286|invest in|に投資する，に資本を提供する|They invest in new technology.|彼らは新しい技術に投資する。
+1287|embarrass|を恥ずかしがらせる，を恥じさせる|His question embarrassed me.|彼の質問は私を恥ずかしがらせた。
+1288|enlarge|を拡大する，を広げる|Please enlarge this old photo.|この古い写真を拡大してください。
+1289|brilliant|優れた，光り輝く|She had a brilliant idea.|彼女は優れた考えを持っていた。
+1290|vote for|に賛成する，に投票する|I will vote for her.|私は彼女に投票する。
+1291|frequent|頻繁な，しばしば起こる|He is a frequent visitor here.|彼はここへ頻繁に来る客だ。
+1292|gravity|重力，引力|Gravity pulls things down.|重力は物を下に引く。
 1293|rare|まれな，珍しい|This bird is very rare.|この鳥はとても珍しい。
-1294|decide|決心する，決定する||
-1295|bank account|銀行口座，貯金口座||
-1296|locate|見つける，位置を突きとめる||
-1297|apply to|に適用する，に応用する||
-1298|politely|丁寧に，礼儀正しく||
-1299|accidentally|誤って，知らずに||
-1300|satisfy|を満足させる，を喜ばせる||
-1301|appointment|予定，約束||
-1302|luxury|贅沢な/贅沢||
-1303|replacement|置換，代替||
-1304|in touch|連絡中，連絡が取れて||
-1305|celebrate|祝う，祝福する||
-1306|imitate|模倣する，真似る||
-1307|assignment|割り当て，配分||
-1308|instrument|楽器，音楽器具||
-1309|capable of|ができる，可能で||
+1294|decide|決心する，決定する|We decided to leave early.|私たちは早く出ることに決心した。
+1295|bank account|銀行口座，貯金口座|I opened a bank account.|銀行口座を開いた。
+1296|locate|見つける，位置を突きとめる|They located the missing dog.|彼らは迷子の犬の位置を突きとめた。
+1297|apply to|に適用する，に応用する|This rule applies to everyone.|この規則は全員に適用する。
+1298|politely|丁寧に，礼儀正しく|He answered the question politely.|彼はその質問に丁寧に答えた。
+1299|accidentally|誤って，知らずに|I accidentally deleted the file.|誤ってファイルを消した。
+1300|satisfy|を満足させる，を喜ばせる|The meal satisfied everyone.|その食事は皆を満足させた。
+1301|appointment|予定，約束|I have a dentist appointment.|歯医者の予定がある。
+1302|luxury|贅沢な/贅沢|A hot bath is a luxury.|熱い風呂は贅沢だ。
+1303|replacement|置換，代替|We ordered a replacement part.|代替の部品を注文した。
+1304|in touch|連絡中，連絡が取れて|Let's keep in touch.|連絡を取り合おう。
+1305|celebrate|祝う，祝福する|We celebrated her birthday together.|一緒に彼女の誕生日を祝った。
+1306|imitate|模倣する，真似る|Children imitate their parents.|子どもは親を真似る。
+1307|assignment|割り当て，配分|The assignment is due Friday.|その割り当ては金曜が期限だ。
+1308|instrument|楽器，音楽器具|He plays three instruments well.|彼は3つの楽器を上手に演奏する。
+1309|capable of|ができる，可能で|She is capable of hard work.|彼女は厳しい仕事ができる。
 1310|arrange|整える，を配置する|I'll arrange a meeting for Friday.|金曜に会議を手配します。
-1311|take after|をまねる，に似る||
-1312|guilty of|罪を犯して，違法行為をして||
-1313|work out|練習する，運動する||
-1314|electricity|電力，電気||
-1315|composer|作曲，楽曲制作||
-1316|furniture|家具，調度品||
+1311|take after|をまねる，に似る|He takes after his mother.|彼は母に似ている。
+1312|guilty of|罪を犯して，違法行為をして|He was guilty of stealing.|彼は窃盗の罪を犯していた。
+1313|work out|練習する，運動する|I work out every morning.|毎朝運動する。
+1314|electricity|電力，電気|The storm cut our electricity.|嵐が電力を止めた。
+1315|composer|作曲，楽曲制作|The composer wrote this song.|その作曲家がこの歌を書いた。
+1316|furniture|家具，調度品|We bought new furniture yesterday.|昨日新しい家具を買った。
 1317|medicine|薬，医薬品|Take this medicine after meals.|食後にこの薬を飲みなさい。
-1318|at last|ついに，やっと||
-1319|sufficient|十分な，足りている||
-1320|barely|かろうじて，やっと||
-1321|delete|を削除する，消す||
-1322|urgent|緊急の，急を要する||
-1323|generous|気前のよい，寛容な||
-1324|cruel|残酷な，ひどい||
-1325|celebration|お祝い，祝典||
-1326|reflection|反響，反射||
-1327|whisper|ささやく，を耳打ちする||
-1328|deposit|お金を預ける，を預金する||
-1329|apology|謝罪，お詫び||
-1330|deceive|を欺く，をだます||
-1331|endure|を我慢する，耐える||
-1332|disposal|処理，処分||
-1333|statistics|統計，数字||
-1334|terminal|終りの，末端の||
-1335|formation|形成，構成||
-1336|envelope|封筒，封書||
-1337|quarrel|喧嘩，口論，言い争い||
-1338|from time to time|時々，偶に||
-1339|in demand|需要のある，求められる||
-1340|stand out|目立つ，すぐれている||
-1341|in the meantime|とりあえず，それまでは||
-1342|to some extent|いくらか，ある程度||
-1343|at any cost|どんな犠牲を払っても，何がなんでも||
-1344|on the contrary|その反対で，それどころか||
-1345|lose face|面子を失う，恥をかく||
-1346|answer for|責任を負う，引き受ける||
-1347|insist on|するように強く求める，強調する||
-1348|not always|必ずしもではない，いつもとは限らない||
-1349|at that time|あの時は，そのとき||
-1350|in common|共通して，一般的に||
-1351|be affected by|の影響を受ける，影響される||
-1352|luckily|幸いなことに，幸運にも||
-1353|not yet|まだ，今のところ||
-1354|in response|に応じて，に対応して||
-1355|have effects on|に影響を与える，に作用する||
-1356|one day|ある日，いつか||
-1357|five senses|五感，感覚器官||
-1358|ankle|足首，くるぶし||
-1359|related to|に関連する，に関わる||
-1360|active|活動的な，活気のある||
-1361|lesser|より少ない，いっそう少ない||
-1362|immune|免疫の，免疫のある||
-1363|disorder|無秩序，混乱||
-1364|mental|精神の，心の||
-1365|intend to|するつもりである，する意図がある||
-1366|at present|現在は，今は||
-1367|make a difference|違いを生む，差をつける||
-1368|exceptionally|例外的に，非常に||
-1369|almost|ほとんど，たいてい||
-1370|as to|に関して，について||
-1371|collapse|崩壊する，つぶれる||
-1372|insult|を侮辱する，を罵る||
-1373|isolated|孤立した，隔離された||
-1374|punctual|規則正しい，時間通りの||
-1375|frightened|恐ろしかった，怖かった||
-1376|guarantee|を保証する/保証||
-1377|blame|を非難する，批判する||
-1378|violate|違反する，破る||
-1379|delay|を遅らせる，先延ばしにする||
-1380|immigrate|移住する，移転する||
-1381|instinct|直感，本能，勘||
-1382|strangely|不思議なことに，奇妙に||
-1383|chase|を追跡する，追いかける/追跡||
-1384|pour|を注ぐ，激しく降る||
-1385|at one time|一度に，同時に||
-1386|all the way|はるばる，わざわざ||
-1387|pull away|引き離す，引き剥がす||
-1388|try out|を試す，十分に試してみる||
-1389|break into|に押し入る，侵入する||
-1390|call it a day|終了する，仕事を切り上げる||
-1391|be awake|目を覚ましている，覚醒している||
-1392|brightness|輝度，明るさ||
-1393|have an effect on|に影響を及ぼす，影響する||
-1394|indoor|室内/屋内の||
-1395|senior|ポストが上の/年上の人||
-1396|be adjusted to|に調整する，調節する||
-1397|specific|具体的な，特定の||
-1398|heart rate|心拍数，脈拍||
-1399|be beneficial to|に有益である，役立つ||
-1400|what is called|いわゆる，通称||
-1401|symmetry|対称，左右対称||
-1402|each other|お互い，それぞれ||
-1403|check for|を調べる，確認する||
-1404|over time|超過勤務，延長時間||
-1405|What is more|さらに，その上||
-1406|for some time|しばらくの間，一時的に||
-1407|at a time|１度に，同時に||
-1408|parking lot|駐車場，停車場||
-1409|all around the world|世界中の，全世界の||
-1410|copyright|著作権，版権||
-1411|director|監督，指導者，役員||
-1412|in reality|実際に，現実に||
+1318|at last|ついに，やっと|At last the rain stopped.|ついに雨がやんだ。
+1319|sufficient|十分な，足りている|We have sufficient food now.|今は十分な食料がある。
+1320|barely|かろうじて，やっと|I barely caught the train.|かろうじて電車に間に合った。
+1321|delete|を削除する，消す|Delete the old files now.|今すぐ古いファイルを削除して。
+1322|urgent|緊急の，急を要する|This is an urgent message.|これは緊急の伝言だ。
+1323|generous|気前のよい，寛容な|He is generous with his time.|彼は時間に気前がよい。
+1324|cruel|残酷な，ひどい|That was a cruel joke.|それは残酷な冗談だった。
+1325|celebration|お祝い，祝典|The celebration lasted all night.|お祝いは一晩中続いた。
+1326|reflection|反響，反射|I saw my reflection in the window.|窓に自分の姿の反射が見えた。
+1327|whisper|ささやく，を耳打ちする|She whispered in my ear.|彼女は私の耳にささやいた。
+1328|deposit|お金を預ける，を預金する|He deposited the money today.|彼は今日その金を預金した。
+1329|apology|謝罪，お詫び|I accepted his sincere apology.|私は彼の誠実な謝罪を受け入れた。
+1330|deceive|を欺く，をだます|Never deceive your close friends.|決して親しい友を欺くな。
+1331|endure|を我慢する，耐える|We endured the long wait.|私たちは長い待ち時間を我慢した。
+1332|disposal|処理，処分|Waste disposal costs a lot.|ごみの処理は費用がかかる。
+1333|statistics|統計，数字|The statistics show a clear trend.|統計は明確な傾向を示す。
+1334|terminal|終りの，末端の|The bus stops at the terminal station.|バスは終わりの駅で止まる。
+1335|formation|形成，構成|The formation of ice takes time.|氷の形成には時間がかかる。
+1336|envelope|封筒，封書|Put the letter in an envelope.|手紙を封筒に入れて。
+1337|quarrel|喧嘩，口論，言い争い|They had a small quarrel.|彼らは小さな喧嘩をした。
+1338|from time to time|時々，偶に|I visit them from time to time.|時々彼らを訪ねる。
+1339|in demand|需要のある，求められる|Good teachers are always in demand.|良い教師は常に需要がある。
+1340|stand out|目立つ，すぐれている|Her red coat really stands out.|彼女の赤いコートは実に目立つ。
+1341|in the meantime|とりあえず，それまでは|In the meantime, please wait here.|とりあえずここで待ってください。
+1342|to some extent|いくらか，ある程度|To some extent, he was right.|ある程度、彼は正しかった。
+1343|at any cost|どんな犠牲を払っても，何がなんでも|We must finish at any cost.|どんな犠牲を払っても終えねばならない。
+1344|on the contrary|その反対で，それどころか|On the contrary, I enjoyed it.|その反対で、私は楽しんだ。
+1345|lose face|面子を失う，恥をかく|He did not want to lose face.|彼は面子を失いたくなかった。
+1346|answer for|責任を負う，引き受ける|You must answer for your actions.|自分の行動に責任を負わねばならない。
+1347|insist on|するように強く求める，強調する|She insisted on paying the bill.|彼女は請求を払うと強く求めた。
+1348|not always|必ずしもではない，いつもとは限らない|Expensive is not always better.|高いものがいつも良いとは限らない。
+1349|at that time|あの時は，そのとき|At that time, I was very young.|あの時は私はとても幼かった。
+1350|in common|共通して，一般的に|We have much in common.|私たちは共通して持つものが多い。
+1351|be affected by|の影響を受ける，影響される|Crops are affected by weather.|作物は天気の影響を受ける。
+1352|luckily|幸いなことに，幸運にも|Luckily, nobody was hurt.|幸いなことに誰もけがをしなかった。
+1353|not yet|まだ，今のところ|The food is not yet ready.|食事はまだ準備できていない。
+1354|in response|に応じて，に対応して|In response, he nodded slowly.|それに応じて彼はゆっくりうなずいた。
+1355|have effects on|に影響を与える，に作用する|Sleep has effects on memory.|睡眠は記憶に影響を与える。
+1356|one day|ある日，いつか|One day we will meet again.|ある日、私たちはまた会うだろう。
+1357|five senses|五感，感覚器官|We learn through our five senses.|私たちは五感を通して学ぶ。
+1358|ankle|足首，くるぶし|He twisted his ankle badly.|彼は足首をひどくひねった。
+1359|related to|に関連する，に関わる|This topic is related to science.|この話題は科学に関連する。
+1360|active|活動的な，活気のある|My grandmother is still active.|祖母はまだ活動的だ。
+1361|lesser|より少ない，いっそう少ない|Choose the lesser amount.|より少ない量を選んで。
+1362|immune|免疫の，免疫のある|The body builds an immune system.|体は免疫の仕組みを作る。
+1363|disorder|無秩序，混乱|The room was in complete disorder.|部屋は完全な無秩序だった。
+1364|mental|精神の，心の|Mental health matters too.|精神の健康も大切だ。
+1365|intend to|するつもりである，する意図がある|I intend to call him tonight.|今夜彼に電話するつもりだ。
+1366|at present|現在は，今は|At present, the shop is closed.|現在は店は閉まっている。
+1367|make a difference|違いを生む，差をつける|Small habits make a difference.|小さな習慣が違いを生む。
+1368|exceptionally|例外的に，非常に|The summer was exceptionally hot.|その夏は例外的に暑かった。
+1369|almost|ほとんど，たいてい|I almost missed the bus.|ほとんどバスに乗り遅れるところだった。
+1370|as to|に関して，について|I said nothing as to the cost.|費用に関して何も言わなかった。
+1371|collapse|崩壊する，つぶれる|The old wall collapsed suddenly.|古い壁が突然崩壊した。
+1372|insult|を侮辱する，を罵る|Do not insult your opponent.|相手を侮辱するな。
+1373|isolated|孤立した，隔離された|The village is quite isolated.|その村はかなり孤立している。
+1374|punctual|規則正しい，時間通りの|He is always punctual.|彼はいつも時間通りだ。
+1375|frightened|恐ろしかった，怖かった|The child looked frightened.|その子は怖がっているように見えた。
+1376|guarantee|を保証する/保証|We guarantee this product fully.|この製品を完全に保証します。
+1377|blame|を非難する，批判する|Don't blame others for mistakes.|失敗を他人のせいにして非難するな。
+1378|violate|違反する，破る|He violated the school rule.|彼は校則に違反した。
+1379|delay|を遅らせる，先延ばしにする|Heavy snow delayed the train.|大雪が電車を遅らせた。
+1380|immigrate|移住する，移転する|His family immigrated to Canada.|彼の家族はカナダへ移住した。
+1381|instinct|直感，本能，勘|Animals act on instinct.|動物は本能で行動する。
+1382|strangely|不思議なことに，奇妙に|Strangely, the door was open.|不思議なことにドアが開いていた。
+1383|chase|を追跡する，追いかける/追跡|The dog chased the cat.|犬は猫を追跡した。
+1384|pour|を注ぐ，激しく降る|Pour the milk into the cup.|牛乳をカップに注いで。
+1385|at one time|一度に，同時に|Do not eat too much at one time.|一度に食べすぎるな。
+1386|all the way|はるばる，わざわざ|He came all the way from Kyushu.|彼は九州からはるばる来た。
+1387|pull away|引き離す，引き剥がす|She pulled away from the crowd.|彼女は群衆から身を引き離した。
+1388|try out|を試す，十分に試してみる|Let's try out this new game.|この新しいゲームを試そう。
+1389|break into|に押し入る，侵入する|Someone broke into the shop.|誰かが店に押し入った。
+1390|call it a day|終了する，仕事を切り上げる|Let's call it a day now.|もう仕事を切り上げよう。
+1391|be awake|目を覚ましている，覚醒している|I was awake all night.|私は一晩中目を覚ましていた。
+1392|brightness|輝度，明るさ|Adjust the brightness of the screen.|画面の明るさを調整して。
+1393|have an effect on|に影響を及ぼす，影響する|Music has an effect on mood.|音楽は気分に影響を及ぼす。
+1394|indoor|室内/屋内の|We played an indoor game.|屋内のゲームをした。
+1395|senior|ポストが上の/年上の人|He is senior to me by two years.|彼は私より2つ年上だ。
+1396|be adjusted to|に調整する，調節する|The seat can be adjusted to your height.|座席は身長に合わせて調整できる。
+1397|specific|具体的な，特定の|Give me a specific date.|具体的な日付を教えて。
+1398|heart rate|心拍数，脈拍|Running raises your heart rate.|走ると心拍数が上がる。
+1399|be beneficial to|に有益である，役立つ|Walking is beneficial to health.|歩くことは健康に有益だ。
+1400|what is called|いわゆる，通称|This is what is called a bargain.|これがいわゆる掘り出し物だ。
+1401|symmetry|対称，左右対称|The building has perfect symmetry.|その建物は完全な対称をもつ。
+1402|each other|お互い，それぞれ|They helped each other kindly.|彼らはお互いを親切に助けた。
+1403|check for|を調べる，確認する|Check for mistakes before sending.|送る前に間違いを調べて。
+1404|over time|超過勤務，延長時間|He worked over time again.|彼はまた超過勤務をした。
+1405|What is more|さらに，その上|What is more, the price dropped.|さらに、値段が下がった。
+1406|for some time|しばらくの間，一時的に|We waited there for some time.|私たちはしばらくの間そこで待った。
+1407|at a time|１度に，同時に|Take one pill at a time.|1度に1錠ずつ飲んで。
+1408|parking lot|駐車場，停車場|The parking lot was already full.|駐車場はすでに満車だった。
+1409|all around the world|世界中の，全世界の|People sing this song all around the world.|世界中の人がこの歌を歌う。
+1410|copyright|著作権，版権|The copyright belongs to the author.|著作権は著者に属する。
+1411|director|監督，指導者，役員|The director praised the actors.|監督は俳優をほめた。
+1412|in reality|実際に，現実に|In reality, the task was easy.|実際には、その仕事は簡単だった。
 1413|depend on|に頼る，依存する|It depends on the weather.|それは天気次第だ。
-1414|claim to do|することを主張する||
-1415|agree with|に賛成である，支持する||
-1416|it is common to hear|を聞くのが一般的です，よく聞かれる||
-1417|temple|お寺，寺院||
-1418|bring|持って来る，連れてくる||
-1419|throw away|廃棄する，を捨てる||
-1420|garbage|生ゴミ，くず||
-1421|environmentally|環境的に，情勢的に||
-1422|process|過程，手順/を加工処理する||
-1423|up to|～まで，～に至る||
-1424|turn into|に変わる，に転ずる||
-1425|cut down on|を切り詰める，節約する||
-1426|fossil fuel|化石燃料||
-1427|plastic bag|ビニール袋，プラスチック袋||
-1428|harm|害，危害/を害する||
-1429|unbelievable|信じられない，信じがたい||
-1430|arrogant|傲慢な，横柄な||
-1431|harbor|港，港湾||
-1432|temper|気性，かんしゃく||
-1433|legend|伝説，言い伝え||
-1434|vague|漠然とした，あいまいな||
-1435|harvest|収穫/を収穫する||
-1436|planet|惑星，天体||
-1437|ruin|を台無しにする，破滅する/破滅||
-1438|launch|発売する，船をおろす||
+1414|claim to do|することを主張する|He claims to know the answer.|彼は答えを知っていると主張する。
+1415|agree with|に賛成である，支持する|I agree with your plan.|あなたの計画に賛成だ。
+1416|it is common to hear|を聞くのが一般的です，よく聞かれる|It is common to hear that story.|その話はよく聞かれる。
+1417|temple|お寺，寺院|We visited an old temple.|古いお寺を訪れた。
+1418|bring|持って来る，連れてくる|Please bring your own pen.|自分のペンを持って来てください。
+1419|throw away|廃棄する，を捨てる|Do not throw away that box.|その箱を捨てないで。
+1420|garbage|生ゴミ，くず|Take out the garbage tonight.|今夜生ゴミを出して。
+1421|environmentally|環境的に，情勢的に|This product is environmentally safe.|この製品は環境的に安全だ。
+1422|process|過程，手順/を加工処理する|The process takes three steps.|その過程は3段階かかる。
+1423|up to|～まで，～に至る|Count up to twenty.|20まで数えて。
+1424|turn into|に変わる，に転ずる|The rain turned into snow.|雨が雪に変わった。
+1425|cut down on|を切り詰める，節約する|I cut down on sweets.|甘い物を切り詰めた。
+1426|fossil fuel|化石燃料|We must use less fossil fuel.|化石燃料の使用を減らさねばならない。
+1427|plastic bag|ビニール袋，プラスチック袋|Please bring your own plastic bag.|自分のビニール袋を持って来て。
+1428|harm|害，危害/を害する|Smoking does great harm.|喫煙は大きな害をもたらす。
+1429|unbelievable|信じられない，信じがたい|The news was simply unbelievable.|その知らせは全く信じられなかった。
+1430|arrogant|傲慢な，横柄な|Nobody likes arrogant people.|誰も傲慢な人を好まない。
+1431|harbor|港，港湾|Many boats filled the harbor.|多くの船が港を埋めた。
+1432|temper|気性，かんしゃく|He has a quick temper.|彼は短気な気性だ。
+1433|legend|伝説，言い伝え|An old legend explains the name.|古い伝説がその名を説明する。
+1434|vague|漠然とした，あいまいな|His answer was rather vague.|彼の答えはかなり漠然としていた。
+1435|harvest|収穫/を収穫する|The rice harvest starts in autumn.|米の収穫は秋に始まる。
+1436|planet|惑星，天体|Mars is a nearby planet.|火星は近くの惑星だ。
+1437|ruin|を台無しにする，破滅する/破滅|Rain ruined our picnic.|雨が私たちの遠足を台無しにした。
+1438|launch|発売する，船をおろす|They launched a new product.|彼らは新製品を発売した。
 1439|refuse|を拒否する，拒む|She refused his invitation.|彼女は彼の誘いを断った。
-1440|overtake|追い越す，追いつく||
-1441|restrict|を制限する，を限定する||
-1442|stock|株，在庫/を在庫に持つ||
-1443|competitor|競合他社，競争相手||
-1444|spectator|観客，見物人||
-1445|explorer|冒険者，探検家||
-1446|remind of|を思い出させる，気づかせる||
-1447|concentrate on|に集中する，専念する||
-1448|laugh at|を見て笑う，楽しむ||
-1449|well off|裕福な，富裕な||
-1450|straight on|まっすぐに，直線的に||
-1451|far off|はるかかなたの，遠くの||
-1452|equal|同等，等しい||
-1453|drop off|落ちる，落とす||
-1454|leave out|除外する，取り除く||
-1455|the other|もう一方の，反対側の||
-1456|be concerned with|に関係している，関連している||
-1457|sustainable|存続可能な，持続可能な||
-1458|leftover|残り物，食べ残し||
-1459|because of|～が理由で，目的のために||
-1460|hundreds of|何百もの||
-1461|efficiency|効率，能率||
-1462|arrangement|配置，配列||
-1463|prescription|処方，処方箋||
-1464|generously|惜しみなく，気前よく||
-1465|do well|うまくやる，成功する||
-1466|deadline|締め切り，期限||
-1467|exception|例外，特例||
-1468|temporarily|一時的に，仮に||
-1469|provide A with B|AにBを提供する，AがBを供給する||
-1470|fund|基金，資金||
-1471|in the long run|長い目で見れば，長期間に||
-1472|overlap|重ねる，積む||
-1473|collaboration|共同，共作，協力||
-1474|detective|探偵，刑事，捜査官||
-1475|modify|を変更する，を修正する||
-1476|stir|をかき混ぜる, 混ぜる||
-1477|orbit|軌道, 軌跡||
-1478|emotionally|感情的に, 情緒的に||
-1479|evaluate|評価する，見積もる||
-1480|prospect|見込み，眺め||`;
+1440|overtake|追い越す，追いつく|A red car overtook us.|赤い車が私たちを追い越した。
+1441|restrict|を制限する，を限定する|They restricted the number of visitors.|彼らは訪問者の数を制限した。
+1442|stock|株，在庫/を在庫に持つ|This item is out of stock.|この品は在庫切れだ。
+1443|competitor|競合他社，競争相手|Our competitor lowered its prices.|競争相手が値段を下げた。
+1444|spectator|観客，見物人|The spectators cheered loudly.|観客は大声で声援した。
+1445|explorer|冒険者，探検家|The explorer crossed the desert.|その探検家は砂漠を越えた。
+1446|remind of|を思い出させる，気づかせる|This song reminds me of summer.|この歌は夏を思い出させる。
+1447|concentrate on|に集中する，専念する|Concentrate on your own work.|自分の仕事に集中して。
+1448|laugh at|を見て笑う，楽しむ|Don't laugh at his mistake.|彼の失敗を見て笑うな。
+1449|well off|裕福な，富裕な|Her family is quite well off.|彼女の家族はかなり裕福だ。
+1450|straight on|まっすぐに，直線的に|Go straight on for two blocks.|2区画まっすぐに進んで。
+1451|far off|はるかかなたの，遠くの|A far off light was shining.|遠くの明かりが光っていた。
+1452|equal|同等，等しい|All members are equal here.|ここでは全員が同等だ。
+1453|drop off|落ちる，落とす|Leaves drop off in autumn.|秋に葉が落ちる。
+1454|leave out|除外する，取り除く|Do not leave out any name.|どの名前も除外しないで。
+1455|the other|もう一方の，反対側の|Hold the other end tightly.|もう一方の端をしっかり持って。
+1456|be concerned with|に関係している，関連している|This book is concerned with history.|この本は歴史に関係している。
+1457|sustainable|存続可能な，持続可能な|We need sustainable energy.|持続可能なエネルギーが必要だ。
+1458|leftover|残り物，食べ残し|We ate the leftover rice.|残り物のご飯を食べた。
+1459|because of|～が理由で，目的のために|We stayed home because of rain.|雨が理由で家にいた。
+1460|hundreds of|何百もの|Hundreds of people joined us.|何百もの人が参加した。
+1461|efficiency|効率，能率|The new method improved efficiency.|新しい方法が効率を高めた。
+1462|arrangement|配置，配列|I like the arrangement of the room.|部屋の配置が気に入っている。
+1463|prescription|処方，処方箋|Bring your prescription to the counter.|処方箋を窓口へ持って来て。
+1464|generously|惜しみなく，気前よく|He gave generously to the fund.|彼は基金に惜しみなく寄付した。
+1465|do well|うまくやる，成功する|She did well on the test.|彼女は試験でうまくやった。
+1466|deadline|締め切り，期限|The deadline is next Monday.|締め切りは来週の月曜だ。
+1467|exception|例外，特例|There is one exception here.|ここに1つ例外がある。
+1468|temporarily|一時的に，仮に|The road is temporarily closed.|その道は一時的に閉じている。
+1469|provide A with B|AにBを提供する，AがBを供給する|They provide students with lunch.|彼らは生徒に昼食を提供する。
+1470|fund|基金，資金|They raised a large fund.|彼らは大きな基金を集めた。
+1471|in the long run|長い目で見れば，長期間に|In the long run, it saves money.|長い目で見れば金の節約になる。
+1472|overlap|重ねる，積む|The two circles overlap slightly.|2つの円はわずかに重なる。
+1473|collaboration|共同，共作，協力|The project began as a collaboration.|その事業は共同として始まった。
+1474|detective|探偵，刑事，捜査官|The detective found a small clue.|探偵は小さな手がかりを見つけた。
+1475|modify|を変更する，を修正する|We modified the original plan.|元の計画を変更した。
+1476|stir|をかき混ぜる, 混ぜる|Stir the soup slowly.|スープをゆっくりかき混ぜて。
+1477|orbit|軌道, 軌跡|The moon follows a fixed orbit.|月は決まった軌道をたどる。
+1478|emotionally|感情的に, 情緒的に|He spoke emotionally about his family.|彼は家族について感情的に語った。
+1479|evaluate|評価する，見積もる|Teachers evaluate every report.|先生は全ての報告を評価する。
+1480|prospect|見込み，眺め|The prospect of rain worried us.|雨の見込みが私たちを心配させた。`;
 
 /* 出た順の帯 ― 頻度の高い語から攻められるように区切る */
 const BANDS = [
@@ -2084,6 +2095,7 @@ const BANDS = [
    p=0 なら記憶ゼロ、つまり毎回まっさらな乱数でめくるだけになる。 */
 const FOES = [
   {k:'solo', label:'ひとりで', hint:'記録だけ'},
+  {k:'duo',  label:'ふたりで', hint:'同じ端末で交代'},
   {k:'easy', label:'よわい',   hint:'まぐれ',   p:0,    cap:0,  pace:620},
   {k:'mid',  label:'ふつう',   hint:'半分覚える', p:0.55, cap:8,  pace:560},
   {k:'hard', label:'つよい',   hint:'ほぼ覚える', p:0.92, cap:24, pace:470}
@@ -2312,11 +2324,13 @@ function deal(){
     lock: false,
     t0: Date.now(),
     timer: null,
-    vs: foe.k !== 'solo',
+    vs: foe.k !== 'solo',                       // 2人で取り合う回かどうか
+    auto: foe.k !== 'solo' && foe.k !== 'duo',  // 後手がCPUかどうか
     foe,
-    turn: 'you',
-    score: { you:0, cpu:0 },
-    mem: new Map()         // あいてが覚えている札 uid -> wid
+    turn: 'p1',
+    score: { p1:0, p2:0 },
+    names: foe.k === 'duo' ? { p1:'1P', p2:'2P' } : { p1:'あなた', p2:'あいて' },
+    mem: new Map()         // CPUが覚えている札 uid -> wid
   };
 
   // 狭い画面でも4列を保ち、盤面全体が一目に入るようにする
@@ -2335,7 +2349,7 @@ function deal(){
    cap は「同時に覚えていられる枚数」。p=0 なら毎回ただの乱数になる。
    ============================================================ */
 function memorize(c){
-  if (!g.vs || !g.foe.p) return;
+  if (!g.auto || !g.foe.p) return;
   if (Math.random() > g.foe.p) return;
   g.mem.delete(c.uid);                 // 入れ直して新しい記憶にする
   g.mem.set(c.uid, c.wid);
@@ -2425,7 +2439,7 @@ function renderBoard(){
 
 /* 自分がめくる */
 function flip(c, btn){
-  if (g.lock || g.turn === 'cpu') return;
+  if (g.lock || (g.auto && g.turn === 'p2')) return;   // CPUの番だけは触らせない
   if (btn.classList.contains('done') || btn.classList.contains('open')) return;
   reveal(c);
   g.open.push(c);
@@ -2449,7 +2463,8 @@ function reveal(c){
 /* 2枚めくり終えたときの判定。自分の番のときだけ学習記録に書く */
 function resolve(a, b){
   g.moves++;
-  const mine = !g.vs || g.turn === 'you';
+  // 学習記録に書くのは1Pの手だけ。2PやCPUの結果で端末の持ち主の記録を汚さない
+  const mine = !g.vs || g.turn === 'p1';
   const hit = (a.wid === b.wid && a.side !== b.side);
 
   if (hit) {
@@ -2502,25 +2517,27 @@ function nextTurn(swap){
   if (!g) return;
   if (g.matched === g.pairs) { finish(); return; }
   if (!g.vs) { g.lock = false; return; }
-  if (swap) g.turn = (g.turn === 'you') ? 'cpu' : 'you';
-  updateHud();
-  if (g.turn === 'cpu') cpuPlay();
-  else g.lock = false;
+  if (swap) g.turn = (g.turn === 'p1') ? 'p2' : 'p1';
+  updateHud(swap);
+  if (g.auto && g.turn === 'p2') cpuPlay();
+  else g.lock = false;                     // ふたりで対戦なら次の人が自分でめくる
 }
 
-function updateHud(){
+function updateHud(swapped){
   if (!g) return;
   const pill = $('h-turn'), board = $('board');
   if (g.vs) {
-    $('h-pairs').textContent = g.score.you;
-    $('h-pairs-k').textContent = 'あなた';
-    $('h-moves').textContent = g.score.cpu;
-    $('h-moves-k').textContent = 'あいて';
+    $('h-pairs').textContent = g.score.p1;
+    $('h-pairs-k').textContent = g.names.p1;
+    $('h-moves').textContent = g.score.p2;
+    $('h-moves-k').textContent = g.names.p2;
     pill.hidden = false;
-    pill.textContent = g.turn === 'you' ? 'あなたの番' : 'あいての番';
-    pill.classList.toggle('you', g.turn === 'you');
-    pill.classList.toggle('cpu', g.turn === 'cpu');
-    board.classList.toggle('waiting', g.turn === 'cpu');
+    pill.textContent = g.names[g.turn] + 'の番';
+    pill.classList.toggle('p1', g.turn === 'p1');
+    pill.classList.toggle('p2', g.turn === 'p2');
+    // 盤面を止めるのはCPUの番だけ。ふたりで対戦なら2Pがめくる
+    board.classList.toggle('waiting', g.auto && g.turn === 'p2');
+    if (swapped) { pill.classList.remove('swap'); void pill.offsetWidth; pill.classList.add('swap'); }
   } else {
     $('h-pairs').textContent = g.matched + '/' + g.pairs;
     $('h-pairs-k').textContent = 'ペア';
@@ -2529,8 +2546,9 @@ function updateHud(){
     pill.hidden = true;
     board.classList.remove('waiting');
   }
+  $('h-time').textContent = clock(elapsed());
   const c = $('h-combo');
-  if (g.combo >= 2 && (!g.vs || g.turn === 'you')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
+  if (g.combo >= 2 && (!g.vs || g.turn === 'p1')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
   else c.classList.remove('on');
 }
 const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
@@ -2601,10 +2619,13 @@ function showMatch(w, after){
 function showSlip(a, b, after){
   const block = w => headOf(w) +
     (w.x ? '<p class="ex">' + esc(w.x) + '<span class="exja">' + esc(w.xj) + '</span></p>' : '');
+  // 読むのは目なので、読み上げの推定ではなく文字量から表示時間を決める
+  const words = t => (t ? t.trim().split(/\s+/).length : 0);
+  const ms = Math.min(7000, Math.max(3600, 2200 + (words(a.x) + words(b.x)) * 260));
   openPop('slip',
     '<p class="tag">はずれ ― この2語を覚えて</p>' +
     '<div class="pair">' + block(a) + block(b) + '</div>' +
-    '<p class="hint">タップで次へ</p>', 3600, after);
+    '<p class="hint">タップで次へ</p>', ms, after);
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -2613,7 +2634,7 @@ function finish(){
   clearInterval(g.timer);
   const secs = elapsed();
   const extra = Math.max(0, g.moves - g.pairs);
-  const won = g.vs ? g.score.you : g.pairs;
+  const won = g.vs ? g.score.p1 : g.pairs;
   const score = Math.max(0,
     won * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
   const eff = g.pairs / Math.max(1, g.moves);
@@ -2627,14 +2648,14 @@ function finish(){
 
   $('r-range').textContent =
     (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア' +
-    (g.vs ? ' / あいて「' + g.foe.label + '」' : '');
+    (g.vs ? ' / ' + (g.auto ? 'あいて「' + g.foe.label + '」' : g.foe.label) : '');
   const rankEl = $('r-rank');
   rankEl.classList.toggle('vs', !!g.vs);
   if (g.vs) {
-    const you = g.score.you, cpu = g.score.cpu;
-    rankEl.textContent = you + '－' + cpu;
+    const a = g.score.p1, b = g.score.p2;
+    rankEl.textContent = a + '－' + b;
     rankEl.appendChild(Object.assign(document.createElement('small'),
-      { textContent: you > cpu ? 'あなたの勝ち' : you < cpu ? 'あいての勝ち' : '引き分け' }));
+      { textContent: a > b ? g.names.p1 + 'の勝ち' : a < b ? g.names.p2 + 'の勝ち' : '引き分け' }));
   } else {
     rankEl.textContent = rank[0];
     rankEl.appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
@@ -2749,8 +2770,11 @@ function boot(data){
   $('scrim').addEventListener('click', closePop);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
   $('quit').addEventListener('click', () => {
+    // g ごと捨てる。保留中のタイマーはすべて !g で弾かれる
+    // （gen を無効値にするだけだと、その後に起動する手が同じ無効値を
+    //   捕まえて guard を通過してしまう）
+    if (g) { clearInterval(g.timer); g = null; }
     closePop();
-    if (g) { g.gen = -1; if (g.timer) clearInterval(g.timer); }   // 予約済みのあいての手を無効にする
     renderHome(); show('s-home');
   });
   $('sound-toggle').addEventListener('click', e => {
