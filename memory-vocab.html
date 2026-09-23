@@ -399,6 +399,16 @@
     animation-fill-mode:forwards;
   }
   .pop.slip .drain{background:var(--vermilion);}
+  /* 読み上げ中は閉じる時刻が読み終わりに委ねられるので、
+     残り時間を示す減少バーではなく、進行中であることだけを示す */
+  @keyframes reading{0%,100%{opacity:.22}50%{opacity:.8}}
+  .pop .drain.reading{
+    animation-name:reading;
+    animation-duration:1.15s;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+    transform:scaleX(1);
+  }
   .speak{
     all:unset;
     cursor:pointer;
@@ -2245,7 +2255,7 @@ function tokenize(sentence){
 /* 例文を読み上げつつ、いま読んでいる語を光らせる。
    boundary イベントを出す端末ではそれに追従し、出さない端末（Safari など）では
    語の長さから割り出した推定ペースで送る。発話できなければ false を返す。 */
-function startRead(sentence, toks, ms, onend){
+function startRead(sentence, toks, paceMs, onend){
   const spans = toks.map((_, i) => $('tk' + i));
   const mark = idx => spans.forEach((sp, i) => {
     if (!sp) return;
@@ -2260,11 +2270,11 @@ function startRead(sentence, toks, ms, onend){
   const pace = i => {
     if (following || i >= toks.length) return;
     mark(i);
-    fb = setTimeout(() => pace(i + 1), Math.max(90, (ms - 500) * weights[i] / total));
+    fb = setTimeout(() => pace(i + 1), Math.max(90, (paceMs - 500) * weights[i] / total));
   };
 
   const spoke = say(sentence, 0.95, {
-    onstart: () => { if (!following) pace(0); },
+    onstart: () => { holdPop(); if (!following) pace(0); },
     onboundary: e => {                       // 実際の読み上げ位置が取れた
       following = true;
       stopFb();
@@ -2556,6 +2566,7 @@ const clock = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 
 /* ---------- 解説ポップアップ ---------- */
 let popTimer = null, popAfter = null, popMs = 0;
+const POP_SAFETY = 15000;   // onend が来ない端末のための保険
 
 function openPop(kind, html, ms, after){
   const pop = $('pop');
@@ -2572,12 +2583,26 @@ function openPop(kind, html, ms, after){
     speak(b.dataset.say);
     armPop(popMs);                // 聞き直したぶん表示を延長する
     const d = pop.querySelector('.drain');
-    if (d) { d.style.animation = 'none'; void d.offsetWidth; d.style.animation = ''; d.style.animationDuration = popMs + 'ms'; }
+    if (d) {
+      d.classList.remove('reading');
+      d.style.animation = 'none'; void d.offsetWidth;
+      d.style.animation = ''; d.style.animationDuration = popMs + 'ms';
+    }
   }));
 }
 function armPop(ms){
   if (popTimer) clearTimeout(popTimer);
   popTimer = setTimeout(closePop, ms);
+}
+/* 声が出はじめたら締め切りを外す。閉じるのは読み終わり（onend）の仕事で、
+   タイマーは onend が来ない端末のための保険だけに下がる。
+   合成音声は発話開始までに数百ミリ秒かかることがあり、推定時間の
+   タイマーだけだと読み上げの途中でポップアップが消えてしまう。 */
+function holdPop(){
+  if ($('poplayer').hidden) return;
+  armPop(POP_SAFETY);
+  const d = $('pop').querySelector('.drain');
+  if (d) { d.style.animationDuration = ''; d.classList.add('reading'); }
 }
 function closePop(){
   if ($('poplayer').hidden) return;
@@ -2602,7 +2627,10 @@ function headOf(w){
 function showMatch(w, after){
   const hasEx = !!w.x;
   const toks = hasEx ? tokenize(w.x) : [];
-  const ms = hasEx ? Math.max(2600, estimate(w.x)) : 2300;
+  const willSpeak = hasEx && soundOn && ('speechSynthesis' in window);
+  // 読み上げるなら、この時間は「声が出はじめるまで」の猶予。
+  // 出はじめたら holdPop が引き継ぎ、読み終わりで閉じる。
+  const ms = willSpeak ? 4500 : (hasEx ? Math.max(2600, estimate(w.x)) : 2300);
   const body = hasEx
     ? '<p class="sent">' +
         toks.map((t, i) => '<span class="tk" id="tk' + i + '">' + esc(t.text) + '</span>').join(' ') +
@@ -2612,7 +2640,7 @@ function showMatch(w, after){
     '<p class="tag ok">そろった</p>' + headOf(w) + body +
     '<p class="hint">タップで次へ</p>', ms, after);
   // 読み上げできない（音声OFF・非対応端末）ときは表示時間のタイマーだけで閉じる
-  if (hasEx) startRead(w.x, toks, ms, closePop);
+  if (hasEx) startRead(w.x, toks, estimate(w.x), closePop);
   else speak(w.e);
 }
 /* はずれ ― 2語を見せてから伏せる */
