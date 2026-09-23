@@ -595,9 +595,12 @@
 
 <script>
 /* ============================================================
-   語彙データ ― 英検準2級「出た単語一覧」全1480語（出典: 英語漬け.com）
-   重複掲載の direction を1件整理して 1479 語。
-   1行 = 出た順|英語|日本語|例文|例文訳   （例文があるのは124語）
+   語彙データ ― 1479語
+   出た順・英語・日本語は英検準2級「出た単語一覧」全1480語（出典:
+   英語漬け.com）より。重複掲載の direction を1件整理して1479語。
+   例文と例文訳は全語ぶんをこのアプリのために書き下ろしたもので、
+   出典には含まれない。
+   1行 = 出た順|英語|日本語|例文|例文訳
    ============================================================ */
 const DATA = `1|as a result|結果として|As a result, the game was canceled.|結果として、試合は中止になった。
 2|look up|を調べる|I looked up the word in a dictionary.|辞書でその単語を調べた。
@@ -2543,6 +2546,7 @@ function updateHud(swapped){
     pill.hidden = true;
     board.classList.remove('waiting');
   }
+  $('h-time').textContent = clock(elapsed());
   const c = $('h-combo');
   if (g.combo >= 2 && (!g.vs || g.turn === 'p1')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
   else c.classList.remove('on');
@@ -2615,10 +2619,13 @@ function showMatch(w, after){
 function showSlip(a, b, after){
   const block = w => headOf(w) +
     (w.x ? '<p class="ex">' + esc(w.x) + '<span class="exja">' + esc(w.xj) + '</span></p>' : '');
+  // 読むのは目なので、読み上げの推定ではなく文字量から表示時間を決める
+  const words = t => (t ? t.trim().split(/\s+/).length : 0);
+  const ms = Math.min(7000, Math.max(3600, 2200 + (words(a.x) + words(b.x)) * 260));
   openPop('slip',
     '<p class="tag">はずれ ― この2語を覚えて</p>' +
     '<div class="pair">' + block(a) + block(b) + '</div>' +
-    '<p class="hint">タップで次へ</p>', 3600, after);
+    '<p class="hint">タップで次へ</p>', ms, after);
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
@@ -2641,7 +2648,7 @@ function finish(){
 
   $('r-range').textContent =
     (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア' +
-    (g.vs ? ' / ' + g.foe.label : '');
+    (g.vs ? ' / ' + (g.auto ? 'あいて「' + g.foe.label + '」' : g.foe.label) : '');
   const rankEl = $('r-rank');
   rankEl.classList.toggle('vs', !!g.vs);
   if (g.vs) {
@@ -2763,8 +2770,11 @@ function boot(data){
   $('scrim').addEventListener('click', closePop);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
   $('quit').addEventListener('click', () => {
+    // g ごと捨てる。保留中のタイマーはすべて !g で弾かれる
+    // （gen を無効値にするだけだと、その後に起動する手が同じ無効値を
+    //   捕まえて guard を通過してしまう）
+    if (g) { clearInterval(g.timer); g = null; }
     closePop();
-    if (g) { g.gen = -1; if (g.timer) clearInterval(g.timer); }   // 予約済みのあいての手を無効にする
     renderHome(); show('s-home');
   });
   $('sound-toggle').addEventListener('click', e => {
