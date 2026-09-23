@@ -1,490 +1,774 @@
 <title>英単語めくり</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap"
+/>
 <style>
-  :root{
+  :root {
     color-scheme: dark;
     /* 卓（フェルト） */
-    --felt-deep:#0F2822;
-    --felt:#16362E;
-    --felt-up:#1D453B;
-    --felt-line:#2C5B4D;
+    --felt-deep: #0f2822;
+    --felt: #16362e;
+    --felt-up: #1d453b;
+    --felt-line: #2c5b4d;
     /* 札（生成り） */
-    --card:#F0E8D6;
-    --card-edge:#DCCFB4;
-    --ink:#182A2F;
-    --ink-dim:#5E6D6B;
+    --card: #f0e8d6;
+    --card-edge: #dccfb4;
+    --ink: #182a2f;
+    --ink-dim: #5e6d6b;
     /* さしいろ */
-    --vermilion:#CF4630;
-    --vermilion-soft:#E9836F;
-    --indigo:#2F5B82;
-    --gold:#D0A24C;
+    --vermilion: #cf4630;
+    --vermilion-soft: #e9836f;
+    --indigo: #2f5b82;
+    --gold: #d0a24c;
     /* 卓上の文字 */
-    --text:#E9E3D2;
-    --text-dim:#93AAA1;
-    --text-faint:#638076;
+    --text: #e9e3d2;
+    --text-dim: #93aaa1;
+    --text-faint: #638076;
 
-    --shadow-card:0 2px 0 rgba(0,0,0,.35), 0 6px 14px rgba(0,0,0,.28);
-    --min-card:70px;
-    --radius:9px;
+    --shadow-card: 0 2px 0 rgba(0, 0, 0, 0.35), 0 6px 14px rgba(0, 0, 0, 0.28);
+    --min-card: 70px;
+    --radius: 9px;
   }
 
-  html,body{height:100%;}
-  body{
-    margin:0;
-    background:
-      radial-gradient(120% 90% at 50% 0%, var(--felt-up) 0%, var(--felt) 42%, var(--felt-deep) 100%);
-    color:var(--text);
-    font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
-    font-size:15px;
-    line-height:1.7;
-    -webkit-font-smoothing:antialiased;
+  html,
+  body {
+    height: 100%;
   }
-  *{box-sizing:border-box;}
-  button{font:inherit;color:inherit;}
+  body {
+    margin: 0;
+    background: radial-gradient(
+      120% 90% at 50% 0%,
+      var(--felt-up) 0%,
+      var(--felt) 42%,
+      var(--felt-deep) 100%
+    );
+    color: var(--text);
+    font-family:
+      "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+      system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+  }
 
-  .wrap{
-    max-width:720px;
-    margin:0 auto;
-    padding-inline:18px;
-    padding-block:22px 40px;
-    min-height:100%;
-    display:flex;
-    flex-direction:column;
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 22px 40px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   /* ---------- 共通パーツ ---------- */
-  .eyebrow{
-    font-family:"IBM Plex Mono",ui-monospace,monospace;
-    font-size:11px;
-    letter-spacing:.22em;
-    text-transform:uppercase;
-    color:var(--text-faint);
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
   }
-  .btn{
-    border:1px solid var(--felt-line);
-    background:linear-gradient(180deg,var(--felt-up),var(--felt));
-    border-radius:var(--radius);
-    padding:11px 18px;
-    cursor:pointer;
-    transition:background .16s,border-color .16s,transform .1s;
+  .btn {
+    border: 1px solid var(--felt-line);
+    background: linear-gradient(180deg, var(--felt-up), var(--felt));
+    border-radius: var(--radius);
+    padding: 11px 18px;
+    cursor: pointer;
+    transition:
+      background 0.16s,
+      border-color 0.16s,
+      transform 0.1s;
   }
-  .btn:hover{border-color:var(--gold);}
-  .btn:active{transform:translateY(1px);}
-  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-  .btn-primary{
-    background:linear-gradient(180deg,var(--vermilion),#A9341F);
-    border-color:#8E2C19;
-    color:#FFF4EE;
-    font-weight:700;
-    letter-spacing:.06em;
-    box-shadow:0 2px 0 rgba(0,0,0,.3);
+  .btn:hover {
+    border-color: var(--gold);
   }
-  .btn-primary:hover{border-color:var(--vermilion-soft);}
-  .btn-ghost{background:transparent;border-color:transparent;color:var(--text-dim);padding:8px 12px;}
-  .btn-ghost:hover{color:var(--text);border-color:var(--felt-line);}
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, var(--vermilion), #a9341f);
+    border-color: #8e2c19;
+    color: #fff4ee;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  }
+  .btn-primary:hover {
+    border-color: var(--vermilion-soft);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-dim);
+    padding: 8px 12px;
+  }
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--felt-line);
+  }
 
   /* ---------- ホーム ---------- */
-  .masthead{text-align:center;padding-block:14px 6px;}
-  .masthead h1{
-    font-family:"Zen Kaku Gothic New",sans-serif;
-    font-weight:700;
-    font-size:clamp(28px,7vw,40px);
-    letter-spacing:.14em;
-    margin:.1em 0 .18em;
-    text-wrap:balance;
+  .masthead {
+    text-align: center;
+    padding-block: 14px 6px;
   }
-  .masthead .sub{
-    font-family:"Bodoni Moda",Georgia,serif;
-    font-style:italic;
-    font-size:15px;
-    color:var(--gold);
-    letter-spacing:.04em;
+  .masthead h1 {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 7vw, 40px);
+    letter-spacing: 0.14em;
+    margin: 0.1em 0 0.18em;
+    text-wrap: balance;
   }
-  .rule{
-    height:1px;
-    background:linear-gradient(90deg,transparent,var(--felt-line) 18%,var(--felt-line) 82%,transparent);
-    margin-block:22px;
+  .masthead .sub {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
   }
-
-  .setting{margin-block:18px;}
-  .setting > .eyebrow{display:block;margin-bottom:9px;}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{
-    border:1px solid var(--felt-line);
-    background:rgba(0,0,0,.16);
-    border-radius:999px;
-    padding:7px 15px;
-    font-size:13.5px;
-    cursor:pointer;
-    color:var(--text-dim);
-    transition:all .16s;
-  }
-  .chip:hover{color:var(--text);border-color:var(--text-faint);}
-  .chip[aria-pressed="true"]{
-    background:var(--card);
-    border-color:var(--card-edge);
-    color:var(--ink);
-    font-weight:700;
-  }
-  .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-  .chip .n{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:11px;
-    opacity:.6;
-    margin-left:5px;
+  .rule {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--felt-line) 18%,
+      var(--felt-line) 82%,
+      transparent
+    );
+    margin-block: 22px;
   }
 
-  .start-row{display:flex;gap:10px;align-items:center;margin-top:26px;flex-wrap:wrap;}
-  .start-row .btn-primary{flex:1 1 150px;padding-block:15px;font-size:16px;}
+  .setting {
+    margin-block: 18px;
+  }
+  .setting > .eyebrow {
+    display: block;
+    margin-bottom: 9px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    border: 1px solid var(--felt-line);
+    background: rgba(0, 0, 0, 0.16);
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-size: 13.5px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.16s;
+  }
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--text-faint);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--card);
+    border-color: var(--card-edge);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .chip:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .chip .n {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    opacity: 0.6;
+    margin-left: 5px;
+  }
 
-  .ledger{
-    margin-top:auto;
-    padding-top:28px;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(76px,1fr));
-    gap:14px 10px;
-    border-top:1px solid var(--felt-line);
+  .start-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 26px;
+    flex-wrap: wrap;
   }
-  .ledger div{text-align:left;}
-  .ledger .v{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:20px;
-    font-weight:600;
-    color:var(--gold);
-    font-variant-numeric:tabular-nums;
-    display:block;
-    line-height:1.3;
+  .start-row .btn-primary {
+    flex: 1 1 150px;
+    padding-block: 15px;
+    font-size: 16px;
   }
-  .ledger .k{font-size:11.5px;color:var(--text-faint);letter-spacing:.06em;}
+
+  .ledger {
+    margin-top: auto;
+    padding-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+    gap: 14px 10px;
+    border-top: 1px solid var(--felt-line);
+  }
+  .ledger div {
+    text-align: left;
+  }
+  .ledger .v {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    display: block;
+    line-height: 1.3;
+  }
+  .ledger .k {
+    font-size: 11.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+  }
 
   /* ---------- 盤面ヘッダー ---------- */
-  .hud{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding-bottom:12px;
-    border-bottom:1px solid var(--felt-line);
-    margin-bottom:16px;
-    flex-wrap:wrap;
+  .hud {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--felt-line);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
   }
-  .hud .stat{display:flex;flex-direction:column;line-height:1.25;min-width:52px;}
-  .hud .stat b{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:18px;
-    font-weight:600;
-    font-variant-numeric:tabular-nums;
+  .hud .stat {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    min-width: 52px;
   }
-  .hud .stat span{font-size:10.5px;color:var(--text-faint);letter-spacing:.1em;}
-  .hud .spacer{flex:1;}
-  .combo{
-    font-family:"Bodoni Moda",Georgia,serif;
-    font-style:italic;
-    font-size:17px;
-    color:var(--gold);
-    opacity:0;
-    transition:opacity .25s;
-    white-space:nowrap;
+  .hud .stat b {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
-  .combo.on{opacity:1;}
-  .turnpill{
-    font-size:11.5px;
-    letter-spacing:.08em;
-    border:1px solid var(--felt-line);
-    border-radius:999px;
-    padding:3px 11px;
-    color:var(--text-dim);
-    white-space:nowrap;
+  .hud .stat span {
+    font-size: 10.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
   }
-  .turnpill.you{border-color:var(--gold);color:var(--gold);}
-  .turnpill.cpu{border-color:var(--vermilion);color:var(--vermilion-soft);}
+  .hud .spacer {
+    flex: 1;
+  }
+  .combo {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.25s;
+    white-space: nowrap;
+  }
+  .combo.on {
+    opacity: 1;
+  }
+  .turnpill {
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--felt-line);
+    border-radius: 999px;
+    padding: 3px 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .turnpill.you {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .turnpill.cpu {
+    border-color: var(--vermilion);
+    color: var(--vermilion-soft);
+  }
   /* あいての番のあいだは盤面を触れなくする */
-  .board.waiting{pointer-events:none;opacity:.88;}
+  .board.waiting {
+    pointer-events: none;
+    opacity: 0.88;
+  }
 
   /* ---------- 札 ---------- */
-  .board{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(var(--min-card),1fr));
-    gap:8px;
-    margin-bottom:14px;
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--min-card), 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
   }
-  .card{
-    all:unset;
-    display:block;
-    position:relative;
-    aspect-ratio:3/4;
-    max-width:100%;
-    cursor:pointer;
-    perspective:800px;
-    border-radius:var(--radius);
+  .card {
+    all: unset;
+    display: block;
+    position: relative;
+    aspect-ratio: 3/4;
+    max-width: 100%;
+    cursor: pointer;
+    perspective: 800px;
+    border-radius: var(--radius);
   }
-  .card:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
-  .card .inner{
-    position:absolute;
-    inset:0;
-    transform-style:preserve-3d;
-    transition:transform .4s cubic-bezier(.4,.05,.2,1);
+  .card:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
   }
-  .card.open .inner,.card.done .inner{transform:rotateY(180deg);}
-  .face{
-    position:absolute;
-    inset:0;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    border-radius:var(--radius);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:5px;
-    text-align:center;
-    box-shadow:var(--shadow-card);
-    overflow:hidden;
+  .card .inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.4, 0.05, 0.2, 1);
+  }
+  .card.open .inner,
+  .card.done .inner {
+    transform: rotateY(180deg);
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
   }
   /* 裏（矢絣風） */
-  .face-back{
-    background:
-      repeating-linear-gradient(135deg,#1B3F62 0 6px,#23507C 6px 12px);
-    border:1px solid #0E2438;
+  .face-back {
+    background: repeating-linear-gradient(
+      135deg,
+      #1b3f62 0 6px,
+      #23507c 6px 12px
+    );
+    border: 1px solid #0e2438;
   }
-  .face-back::after{
-    content:"";
-    position:absolute;
-    inset:5px;
-    border:1px solid rgba(208,162,76,.42);
-    border-radius:4px;
+  .face-back::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(208, 162, 76, 0.42);
+    border-radius: 4px;
   }
   /* 表 */
-  .face-front{
-    transform:rotateY(180deg);
-    background:linear-gradient(170deg,#F6F0E2,var(--card) 55%,var(--card-edge));
-    color:var(--ink);
-    border:1px solid var(--card-edge);
-    flex-direction:column;
-    gap:2px;
+  .face-front {
+    transform: rotateY(180deg);
+    background: linear-gradient(
+      170deg,
+      #f6f0e2,
+      var(--card) 55%,
+      var(--card-edge)
+    );
+    color: var(--ink);
+    border: 1px solid var(--card-edge);
+    flex-direction: column;
+    gap: 2px;
   }
-  .face-front .w{
-    font-size:var(--fs,15px);
-    line-height:1.24;
-    font-weight:600;
-    overflow-wrap:anywhere;
-    hyphens:auto;
+  .face-front .w {
+    font-size: var(--fs, 15px);
+    line-height: 1.24;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
-  .card.en .face-front{border-top:4px solid var(--indigo);}
-  .card.ja .face-front{border-top:4px solid var(--vermilion);}
-  .card.en .face-front .w{font-family:"Bodoni Moda",Georgia,serif;font-weight:600;}
-  .card.done{cursor:default;}
-  .card.done .face-front{
-    background:linear-gradient(170deg,#DFEFE2,#C9E3CE);
-    border-color:#A9CDB2;
-    opacity:.82;
+  .card.en .face-front {
+    border-top: 4px solid var(--indigo);
   }
-  .card.miss .face-front{
-    background:linear-gradient(170deg,#FBE2DC,#F3CCC2);
-    border-color:#E0A697;
+  .card.ja .face-front {
+    border-top: 4px solid var(--vermilion);
   }
-  @keyframes nudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-  .card.miss{animation:nudge .26s 1;}
-  @media (prefers-reduced-motion:reduce){
-    .card .inner{transition:none;}
-    .card.miss{animation:none;}
+  .card.en .face-front .w {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-weight: 600;
+  }
+  .card.done {
+    cursor: default;
+  }
+  .card.done .face-front {
+    background: linear-gradient(170deg, #dfefe2, #c9e3ce);
+    border-color: #a9cdb2;
+    opacity: 0.82;
+  }
+  .card.miss .face-front {
+    background: linear-gradient(170deg, #fbe2dc, #f3ccc2);
+    border-color: #e0a697;
+  }
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+  .card.miss {
+    animation: nudge 0.26s 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card .inner {
+      transition: none;
+    }
+    .card.miss {
+      animation: none;
+    }
   }
 
   /* ---------- 解説ポップアップ ---------- */
   /* 暗幕 ― 盤面を沈める */
-  .scrim{
-    position:fixed;
-    inset:0;
-    background:rgba(5,16,13,.72);
-    z-index:40;
-    animation:fade .13s ease-out;
+  .scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 16, 13, 0.72);
+    z-index: 40;
+    animation: fade 0.13s ease-out;
   }
   /* いま話題にしている札だけ暗幕の上に出して、位置を覚えられるようにする */
-  .card.spot{z-index:45;}
+  .card.spot {
+    z-index: 45;
+  }
   /* ポップアップ ― 札より手前 */
-  .poplayer{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
-    z-index:60;
-    pointer-events:auto;
+  .poplayer {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    pointer-events: auto;
   }
-  @keyframes fade{from{opacity:0}to{opacity:1}}
-  @keyframes rise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
-  @keyframes drain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
-  .pop{
-    width:min(470px,100%);
-    max-height:100%;
-    overflow-y:auto;
-    background:linear-gradient(176deg,#1A3E35,#0D241E);
-    border:1px solid var(--felt-line);
-    border-top:3px solid var(--gold);
-    border-radius:14px;
-    box-shadow:0 20px 48px rgba(3,12,9,.62);
-    padding:17px 20px 15px;
-    cursor:pointer;
-    animation:rise .17s cubic-bezier(.2,.7,.3,1);
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
-  .pop.slip{border-top-color:var(--vermilion);}
-  .pop .tag{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:10px;
-    letter-spacing:.16em;
-    color:var(--vermilion-soft);
-    margin:0 0 10px;
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
-  .pop .tag.ok{color:var(--gold);}
-  .pop .head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
-  .pop .en{
-    font-family:"Bodoni Moda",Georgia,serif;
-    font-size:25px;
-    font-weight:600;
+  @keyframes drain {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
   }
-  .pop .pos{
-    font-size:10.5px;
-    border:1px solid var(--felt-line);
-    border-radius:3px;
-    padding:1px 6px;
-    color:var(--text-dim);
+  .pop {
+    width: min(470px, 100%);
+    max-height: 100%;
+    overflow-y: auto;
+    background: linear-gradient(176deg, #1a3e35, #0d241e);
+    border: 1px solid var(--felt-line);
+    border-top: 3px solid var(--gold);
+    border-radius: 14px;
+    box-shadow: 0 20px 48px rgba(3, 12, 9, 0.62);
+    padding: 17px 20px 15px;
+    cursor: pointer;
+    animation: rise 0.17s cubic-bezier(0.2, 0.7, 0.3, 1);
   }
-  .pop .ja{font-size:16px;font-weight:500;}
+  .pop.slip {
+    border-top-color: var(--vermilion);
+  }
+  .pop .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--vermilion-soft);
+    margin: 0 0 10px;
+  }
+  .pop .tag.ok {
+    color: var(--gold);
+  }
+  .pop .head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .pop .en {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: 25px;
+    font-weight: 600;
+  }
+  .pop .pos {
+    font-size: 10.5px;
+    border: 1px solid var(--felt-line);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--text-dim);
+  }
+  .pop .ja {
+    font-size: 16px;
+    font-weight: 500;
+  }
   /* そろったとき ― 例文が主役 */
-  .pop .sent{
-    font-family:"Bodoni Moda",Georgia,serif;
-    font-size:18px;
-    line-height:1.5;
-    color:var(--text);
-    margin:14px 0 2px;
+  .pop .sent {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text);
+    margin: 14px 0 2px;
   }
-  .pop .sentja{font-size:13px;color:var(--text-dim);margin:0;line-height:1.6;}
+  .pop .sentja {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.6;
+  }
   /* いま読んでいる語 */
-  .pop .sent .tk{
-    border-radius:3px;
-    padding:0 2px;
-    margin:0 -1px;
-    transition:color .1s linear,background-color .1s linear;
-    -webkit-box-decoration-break:clone;
-    box-decoration-break:clone;
+  .pop .sent .tk {
+    border-radius: 3px;
+    padding: 0 2px;
+    margin: 0 -1px;
+    transition:
+      color 0.1s linear,
+      background-color 0.1s linear;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
-  .pop .sent .tk.read{color:var(--text-dim);}
-  .pop .sent .tk.now{background:var(--gold);color:#10241E;}
-  @media (prefers-reduced-motion:reduce){ .pop .sent .tk{transition:none;} }
+  .pop .sent .tk.read {
+    color: var(--text-dim);
+  }
+  .pop .sent .tk.now {
+    background: var(--gold);
+    color: #10241e;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pop .sent .tk {
+      transition: none;
+    }
+  }
   /* はずれたとき ― 2語を並べる */
-  .pop .pair{display:grid;gap:13px;}
-  .pop .pair .ex{font-family:"Bodoni Moda",Georgia,serif;font-size:14px;color:var(--text-dim);margin:6px 0 0;line-height:1.5;}
-  .pop .pair .exja{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:12.5px;color:var(--text-faint);}
-  .pop .hint{font-size:11px;color:var(--text-faint);text-align:right;margin:12px 0 0;letter-spacing:.06em;}
-  .pop .drain{
-    display:block;
-    height:2px;
-    margin-top:10px;
-    border-radius:2px;
-    background:var(--gold);
-    opacity:.55;
-    transform-origin:left center;
-    animation-name:drain;
-    animation-timing-function:linear;
-    animation-fill-mode:forwards;
+  .pop .pair {
+    display: grid;
+    gap: 13px;
   }
-  .pop.slip .drain{background:var(--vermilion);}
-  .speak{
-    all:unset;
-    cursor:pointer;
-    font-size:14px;
-    color:var(--text-faint);
-    border:1px solid var(--felt-line);
-    border-radius:5px;
-    padding:1px 8px;
-    line-height:1.5;
+  .pop .pair .ex {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: 14px;
+    color: var(--text-dim);
+    margin: 6px 0 0;
+    line-height: 1.5;
   }
-  .speak:hover{color:var(--gold);border-color:var(--gold);}
-  .speak:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-  @media (prefers-reduced-motion:reduce){
-    .scrim,.pop{animation:none;}
-    .card.spot{transition:none;}
-    .pop .drain{animation:none;transform:scaleX(1);}
+  .pop .pair .exja {
+    display: block;
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 12.5px;
+    color: var(--text-faint);
+  }
+  .pop .hint {
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: right;
+    margin: 12px 0 0;
+    letter-spacing: 0.06em;
+  }
+  .pop .drain {
+    display: block;
+    height: 2px;
+    margin-top: 10px;
+    border-radius: 2px;
+    background: var(--gold);
+    opacity: 0.55;
+    transform-origin: left center;
+    animation-name: drain;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  .pop.slip .drain {
+    background: var(--vermilion);
+  }
+  .speak {
+    all: unset;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-faint);
+    border: 1px solid var(--felt-line);
+    border-radius: 5px;
+    padding: 1px 8px;
+    line-height: 1.5;
+  }
+  .speak:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+  .speak:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scrim,
+    .pop {
+      animation: none;
+    }
+    .card.spot {
+      transition: none;
+    }
+    .pop .drain {
+      animation: none;
+      transform: scaleX(1);
+    }
   }
 
   /* ---------- 結果 ---------- */
-  .verdict{text-align:center;padding-block:10px 4px;}
-  .rank{
-    font-family:"Bodoni Moda",Georgia,serif;
-    font-size:clamp(64px,19vw,96px);
-    line-height:1;
-    font-weight:700;
-    color:var(--gold);
-    letter-spacing:.02em;
+  .verdict {
+    text-align: center;
+    padding-block: 10px 4px;
   }
-  .rank.vs{font-size:clamp(52px,15vw,78px);letter-spacing:0;}
-  .rank small{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;letter-spacing:.2em;color:var(--text-faint);font-weight:400;margin-top:6px;}
-  .score-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(88px,1fr));
-    gap:12px 8px;
-    margin-block:24px;
-    padding-block:18px;
-    border-top:1px solid var(--felt-line);
-    border-bottom:1px solid var(--felt-line);
+  .rank {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: clamp(64px, 19vw, 96px);
+    line-height: 1;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.02em;
   }
-  .score-grid div{text-align:center;}
-  .score-grid b{
-    display:block;
-    font-family:"IBM Plex Mono",monospace;
-    font-size:21px;
-    font-weight:600;
-    font-variant-numeric:tabular-nums;
+  .rank.vs {
+    font-size: clamp(52px, 15vw, 78px);
+    letter-spacing: 0;
   }
-  .score-grid span{font-size:11px;color:var(--text-faint);letter-spacing:.08em;}
+  .rank small {
+    display: block;
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--text-faint);
+    font-weight: 400;
+    margin-top: 6px;
+  }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+    gap: 12px 8px;
+    margin-block: 24px;
+    padding-block: 18px;
+    border-top: 1px solid var(--felt-line);
+    border-bottom: 1px solid var(--felt-line);
+  }
+  .score-grid div {
+    text-align: center;
+  }
+  .score-grid b {
+    display: block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 21px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-grid span {
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+  }
 
-  .wordlist{display:flex;flex-direction:column;gap:1px;background:var(--felt-line);border:1px solid var(--felt-line);border-radius:var(--radius);overflow:hidden;}
-  .wordlist .row{
-    display:flex;
-    align-items:baseline;
-    gap:10px;
-    padding:9px 13px;
-    background:rgba(9,24,20,.6);
-    flex-wrap:wrap;
+  .wordlist {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--felt-line);
+    border: 1px solid var(--felt-line);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
-  .wordlist .row .e{font-family:"Bodoni Moda",Georgia,serif;font-size:16px;font-weight:600;}
-  .wordlist .row .j{font-size:13px;color:var(--text-dim);flex:1;min-width:110px;}
-  .wordlist .row .c{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:11px;
-    color:var(--vermilion-soft);
-    border:1px solid rgba(207,70,48,.4);
-    border-radius:3px;
-    padding:0 5px;
-    white-space:nowrap;
+  .wordlist .row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 9px 13px;
+    background: rgba(9, 24, 20, 0.6);
+    flex-wrap: wrap;
   }
-  .empty{color:var(--text-faint);font-size:13.5px;text-align:center;padding-block:34px;border:1px dashed var(--felt-line);border-radius:var(--radius);}
+  .wordlist .row .e {
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .wordlist .row .j {
+    font-size: 13px;
+    color: var(--text-dim);
+    flex: 1;
+    min-width: 110px;
+  }
+  .wordlist .row .c {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--vermilion-soft);
+    border: 1px solid rgba(207, 70, 48, 0.4);
+    border-radius: 3px;
+    padding: 0 5px;
+    white-space: nowrap;
+  }
+  .empty {
+    color: var(--text-faint);
+    font-size: 13.5px;
+    text-align: center;
+    padding-block: 34px;
+    border: 1px dashed var(--felt-line);
+    border-radius: var(--radius);
+  }
 
-  h2.sec{
-    font-size:13px;
-    letter-spacing:.16em;
-    color:var(--text-dim);
-    font-weight:500;
-    margin:26px 0 10px;
+  h2.sec {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin: 26px 0 10px;
   }
-  .foot{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
-  .foot .btn{flex:1 1 140px;text-align:center;}
-  .note{font-size:12px;color:var(--text-faint);line-height:1.65;margin-top:18px;}
-  .credit{
-    font-size:11px;
-    color:var(--text-faint);
-    line-height:1.6;
-    margin-top:14px;
-    padding-top:12px;
-    border-top:1px solid var(--felt-line);
-    opacity:.8;
+  .foot {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+  .foot .btn {
+    flex: 1 1 140px;
+    text-align: center;
+  }
+  .note {
+    font-size: 12px;
+    color: var(--text-faint);
+    line-height: 1.65;
+    margin-top: 18px;
+  }
+  .credit {
+    font-size: 11px;
+    color: var(--text-faint);
+    line-height: 1.6;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--felt-line);
+    opacity: 0.8;
   }
 </style>
 
 <div class="wrap">
-
   <!-- ============ ホーム ============ -->
   <section id="s-home">
     <div class="masthead">
@@ -507,32 +791,71 @@
 
     <div class="setting">
       <span class="eyebrow">札の枚数</span>
-      <div class="chips" id="pick-size" role="group" aria-label="札の枚数"></div>
+      <div
+        class="chips"
+        id="pick-size"
+        role="group"
+        aria-label="札の枚数"
+      ></div>
     </div>
 
     <div class="start-row">
       <button class="btn btn-primary" id="go">札をくばる</button>
-      <button class="btn" id="to-weak">にがて札 <span id="weak-n" style="font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:.7"></span></button>
-      <button class="btn btn-ghost" id="sound-toggle" aria-pressed="true" title="めくったとき英語を読み上げます">音声 ON</button>
+      <button class="btn" id="to-weak">
+        にがて札
+        <span
+          id="weak-n"
+          style="
+            font-family: &quot;IBM Plex Mono&quot;, monospace;
+            font-size: 12px;
+            opacity: 0.7;
+          "
+        ></span>
+      </button>
+      <button
+        class="btn btn-ghost"
+        id="sound-toggle"
+        aria-pressed="true"
+        title="めくったとき英語を読み上げます"
+      >
+        音声 ON
+      </button>
     </div>
 
     <div class="ledger">
-      <div><span class="v" id="l-stage">0</span><span class="k">クリア回数</span></div>
-      <div><span class="v" id="l-learned">0</span><span class="k">出会った語</span></div>
-      <div><span class="v" id="l-mastered">0</span><span class="k">得意な語</span></div>
-      <div><span class="v" id="l-best">—</span><span class="k">最高スコア</span></div>
+      <div>
+        <span class="v" id="l-stage">0</span><span class="k">クリア回数</span>
+      </div>
+      <div>
+        <span class="v" id="l-learned">0</span><span class="k">出会った語</span>
+      </div>
+      <div>
+        <span class="v" id="l-mastered">0</span><span class="k">得意な語</span>
+      </div>
+      <div>
+        <span class="v" id="l-best">—</span><span class="k">最高スコア</span>
+      </div>
     </div>
 
-    <p class="note">同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。<br>
-      あいてを選ぶと対戦になる。強さは<strong>めくられた札をどれだけ覚えているか</strong>の差で、「よわい」は何も覚えずに毎回でたらめにめくる。そろえた側がもう一度めくれる。<strong>にがて記録に残るのは自分が外した語だけ</strong>。</p>
-    <p class="credit">語彙は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。例文は124語のみ収録。<br>出典: &copy; 英語漬け.com（えいぷら）2025</p>
+    <p class="note">
+      同じ意味の英語札（青）と日本語札（赤）をそろえる神経衰弱。<strong>外した2枚は意味を見せてから伏せる</strong>ので、外すほど覚える。間違えた語は記録されて、次から優先的に出てくる。<br />
+      あいてを選ぶと対戦になる。強さは<strong>めくられた札をどれだけ覚えているか</strong>の差で、「よわい」は何も覚えずに毎回でたらめにめくる。そろえた側がもう一度めくれる。<strong>にがて記録に残るのは自分が外した語だけ</strong>。
+    </p>
+    <p class="credit">
+      語彙は「英検準2級の出た単語一覧」（全1480語・出た順）より。重複掲載の1語を整理して1479語。例文は124語のみ収録。<br />出典:
+      &copy; 英語漬け.com（えいぷら）2025
+    </p>
   </section>
 
   <!-- ============ 盤面 ============ -->
   <section id="s-game" hidden>
     <div class="hud">
-      <div class="stat"><b id="h-pairs">0/0</b><span id="h-pairs-k">ペア</span></div>
-      <div class="stat"><b id="h-moves">0</b><span id="h-moves-k">てすう</span></div>
+      <div class="stat">
+        <b id="h-pairs">0/0</b><span id="h-pairs-k">ペア</span>
+      </div>
+      <div class="stat">
+        <b id="h-moves">0</b><span id="h-moves-k">てすう</span>
+      </div>
       <div class="stat"><b id="h-time">0:00</b><span>タイム</span></div>
       <div class="spacer"></div>
       <div class="combo" id="h-combo"></div>
@@ -566,7 +889,7 @@
   <section id="s-weak" hidden>
     <div class="masthead">
       <p class="eyebrow">まちがえた回数の多い順</p>
-      <h1 style="font-size:clamp(24px,6vw,32px)">にがて札</h1>
+      <h1 style="font-size: clamp(24px, 6vw, 32px)">にがて札</h1>
     </div>
     <div class="rule"></div>
     <div id="w-list"></div>
@@ -574,28 +897,36 @@
       <button class="btn btn-primary" id="w-drill">にがてだけで勝負</button>
       <button class="btn" id="w-home">ホームへ</button>
     </div>
-    <p class="note">ここに並ぶ語は通常の回でも高い確率で配られる。得意な語（連続正解が続いた語）は自動で一覧から外れる。</p>
+    <p class="note">
+      ここに並ぶ語は通常の回でも高い確率で配られる。得意な語（連続正解が続いた語）は自動で一覧から外れる。
+    </p>
   </section>
 
   <!-- ============ 解説ポップアップ ============ -->
   <div class="scrim" id="scrim" hidden></div>
-  <div class="poplayer" id="poplayer" role="dialog" aria-modal="true" aria-label="単語の解説" hidden>
+  <div
+    class="poplayer"
+    id="poplayer"
+    role="dialog"
+    aria-modal="true"
+    aria-label="単語の解説"
+    hidden
+  >
     <div class="pop" id="pop" tabindex="-1"></div>
   </div>
-
 </div>
 
 <script>
-/* ============================================================
+  /* ============================================================
    語彙データ ― 英検準2級「出た単語一覧」全1480語（出典: 英語漬け.com）
    重複掲載の direction を1件整理して 1479 語。
    1行 = 出た順|英語|日本語|例文|例文訳   （例文があるのは124語）
    ============================================================ */
-const DATA = `1|as a result|結果として||
-2|look up|を調べる||
+  const DATA = `1|as a result|結果として|As a result, he was fired by his boss.|その結果、彼は上司に解雇された。
+2|look up|を調べる|I had to look up the word in the dictionary.|辞書でその単語を調べなくてはならなかった。
 3|available|利用できる|Tickets are available online.|チケットはネットで入手できる。
-4|at first|最初は||
-5|in the past|過去に||
+4|at first|最初は|At first, I was against him.|最初は、彼に反対だった。
+5|in the past|過去に|In the past, I met your little sister.|過去に、あなたの妹に会った。
 6|nowadays|最近，近頃||
 7|information|情報|I need more information.|もっと情報が必要だ。
 8|drop by|ちょっと立ち寄る||
@@ -2071,698 +2402,983 @@ const DATA = `1|as a result|結果として||
 1479|evaluate|評価する，見積もる||
 1480|prospect|見込み，眺め||`;
 
-/* 出た順の帯 ― 頻度の高い語から攻められるように区切る */
-const BANDS = [
-  {k:'all', label:'すべて',       lo:1,    hi:1480},
-  {k:'b1',  label:'1〜300位',     lo:1,    hi:300},
-  {k:'b2',  label:'301〜600位',   lo:301,  hi:600},
-  {k:'b3',  label:'601〜900位',   lo:601,  hi:900},
-  {k:'b4',  label:'901〜1200位',  lo:901,  hi:1200},
-  {k:'b5',  label:'1201位〜',     lo:1201, hi:1480}
-];
-/* あいて ― 強さは「めくられた札をどれだけ覚えているか」で決まる。
+  /* 出た順の帯 ― 頻度の高い語から攻められるように区切る */
+  const BANDS = [
+    { k: "all", label: "すべて", lo: 1, hi: 1480 },
+    { k: "b1", label: "1〜300位", lo: 1, hi: 300 },
+    { k: "b2", label: "301〜600位", lo: 301, hi: 600 },
+    { k: "b3", label: "601〜900位", lo: 601, hi: 900 },
+    { k: "b4", label: "901〜1200位", lo: 901, hi: 1200 },
+    { k: "b5", label: "1201位〜", lo: 1201, hi: 1480 },
+  ];
+  /* あいて ― 強さは「めくられた札をどれだけ覚えているか」で決まる。
    p=0 なら記憶ゼロ、つまり毎回まっさらな乱数でめくるだけになる。 */
-const FOES = [
-  {k:'solo', label:'ひとりで', hint:'記録だけ'},
-  {k:'easy', label:'よわい',   hint:'まぐれ',   p:0,    cap:0,  pace:620},
-  {k:'mid',  label:'ふつう',   hint:'半分覚える', p:0.55, cap:8,  pace:560},
-  {k:'hard', label:'つよい',   hint:'ほぼ覚える', p:0.92, cap:24, pace:470}
-];
-const FOE = k => FOES.find(f => f.k === k) || FOES[0];
+  const FOES = [
+    { k: "solo", label: "ひとりで", hint: "記録だけ" },
+    { k: "easy", label: "よわい", hint: "まぐれ", p: 0, cap: 0, pace: 620 },
+    {
+      k: "mid",
+      label: "ふつう",
+      hint: "半分覚える",
+      p: 0.55,
+      cap: 8,
+      pace: 560,
+    },
+    {
+      k: "hard",
+      label: "つよい",
+      hint: "ほぼ覚える",
+      p: 0.92,
+      cap: 24,
+      pace: 470,
+    },
+  ];
+  const FOE = (k) => FOES.find((f) => f.k === k) || FOES[0];
 
-const SIZES = [
-  {n:6,  label:'6ペア', hint:'12枚'},
-  {n:8,  label:'8ペア', hint:'16枚'},
-  {n:10, label:'10ペア', hint:'20枚'}
-];
+  const SIZES = [
+    { n: 6, label: "6ペア", hint: "12枚" },
+    { n: 8, label: "8ペア", hint: "16枚" },
+    { n: 10, label: "10ペア", hint: "20枚" },
+  ];
 
-const WORDS = DATA.trim().split('\n').map(line => {
-  const [r, e, j, x, xj] = line.split('|');
-  return { id:e, e, j, x, xj, r:+r };
-});
-const BY_ID = new Map(WORDS.map(w => [w.id, w]));
-const BAND = k => BANDS.find(b => b.k === k) || BANDS[0];
+  const WORDS = DATA.trim()
+    .split("\n")
+    .map((line) => {
+      const [r, e, j, x, xj] = line.split("|");
+      return { id: e, e, j, x, xj, r: +r };
+    });
+  const BY_ID = new Map(WORDS.map((w) => [w.id, w]));
+  const BAND = (k) => BANDS.find((b) => b.k === k) || BANDS[0];
 
-/* ============================================================
+  /* ============================================================
    学習記録（この端末に保存）
    ============================================================ */
-const KEY = 'megurikango.v1';
-const MASTER_STREAK = 3;               // 連続正解でこの回数に達したら「得意」
-let store = { stats:{}, cleared:0, best:0 };
+  const KEY = "megurikango.v1";
+  const MASTER_STREAK = 3; // 連続正解でこの回数に達したら「得意」
+  let store = { stats: {}, cleared: 0, best: 0 };
 
-function loadStore(seed){
-  if (seed && seed.stats) { store = seed; return; }
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const p = JSON.parse(raw);
-      store = { stats: p.stats || {}, cleared: p.cleared || 0, best: p.best || 0 };
+  function loadStore(seed) {
+    if (seed && seed.stats) {
+      store = seed;
+      return;
     }
-  } catch (e) { /* 保存が使えない環境でも遊べるようにする */ }
-}
-function saveStore(){
-  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
-}
-function stat(id){
-  return store.stats[id] || (store.stats[id] = { ok:0, miss:0, streak:0 });
-}
-const isMastered = id => (store.stats[id]?.streak || 0) >= MASTER_STREAK;
-const weakWords = () => WORDS
-  .filter(w => (store.stats[w.id]?.miss || 0) > 0 && !isMastered(w.id))
-  .sort((a,b) => (store.stats[b.id].miss - store.stats[a.id].miss) || a.e.localeCompare(b.e));
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        store = {
+          stats: p.stats || {},
+          cleared: p.cleared || 0,
+          best: p.best || 0,
+        };
+      }
+    } catch (e) {
+      /* 保存が使えない環境でも遊べるようにする */
+    }
+  }
+  function saveStore() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(store));
+    } catch (e) {}
+  }
+  function stat(id) {
+    return store.stats[id] || (store.stats[id] = { ok: 0, miss: 0, streak: 0 });
+  }
+  const isMastered = (id) => (store.stats[id]?.streak || 0) >= MASTER_STREAK;
+  const weakWords = () =>
+    WORDS.filter(
+      (w) => (store.stats[w.id]?.miss || 0) > 0 && !isMastered(w.id),
+    ).sort(
+      (a, b) =>
+        store.stats[b.id].miss - store.stats[a.id].miss ||
+        a.e.localeCompare(b.e),
+    );
 
-/* ============================================================
+  /* ============================================================
    出題の重み付け ― にがてな語ほど出やすく、得意な語は控えめに
    ============================================================ */
-function weightOf(w){
-  const s = store.stats[w.id];
-  if (!s || (s.ok === 0 && s.miss === 0)) return 2;          // 未出題
-  if (s.streak >= MASTER_STREAK) return 0.25;                // 得意
-  return 1 + s.miss * 2.5;
-}
-function drawWords(pool, n){
-  const bag = pool.slice();
-  const out = [], usedMeanings = new Set();
-  while (out.length < n && bag.length) {
-    const total = bag.reduce((t,w) => t + weightOf(w), 0);
-    let r = Math.random() * total;
-    let i = 0;
-    for (; i < bag.length; i++) { r -= weightOf(bag[i]); if (r <= 0) break; }
-    const w = bag.splice(Math.min(i, bag.length - 1), 1)[0];
-    // 和訳が同じ語を同じ回に配らない（at first と initially はどちらも「最初は」）
-    if (usedMeanings.has(w.j)) continue;
-    usedMeanings.add(w.j);
-    out.push(w);
+  function weightOf(w) {
+    const s = store.stats[w.id];
+    if (!s || (s.ok === 0 && s.miss === 0)) return 2; // 未出題
+    if (s.streak >= MASTER_STREAK) return 0.25; // 得意
+    return 1 + s.miss * 2.5;
   }
-  return out;
-}
-const shuffle = a => { for (let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+  function drawWords(pool, n) {
+    const bag = pool.slice();
+    const out = [],
+      usedMeanings = new Set();
+    while (out.length < n && bag.length) {
+      const total = bag.reduce((t, w) => t + weightOf(w), 0);
+      let r = Math.random() * total;
+      let i = 0;
+      for (; i < bag.length; i++) {
+        r -= weightOf(bag[i]);
+        if (r <= 0) break;
+      }
+      const w = bag.splice(Math.min(i, bag.length - 1), 1)[0];
+      // 和訳が同じ語を同じ回に配らない（at first と initially はどちらも「最初は」）
+      if (usedMeanings.has(w.j)) continue;
+      usedMeanings.add(w.j);
+      out.push(w);
+    }
+    return out;
+  }
+  const shuffle = (a) => {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
 
-/* ============================================================
+  /* ============================================================
    画面
    ============================================================ */
-const $ = id => document.getElementById(id);
-const SCREENS = ['s-home','s-game','s-result','s-weak'];
-function show(id){
-  SCREENS.forEach(s => { $(s).hidden = (s !== id); });
-  window.scrollTo({ top:0, behavior:'instant' });
-}
+  const $ = (id) => document.getElementById(id);
+  const SCREENS = ["s-home", "s-game", "s-result", "s-weak"];
+  function show(id) {
+    SCREENS.forEach((s) => {
+      $(s).hidden = s !== id;
+    });
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
 
-/* ============================================================
+  /* ============================================================
    読み上げ
    ============================================================ */
-let soundOn = true;
-let voice = null;
-let sayToken = 0;
+  let soundOn = true;
+  let voice = null;
+  let sayToken = 0;
 
-/* 端末に入っている英語音声のうち、もっとも自然に読めそうなものを選ぶ。
+  /* 端末に入っている英語音声のうち、もっとも自然に読めそうなものを選ぶ。
    合成音声の質は端末差が大きいので、既知の高品質エンジンを優先する。 */
-function pickVoice(){
-  if (!('speechSynthesis' in window)) return;
-  let list = [];
-  try { list = speechSynthesis.getVoices() || []; } catch (e) { return; }
-  const en = list.filter(v => /^en\b|^en[-_]/i.test(v.lang || ''));
-  if (!en.length) return;
-  const score = v => {
-    const name = v.name || '';
-    let s = 0;
-    if (/neural|natural|premium|enhanced|siri/i.test(name)) s += 6;
-    if (/google/i.test(name)) s += 5;
-    if (/samantha|aria|jenny|guy|alex/i.test(name)) s += 3;
-    if (v.localService === false) s += 2;      // ネットワーク音声は質が高いことが多い
-    if (/en[-_]US/i.test(v.lang)) s += 3;
-    else if (/en[-_](GB|AU|CA)/i.test(v.lang)) s += 2;
-    if (/espeak|compact|eloquence/i.test(name)) s -= 8;  // 機械的な旧世代エンジン
-    return s;
-  };
-  voice = en.slice().sort((a, b) => score(b) - score(a))[0] || null;
-}
-if ('speechSynthesis' in window) {
-  pickVoice();
-  try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) {}
-}
+  function pickVoice() {
+    if (!("speechSynthesis" in window)) return;
+    let list = [];
+    try {
+      list = speechSynthesis.getVoices() || [];
+    } catch (e) {
+      return;
+    }
+    const en = list.filter((v) => /^en\b|^en[-_]/i.test(v.lang || ""));
+    if (!en.length) return;
+    const score = (v) => {
+      const name = v.name || "";
+      let s = 0;
+      if (/neural|natural|premium|enhanced|siri/i.test(name)) s += 6;
+      if (/google/i.test(name)) s += 5;
+      if (/samantha|aria|jenny|guy|alex/i.test(name)) s += 3;
+      if (v.localService === false) s += 2; // ネットワーク音声は質が高いことが多い
+      if (/en[-_]US/i.test(v.lang)) s += 3;
+      else if (/en[-_](GB|AU|CA)/i.test(v.lang)) s += 2;
+      if (/espeak|compact|eloquence/i.test(name)) s -= 8; // 機械的な旧世代エンジン
+      return s;
+    };
+    voice = en.slice().sort((a, b) => score(b) - score(a))[0] || null;
+  }
+  if ("speechSynthesis" in window) {
+    pickVoice();
+    try {
+      speechSynthesis.addEventListener("voiceschanged", pickVoice);
+    } catch (e) {}
+  }
 
-/* text を読み上げる。実際に発話を開始できたら true を返す。
+  /* text を読み上げる。実際に発話を開始できたら true を返す。
    コールバックは、その発話が cancel されていないときだけ呼ぶ。 */
-function say(text, rate, opts){
-  opts = opts || {};
-  if (!soundOn || !('speechSynthesis' in window)) return false;
-  const token = ++sayToken;
-  try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'en-US'; }
-    u.rate = rate;
-    const guard = fn => e => { if (token === sayToken && fn) fn(e); };
-    if (opts.onstart)    u.onstart    = guard(opts.onstart);
-    if (opts.onboundary) u.onboundary = guard(opts.onboundary);
-    if (opts.onend)      u.onend      = guard(opts.onend);
-    speechSynthesis.speak(u);
-    return true;
-  } catch (e) { return false; }
-}
-const speak = t => say(t, 0.9);   // 単語
+  function say(text, rate, opts) {
+    opts = opts || {};
+    if (!soundOn || !("speechSynthesis" in window)) return false;
+    const token = ++sayToken;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      if (voice) {
+        u.voice = voice;
+        u.lang = voice.lang;
+      } else {
+        u.lang = "en-US";
+      }
+      u.rate = rate;
+      const guard = (fn) => (e) => {
+        if (token === sayToken && fn) fn(e);
+      };
+      if (opts.onstart) u.onstart = guard(opts.onstart);
+      if (opts.onboundary) u.onboundary = guard(opts.onboundary);
+      if (opts.onend) u.onend = guard(opts.onend);
+      speechSynthesis.speak(u);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  const speak = (t) => say(t, 0.9); // 単語
 
-/* 例文を語ごとに分解する（強調表示の単位） */
-function tokenize(sentence){
-  const toks = [], re = /\S+/g;
-  let m;
-  while ((m = re.exec(sentence))) toks.push({ text:m[0], start:m.index, end:m.index + m[0].length });
-  return toks;
-}
-/* 例文を読み上げつつ、いま読んでいる語を光らせる。
+  /* 例文を語ごとに分解する（強調表示の単位） */
+  function tokenize(sentence) {
+    const toks = [],
+      re = /\S+/g;
+    let m;
+    while ((m = re.exec(sentence)))
+      toks.push({ text: m[0], start: m.index, end: m.index + m[0].length });
+    return toks;
+  }
+  /* 例文を読み上げつつ、いま読んでいる語を光らせる。
    boundary イベントを出す端末ではそれに追従し、出さない端末（Safari など）では
    語の長さから割り出した推定ペースで送る。発話できなければ false を返す。 */
-function startRead(sentence, toks, ms, onend){
-  const spans = toks.map((_, i) => $('tk' + i));
-  const mark = idx => spans.forEach((sp, i) => {
-    if (!sp) return;
-    sp.classList.toggle('now', i === idx);
-    sp.classList.toggle('read', idx >= 0 && i < idx);
-  });
+  function startRead(sentence, toks, ms, onend) {
+    const spans = toks.map((_, i) => $("tk" + i));
+    const mark = (idx) =>
+      spans.forEach((sp, i) => {
+        if (!sp) return;
+        sp.classList.toggle("now", i === idx);
+        sp.classList.toggle("read", idx >= 0 && i < idx);
+      });
 
-  let following = false, fb = null;
-  const stopFb = () => { if (fb) { clearTimeout(fb); fb = null; } };
-  const weights = toks.map(t => t.text.length + 2);
-  const total = weights.reduce((x, y) => x + y, 0) || 1;
-  const pace = i => {
-    if (following || i >= toks.length) return;
-    mark(i);
-    fb = setTimeout(() => pace(i + 1), Math.max(90, (ms - 500) * weights[i] / total));
-  };
+    let following = false,
+      fb = null;
+    const stopFb = () => {
+      if (fb) {
+        clearTimeout(fb);
+        fb = null;
+      }
+    };
+    const weights = toks.map((t) => t.text.length + 2);
+    const total = weights.reduce((x, y) => x + y, 0) || 1;
+    const pace = (i) => {
+      if (following || i >= toks.length) return;
+      mark(i);
+      fb = setTimeout(
+        () => pace(i + 1),
+        Math.max(90, ((ms - 500) * weights[i]) / total),
+      );
+    };
 
-  const spoke = say(sentence, 0.95, {
-    onstart: () => { if (!following) pace(0); },
-    onboundary: e => {                       // 実際の読み上げ位置が取れた
-      following = true;
-      stopFb();
-      const ci = e.charIndex || 0;
-      let idx = 0;
-      for (let i = 0; i < toks.length; i++) { if (toks[i].start <= ci) idx = i; else break; }
-      mark(idx);
-    },
-    onend: () => { stopFb(); mark(-1); if (onend) onend(); }
-  });
-  if (!spoke) stopFb();
-  return spoke;
-}
-/* 読み上げにかかる時間のあたり ― ポップアップの表示時間の下限に使う */
-const estimate = t => Math.min(9000, 1000 + t.trim().split(/\s+/).length * 430);
+    const spoke = say(sentence, 0.95, {
+      onstart: () => {
+        if (!following) pace(0);
+      },
+      onboundary: (e) => {
+        // 実際の読み上げ位置が取れた
+        following = true;
+        stopFb();
+        const ci = e.charIndex || 0;
+        let idx = 0;
+        for (let i = 0; i < toks.length; i++) {
+          if (toks[i].start <= ci) idx = i;
+          else break;
+        }
+        mark(idx);
+      },
+      onend: () => {
+        stopFb();
+        mark(-1);
+        if (onend) onend();
+      },
+    });
+    if (!spoke) stopFb();
+    return spoke;
+  }
+  /* 読み上げにかかる時間のあたり ― ポップアップの表示時間の下限に使う */
+  const estimate = (t) =>
+    Math.min(9000, 1000 + t.trim().split(/\s+/).length * 430);
 
-/* ============================================================
+  /* ============================================================
    ゲーム本体
    ============================================================ */
-let chosenCat = 'all', chosenSize = 8, chosenFoe = 'solo', drillMode = false;
-let g = null, gameGen = 0;
+  let chosenCat = "all",
+    chosenSize = 8,
+    chosenFoe = "solo",
+    drillMode = false;
+  let g = null,
+    gameGen = 0;
 
-function poolFor(cat){
-  if (drillMode) {
-    const weak = weakWords();
-    if (weak.length >= chosenSize) return weak;
-    const rest = WORDS.filter(w => !weak.includes(w));
-    return weak.concat(shuffle(rest));
+  function poolFor(cat) {
+    if (drillMode) {
+      const weak = weakWords();
+      if (weak.length >= chosenSize) return weak;
+      const rest = WORDS.filter((w) => !weak.includes(w));
+      return weak.concat(shuffle(rest));
+    }
+    const b = BAND(cat);
+    return WORDS.filter((w) => w.r >= b.lo && w.r <= b.hi);
   }
-  const b = BAND(cat);
-  return WORDS.filter(w => w.r >= b.lo && w.r <= b.hi);
-}
 
+  function deal() {
+    const pool = poolFor(chosenCat);
+    const picked = drawWords(
+      pool,
+      Math.min(chosenSize, Math.floor(pool.length)),
+    );
+    const cards = [];
+    picked.forEach((w, i) => {
+      cards.push({ uid: "e" + i, wid: w.id, side: "en" });
+      cards.push({ uid: "j" + i, wid: w.id, side: "ja" });
+    });
+    shuffle(cards);
 
-function deal(){
-  const pool = poolFor(chosenCat);
-  const picked = drawWords(pool, Math.min(chosenSize, Math.floor(pool.length)));
-  const cards = [];
-  picked.forEach((w, i) => {
-    cards.push({ uid:'e'+i, wid:w.id, side:'en' });
-    cards.push({ uid:'j'+i, wid:w.id, side:'ja' });
-  });
-  shuffle(cards);
+    const foe = FOE(chosenFoe);
+    g = {
+      gen: ++gameGen, // 中断した回の後片付けが走らないようにする目印
+      pairs: picked.length,
+      cards,
+      byUid: new Map(cards.map((c) => [c.uid, c])),
+      open: [],
+      moves: 0,
+      matched: 0,
+      combo: 0,
+      maxCombo: 0,
+      missed: new Map(), // id -> 回数
+      lock: false,
+      t0: Date.now(),
+      timer: null,
+      vs: foe.k !== "solo",
+      foe,
+      turn: "you",
+      score: { you: 0, cpu: 0 },
+      mem: new Map(), // あいてが覚えている札 uid -> wid
+    };
 
-  const foe = FOE(chosenFoe);
-  g = {
-    gen: ++gameGen,        // 中断した回の後片付けが走らないようにする目印
-    pairs: picked.length,
-    cards,
-    byUid: new Map(cards.map(c => [c.uid, c])),
-    open: [],
-    moves: 0,
-    matched: 0,
-    combo: 0,
-    maxCombo: 0,
-    missed: new Map(),     // id -> 回数
-    lock: false,
-    t0: Date.now(),
-    timer: null,
-    vs: foe.k !== 'solo',
-    foe,
-    turn: 'you',
-    score: { you:0, cpu:0 },
-    mem: new Map()         // あいてが覚えている札 uid -> wid
-  };
+    // 狭い画面でも4列を保ち、盤面全体が一目に入るようにする
+    // （神経衰弱は位置の記憶が本体なので、スクロールさせたら負け）
+    document.documentElement.style.setProperty("--min-card", "76px");
 
-  // 狭い画面でも4列を保ち、盤面全体が一目に入るようにする
-  // （神経衰弱は位置の記憶が本体なので、スクロールさせたら負け）
-  document.documentElement.style.setProperty('--min-card', '76px');
+    renderBoard();
+    updateHud();
+    g.timer = setInterval(updateHud, 250);
+    show("s-game");
+  }
 
-  renderBoard();
-  updateHud();
-  g.timer = setInterval(updateHud, 250);
-  show('s-game');
-}
-
-/* ============================================================
+  /* ============================================================
    あいて（CPU）
    強さは記憶力ひとつで決まる。p は「めくられた札を覚えている確率」、
    cap は「同時に覚えていられる枚数」。p=0 なら毎回ただの乱数になる。
    ============================================================ */
-function memorize(c){
-  if (!g.vs || !g.foe.p) return;
-  if (Math.random() > g.foe.p) return;
-  g.mem.delete(c.uid);                 // 入れ直して新しい記憶にする
-  g.mem.set(c.uid, c.wid);
-  while (g.mem.size > g.foe.cap) g.mem.delete(g.mem.keys().next().value);
-}
-const isLive = c => !c.el.classList.contains('done') && !c.el.classList.contains('open');
-const liveCards = () => g.cards.filter(isLive);
-const pickRandom = list => list.length ? list[(Math.random() * list.length) | 0] : null;
-
-/* 覚えている札だけでペアが作れるか */
-function cpuKnownPair(){
-  const byWid = new Map();
-  for (const [uid, wid] of g.mem) {
-    const c = g.byUid.get(uid);
-    if (!c || !isLive(c)) continue;
-    if (!byWid.has(wid)) byWid.set(wid, []);
-    byWid.get(wid).push(c);
+  function memorize(c) {
+    if (!g.vs || !g.foe.p) return;
+    if (Math.random() > g.foe.p) return;
+    g.mem.delete(c.uid); // 入れ直して新しい記憶にする
+    g.mem.set(c.uid, c.wid);
+    while (g.mem.size > g.foe.cap) g.mem.delete(g.mem.keys().next().value);
   }
-  for (const list of byWid.values()) {
-    const en = list.find(c => c.side === 'en');
-    const ja = list.find(c => c.side === 'ja');
-    if (en && ja) return [en, ja];
-  }
-  return null;
-}
+  const isLive = (c) =>
+    !c.el.classList.contains("done") && !c.el.classList.contains("open");
+  const liveCards = () => g.cards.filter(isLive);
+  const pickRandom = (list) =>
+    list.length ? list[(Math.random() * list.length) | 0] : null;
 
-/* 1枚目をめくったあと、その相方を覚えていないか探す */
-function cpuPickSecond(first){
-  for (const [uid, wid] of g.mem) {
-    if (wid !== first.wid) continue;
-    const c = g.byUid.get(uid);
-    if (c && c !== first && c.side !== first.side && isLive(c)) return c;
+  /* 覚えている札だけでペアが作れるか */
+  function cpuKnownPair() {
+    const byWid = new Map();
+    for (const [uid, wid] of g.mem) {
+      const c = g.byUid.get(uid);
+      if (!c || !isLive(c)) continue;
+      if (!byWid.has(wid)) byWid.set(wid, []);
+      byWid.get(wid).push(c);
+    }
+    for (const list of byWid.values()) {
+      const en = list.find((c) => c.side === "en");
+      const ja = list.find((c) => c.side === "ja");
+      if (en && ja) return [en, ja];
+    }
+    return null;
   }
-  return pickRandom(liveCards());
-}
 
-function cpuPlay(){
-  const gen = g.gen;
-  g.lock = true;
-  updateHud();
-  const known = cpuKnownPair();
-  setTimeout(() => {
-    if (!g || g.gen !== gen) return;
-    const first = known ? known[0] : pickRandom(liveCards());
-    if (!first) { g.lock = false; return; }
-    reveal(first);
-    if (first.side === 'en') speak(BY_ID.get(first.wid).e);
+  /* 1枚目をめくったあと、その相方を覚えていないか探す */
+  function cpuPickSecond(first) {
+    for (const [uid, wid] of g.mem) {
+      if (wid !== first.wid) continue;
+      const c = g.byUid.get(uid);
+      if (c && c !== first && c.side !== first.side && isLive(c)) return c;
+    }
+    return pickRandom(liveCards());
+  }
+
+  function cpuPlay() {
+    const gen = g.gen;
+    g.lock = true;
+    updateHud();
+    const known = cpuKnownPair();
     setTimeout(() => {
       if (!g || g.gen !== gen) return;
-      const second = known && isLive(known[1]) ? known[1] : cpuPickSecond(first);
-      if (!second) { g.lock = false; return; }
-      reveal(second);
-      resolve(first, second);
-    }, g.foe.pace);
-  }, g.foe.pace);
-}
-
-function fontFor(card){
-  const w = BY_ID.get(card.wid);
-  const t = card.side === 'en' ? w.e : w.j;
-  const n = t.length;
-  if (card.side === 'en') return n<=6?17:n<=9?15:n<=12?13:n<=16?11.5:n<=20?10:9;
-  return n<=4?16:n<=7?14:n<=10?12:n<=14?10.5:n<=20?9.5:8.5;
-}
-
-function renderBoard(){
-  const board = $('board');
-  board.innerHTML = '';
-  g.cards.forEach(c => {
-    const w = BY_ID.get(c.wid);
-    const text = c.side === 'en' ? w.e : w.j;
-    const btn = document.createElement('button');
-    btn.className = 'card ' + c.side;
-    btn.dataset.uid = c.uid;
-    btn.setAttribute('aria-label', '伏せ札');
-    btn.innerHTML =
-      '<span class="inner">' +
-        '<span class="face face-back" aria-hidden="true"></span>' +
-        '<span class="face face-front"><span class="w" style="--fs:' + fontFor(c) + 'px"></span></span>' +
-      '</span>';
-    btn.querySelector('.w').textContent = text;
-    btn.addEventListener('click', () => flip(c, btn));
-    board.appendChild(btn);
-    c.el = btn;
-  });
-}
-
-/* 自分がめくる */
-function flip(c, btn){
-  if (g.lock || g.turn === 'cpu') return;
-  if (btn.classList.contains('done') || btn.classList.contains('open')) return;
-  reveal(c);
-  g.open.push(c);
-  if (g.open.length < 2) {
-    if (c.side === 'en') speak(BY_ID.get(c.wid).e);
-    return;
-  }
-  const [a, b] = g.open;
-  g.open = [];
-  resolve(a, b);
-}
-
-/* 札を表に返す。あいては自分の番でなくても見ているので、ここで記憶させる */
-function reveal(c){
-  c.el.classList.add('open');
-  c.el.setAttribute('aria-label',
-    (c.side === 'en' ? '英語札 ' : '日本語札 ') + c.el.querySelector('.w').textContent);
-  memorize(c);
-}
-
-/* 2枚めくり終えたときの判定。自分の番のときだけ学習記録に書く */
-function resolve(a, b){
-  g.moves++;
-  const mine = !g.vs || g.turn === 'you';
-  const hit = (a.wid === b.wid && a.side !== b.side);
-
-  if (hit) {
-    g.matched++;
-    if (g.vs) g.score[g.turn]++;
-    if (mine) { g.combo++; g.maxCombo = Math.max(g.maxCombo, g.combo); }
-    [a, b].forEach(x => {
-      x.el.classList.remove('open');
-      x.el.classList.add('done');
-      x.el.disabled = true;
-      g.mem.delete(x.uid);
-    });
-    if (mine) { const s = stat(a.wid); s.ok++; s.streak++; saveStore(); }
-    updateHud();
-    g.lock = true;
-    [a, b].forEach(x => x.el.classList.add('spot'));
-    showMatch(BY_ID.get(a.wid), () => {
-      [a, b].forEach(x => x.el.classList.remove('spot'));
-      nextTurn(false);            // そろえた側がもう一度めくる
-    });
-  } else {
-    if (mine) {
-      // にがて記録は自分が外したときだけ。あいてのミスを背負う筋合いはない
-      g.combo = 0;
-      [a, b].forEach(x => {
-        const s = stat(x.wid); s.miss++; s.streak = 0;
-        g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
-      });
-      saveStore();
-    }
-    g.lock = true;
-    [a, b].forEach(x => x.el.classList.add('miss','spot'));
-    updateHud();
-    // ポップアップを閉じたあと、札の位置を覚える間だけ表にしておく
-    // （1秒 ― 2枚を目で追って記憶に入れるのに要るおおよその時間）
-    showSlip(BY_ID.get(a.wid), BY_ID.get(b.wid), () => {
+      const first = known ? known[0] : pickRandom(liveCards());
+      if (!first) {
+        g.lock = false;
+        return;
+      }
+      reveal(first);
+      if (first.side === "en") speak(BY_ID.get(first.wid).e);
       setTimeout(() => {
-        [a, b].forEach(x => {
-          x.el.classList.remove('open','miss','spot');
-          x.el.setAttribute('aria-label','伏せ札');
-        });
-        nextTurn(true);
-      }, 1000);
+        if (!g || g.gen !== gen) return;
+        const second =
+          known && isLive(known[1]) ? known[1] : cpuPickSecond(first);
+        if (!second) {
+          g.lock = false;
+          return;
+        }
+        reveal(second);
+        resolve(first, second);
+      }, g.foe.pace);
+    }, g.foe.pace);
+  }
+
+  function fontFor(card) {
+    const w = BY_ID.get(card.wid);
+    const t = card.side === "en" ? w.e : w.j;
+    const n = t.length;
+    if (card.side === "en")
+      return n <= 6
+        ? 17
+        : n <= 9
+          ? 15
+          : n <= 12
+            ? 13
+            : n <= 16
+              ? 11.5
+              : n <= 20
+                ? 10
+                : 9;
+    return n <= 4
+      ? 16
+      : n <= 7
+        ? 14
+        : n <= 10
+          ? 12
+          : n <= 14
+            ? 10.5
+            : n <= 20
+              ? 9.5
+              : 8.5;
+  }
+
+  function renderBoard() {
+    const board = $("board");
+    board.innerHTML = "";
+    g.cards.forEach((c) => {
+      const w = BY_ID.get(c.wid);
+      const text = c.side === "en" ? w.e : w.j;
+      const btn = document.createElement("button");
+      btn.className = "card " + c.side;
+      btn.dataset.uid = c.uid;
+      btn.setAttribute("aria-label", "伏せ札");
+      btn.innerHTML =
+        '<span class="inner">' +
+        '<span class="face face-back" aria-hidden="true"></span>' +
+        '<span class="face face-front"><span class="w" style="--fs:' +
+        fontFor(c) +
+        'px"></span></span>' +
+        "</span>";
+      btn.querySelector(".w").textContent = text;
+      btn.addEventListener("click", () => flip(c, btn));
+      board.appendChild(btn);
+      c.el = btn;
     });
   }
-}
 
-/* 次にめくるのは誰か */
-function nextTurn(swap){
-  if (!g) return;
-  if (g.matched === g.pairs) { finish(); return; }
-  if (!g.vs) { g.lock = false; return; }
-  if (swap) g.turn = (g.turn === 'you') ? 'cpu' : 'you';
-  updateHud();
-  if (g.turn === 'cpu') cpuPlay();
-  else g.lock = false;
-}
-
-function updateHud(){
-  if (!g) return;
-  const pill = $('h-turn'), board = $('board');
-  if (g.vs) {
-    $('h-pairs').textContent = g.score.you;
-    $('h-pairs-k').textContent = 'あなた';
-    $('h-moves').textContent = g.score.cpu;
-    $('h-moves-k').textContent = 'あいて';
-    pill.hidden = false;
-    pill.textContent = g.turn === 'you' ? 'あなたの番' : 'あいての番';
-    pill.classList.toggle('you', g.turn === 'you');
-    pill.classList.toggle('cpu', g.turn === 'cpu');
-    board.classList.toggle('waiting', g.turn === 'cpu');
-  } else {
-    $('h-pairs').textContent = g.matched + '/' + g.pairs;
-    $('h-pairs-k').textContent = 'ペア';
-    $('h-moves').textContent = g.moves;
-    $('h-moves-k').textContent = 'てすう';
-    pill.hidden = true;
-    board.classList.remove('waiting');
+  /* 自分がめくる */
+  function flip(c, btn) {
+    if (g.lock || g.turn === "cpu") return;
+    if (btn.classList.contains("done") || btn.classList.contains("open"))
+      return;
+    reveal(c);
+    g.open.push(c);
+    if (g.open.length < 2) {
+      if (c.side === "en") speak(BY_ID.get(c.wid).e);
+      return;
+    }
+    const [a, b] = g.open;
+    g.open = [];
+    resolve(a, b);
   }
-  const c = $('h-combo');
-  if (g.combo >= 2 && (!g.vs || g.turn === 'you')) { c.textContent = g.combo + ' combo'; c.classList.add('on'); }
-  else c.classList.remove('on');
-}
-const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
-const clock = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 
-/* ---------- 解説ポップアップ ---------- */
-let popTimer = null, popAfter = null, popMs = 0;
-
-function openPop(kind, html, ms, after){
-  const pop = $('pop');
-  popMs = ms;
-  popAfter = after || null;
-  pop.className = 'pop ' + kind;
-  pop.innerHTML = html + '<span class="drain" style="animation-duration:' + ms + 'ms"></span>';
-  $('scrim').hidden = false;
-  $('poplayer').hidden = false;
-  pop.focus();
-  armPop(ms);
-  pop.querySelectorAll('.speak').forEach(b => b.addEventListener('click', e => {
-    e.stopPropagation();          // 読み上げボタンでは閉じない
-    speak(b.dataset.say);
-    armPop(popMs);                // 聞き直したぶん表示を延長する
-    const d = pop.querySelector('.drain');
-    if (d) { d.style.animation = 'none'; void d.offsetWidth; d.style.animation = ''; d.style.animationDuration = popMs + 'ms'; }
-  }));
-}
-function armPop(ms){
-  if (popTimer) clearTimeout(popTimer);
-  popTimer = setTimeout(closePop, ms);
-}
-function closePop(){
-  if ($('poplayer').hidden) return;
-  $('scrim').hidden = true;
-  $('poplayer').hidden = true;
-  if (popTimer) { clearTimeout(popTimer); popTimer = null; }
-  sayToken++;                     // 途中で閉じたら読み上げの後始末も止める
-  try { speechSynthesis.cancel(); } catch (e) {}
-  const fn = popAfter; popAfter = null;
-  if (fn) fn();
-}
-function headOf(w){
-  // 読み上げボタンは英語のすぐ後ろ ― 折り返しても何を読むのか見失わない
-  return '<div class="head">' +
-      '<span class="en">' + esc(w.e) + '</span>' +
-      '<button class="speak" data-say="' + esc(w.e) + '" aria-label="' + esc(w.e) + ' を読み上げる">&#9834;</button>' +
-      '<span class="pos">出た順 ' + w.r + '</span>' +
-      '<span class="ja">' + esc(w.j) + '</span>' +
-    '</div>';
-}
-/* そろった ― 例文を全文読み上げ、読んでいる語を光らせ、読み終わりに合わせて閉じる */
-function showMatch(w, after){
-  const hasEx = !!w.x;
-  const toks = hasEx ? tokenize(w.x) : [];
-  const ms = hasEx ? Math.max(2600, estimate(w.x)) : 2300;
-  const body = hasEx
-    ? '<p class="sent">' +
-        toks.map((t, i) => '<span class="tk" id="tk' + i + '">' + esc(t.text) + '</span>').join(' ') +
-      '</p><p class="sentja">' + esc(w.xj) + '</p>'
-    : '';
-  openPop('hit',
-    '<p class="tag ok">そろった</p>' + headOf(w) + body +
-    '<p class="hint">タップで次へ</p>', ms, after);
-  // 読み上げできない（音声OFF・非対応端末）ときは表示時間のタイマーだけで閉じる
-  if (hasEx) startRead(w.x, toks, ms, closePop);
-  else speak(w.e);
-}
-/* はずれ ― 2語を見せてから伏せる */
-function showSlip(a, b, after){
-  const block = w => headOf(w) +
-    (w.x ? '<p class="ex">' + esc(w.x) + '<span class="exja">' + esc(w.xj) + '</span></p>' : '');
-  openPop('slip',
-    '<p class="tag">はずれ ― この2語を覚えて</p>' +
-    '<div class="pair">' + block(a) + block(b) + '</div>' +
-    '<p class="hint">タップで次へ</p>', 3600, after);
-}
-const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-
-/* ---------- 終了 ---------- */
-function finish(){
-  clearInterval(g.timer);
-  const secs = elapsed();
-  const extra = Math.max(0, g.moves - g.pairs);
-  const won = g.vs ? g.score.you : g.pairs;
-  const score = Math.max(0,
-    won * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2));
-  const eff = g.pairs / Math.max(1, g.moves);
-  const rank = eff >= 0.85 ? ['S','ほぼ完璧'] :
-               eff >= 0.65 ? ['A','みごと'] :
-               eff >= 0.50 ? ['B','まあまあ'] : ['C','もう一回'];
-
-  store.cleared++;
-  store.best = Math.max(store.best, score);
-  saveStore();
-
-  $('r-range').textContent =
-    (drillMode ? 'にがて札' : BAND(chosenCat).label) + ' / ' + g.pairs + 'ペア' +
-    (g.vs ? ' / あいて「' + g.foe.label + '」' : '');
-  const rankEl = $('r-rank');
-  rankEl.classList.toggle('vs', !!g.vs);
-  if (g.vs) {
-    const you = g.score.you, cpu = g.score.cpu;
-    rankEl.textContent = you + '－' + cpu;
-    rankEl.appendChild(Object.assign(document.createElement('small'),
-      { textContent: you > cpu ? 'あなたの勝ち' : you < cpu ? 'あいての勝ち' : '引き分け' }));
-  } else {
-    rankEl.textContent = rank[0];
-    rankEl.appendChild(Object.assign(document.createElement('small'), { textContent: rank[1] }));
+  /* 札を表に返す。あいては自分の番でなくても見ているので、ここで記憶させる */
+  function reveal(c) {
+    c.el.classList.add("open");
+    c.el.setAttribute(
+      "aria-label",
+      (c.side === "en" ? "英語札 " : "日本語札 ") +
+        c.el.querySelector(".w").textContent,
+    );
+    memorize(c);
   }
-  $('r-score').textContent = score;
-  $('r-moves').textContent = g.moves;
-  $('r-time').textContent = clock(secs);
-  $('r-combo').textContent = g.maxCombo;
 
-  const list = $('r-list');
-  if (g.missed.size === 0) {
-    $('r-list-title').textContent = '取りこぼし';
-    list.innerHTML = '<div class="empty">ノーミス。一枚も外していません。</div>';
-  } else {
-    $('r-list-title').textContent = 'この回に外した ' + g.missed.size + ' 語';
-    list.innerHTML = '<div class="wordlist">' +
-      [...g.missed.entries()]
-        .sort((x,y) => y[1] - x[1])
-        .map(([id, n]) => { const w = BY_ID.get(id);
-          return '<div class="row"><span class="e">' + esc(w.e) + '</span>' +
-                 '<span class="j">' + esc(w.j) + '</span>' +
-                 '<span class="c">' + n + '回</span></div>'; })
-        .join('') + '</div>';
+  /* 2枚めくり終えたときの判定。自分の番のときだけ学習記録に書く */
+  function resolve(a, b) {
+    g.moves++;
+    const mine = !g.vs || g.turn === "you";
+    const hit = a.wid === b.wid && a.side !== b.side;
+
+    if (hit) {
+      g.matched++;
+      if (g.vs) g.score[g.turn]++;
+      if (mine) {
+        g.combo++;
+        g.maxCombo = Math.max(g.maxCombo, g.combo);
+      }
+      [a, b].forEach((x) => {
+        x.el.classList.remove("open");
+        x.el.classList.add("done");
+        x.el.disabled = true;
+        g.mem.delete(x.uid);
+      });
+      if (mine) {
+        const s = stat(a.wid);
+        s.ok++;
+        s.streak++;
+        saveStore();
+      }
+      updateHud();
+      g.lock = true;
+      [a, b].forEach((x) => x.el.classList.add("spot"));
+      showMatch(BY_ID.get(a.wid), () => {
+        [a, b].forEach((x) => x.el.classList.remove("spot"));
+        nextTurn(false); // そろえた側がもう一度めくる
+      });
+    } else {
+      if (mine) {
+        // にがて記録は自分が外したときだけ。あいてのミスを背負う筋合いはない
+        g.combo = 0;
+        [a, b].forEach((x) => {
+          const s = stat(x.wid);
+          s.miss++;
+          s.streak = 0;
+          g.missed.set(x.wid, (g.missed.get(x.wid) || 0) + 1);
+        });
+        saveStore();
+      }
+      g.lock = true;
+      [a, b].forEach((x) => x.el.classList.add("miss", "spot"));
+      updateHud();
+      // ポップアップを閉じたあと、札の位置を覚える間だけ表にしておく
+      // （1秒 ― 2枚を目で追って記憶に入れるのに要るおおよその時間）
+      showSlip(BY_ID.get(a.wid), BY_ID.get(b.wid), () => {
+        setTimeout(() => {
+          [a, b].forEach((x) => {
+            x.el.classList.remove("open", "miss", "spot");
+            x.el.setAttribute("aria-label", "伏せ札");
+          });
+          nextTurn(true);
+        }, 1000);
+      });
+    }
   }
-  show('s-result');
-}
 
-/* ============================================================
+  /* 次にめくるのは誰か */
+  function nextTurn(swap) {
+    if (!g) return;
+    if (g.matched === g.pairs) {
+      finish();
+      return;
+    }
+    if (!g.vs) {
+      g.lock = false;
+      return;
+    }
+    if (swap) g.turn = g.turn === "you" ? "cpu" : "you";
+    updateHud();
+    if (g.turn === "cpu") cpuPlay();
+    else g.lock = false;
+  }
+
+  function updateHud() {
+    if (!g) return;
+    const pill = $("h-turn"),
+      board = $("board");
+    if (g.vs) {
+      $("h-pairs").textContent = g.score.you;
+      $("h-pairs-k").textContent = "あなた";
+      $("h-moves").textContent = g.score.cpu;
+      $("h-moves-k").textContent = "あいて";
+      pill.hidden = false;
+      pill.textContent = g.turn === "you" ? "あなたの番" : "あいての番";
+      pill.classList.toggle("you", g.turn === "you");
+      pill.classList.toggle("cpu", g.turn === "cpu");
+      board.classList.toggle("waiting", g.turn === "cpu");
+    } else {
+      $("h-pairs").textContent = g.matched + "/" + g.pairs;
+      $("h-pairs-k").textContent = "ペア";
+      $("h-moves").textContent = g.moves;
+      $("h-moves-k").textContent = "てすう";
+      pill.hidden = true;
+      board.classList.remove("waiting");
+    }
+    const c = $("h-combo");
+    if (g.combo >= 2 && (!g.vs || g.turn === "you")) {
+      c.textContent = g.combo + " combo";
+      c.classList.add("on");
+    } else c.classList.remove("on");
+  }
+  const elapsed = () => Math.floor((Date.now() - g.t0) / 1000);
+  const clock = (s) =>
+    Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+
+  /* ---------- 解説ポップアップ ---------- */
+  let popTimer = null,
+    popAfter = null,
+    popMs = 0;
+
+  function openPop(kind, html, ms, after) {
+    const pop = $("pop");
+    popMs = ms;
+    popAfter = after || null;
+    pop.className = "pop " + kind;
+    pop.innerHTML =
+      html +
+      '<span class="drain" style="animation-duration:' +
+      ms +
+      'ms"></span>';
+    $("scrim").hidden = false;
+    $("poplayer").hidden = false;
+    pop.focus();
+    armPop(ms);
+    pop.querySelectorAll(".speak").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation(); // 読み上げボタンでは閉じない
+        speak(b.dataset.say);
+        armPop(popMs); // 聞き直したぶん表示を延長する
+        const d = pop.querySelector(".drain");
+        if (d) {
+          d.style.animation = "none";
+          void d.offsetWidth;
+          d.style.animation = "";
+          d.style.animationDuration = popMs + "ms";
+        }
+      }),
+    );
+  }
+  function armPop(ms) {
+    if (popTimer) clearTimeout(popTimer);
+    popTimer = setTimeout(closePop, ms);
+  }
+  function closePop() {
+    if ($("poplayer").hidden) return;
+    $("scrim").hidden = true;
+    $("poplayer").hidden = true;
+    if (popTimer) {
+      clearTimeout(popTimer);
+      popTimer = null;
+    }
+    sayToken++; // 途中で閉じたら読み上げの後始末も止める
+    try {
+      speechSynthesis.cancel();
+    } catch (e) {}
+    const fn = popAfter;
+    popAfter = null;
+    if (fn) fn();
+  }
+  function headOf(w) {
+    // 読み上げボタンは英語のすぐ後ろ ― 折り返しても何を読むのか見失わない
+    return (
+      '<div class="head">' +
+      '<span class="en">' +
+      esc(w.e) +
+      "</span>" +
+      '<button class="speak" data-say="' +
+      esc(w.e) +
+      '" aria-label="' +
+      esc(w.e) +
+      ' を読み上げる">&#9834;</button>' +
+      '<span class="pos">出た順 ' +
+      w.r +
+      "</span>" +
+      '<span class="ja">' +
+      esc(w.j) +
+      "</span>" +
+      "</div>"
+    );
+  }
+  /* そろった ― 例文を全文読み上げ、読んでいる語を光らせ、読み終わりに合わせて閉じる */
+  function showMatch(w, after) {
+    const hasEx = !!w.x;
+    const toks = hasEx ? tokenize(w.x) : [];
+    const ms = hasEx ? Math.max(2600, estimate(w.x)) : 2300;
+    const body = hasEx
+      ? '<p class="sent">' +
+        toks
+          .map(
+            (t, i) =>
+              '<span class="tk" id="tk' + i + '">' + esc(t.text) + "</span>",
+          )
+          .join(" ") +
+        '</p><p class="sentja">' +
+        esc(w.xj) +
+        "</p>"
+      : "";
+    openPop(
+      "hit",
+      '<p class="tag ok">そろった</p>' +
+        headOf(w) +
+        body +
+        '<p class="hint">タップで次へ</p>',
+      ms,
+      after,
+    );
+    // 読み上げできない（音声OFF・非対応端末）ときは表示時間のタイマーだけで閉じる
+    if (hasEx) startRead(w.x, toks, ms, closePop);
+    else speak(w.e);
+  }
+  /* はずれ ― 2語を見せてから伏せる */
+  function showSlip(a, b, after) {
+    const block = (w) =>
+      headOf(w) +
+      (w.x
+        ? '<p class="ex">' +
+          esc(w.x) +
+          '<span class="exja">' +
+          esc(w.xj) +
+          "</span></p>"
+        : "");
+    openPop(
+      "slip",
+      '<p class="tag">はずれ ― この2語を覚えて</p>' +
+        '<div class="pair">' +
+        block(a) +
+        block(b) +
+        "</div>" +
+        '<p class="hint">タップで次へ</p>',
+      3600,
+      after,
+    );
+  }
+  const esc = (s) =>
+    String(s).replace(
+      /[&<>"]/g,
+      (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m],
+    );
+
+  /* ---------- 終了 ---------- */
+  function finish() {
+    clearInterval(g.timer);
+    const secs = elapsed();
+    const extra = Math.max(0, g.moves - g.pairs);
+    const won = g.vs ? g.score.you : g.pairs;
+    const score = Math.max(
+      0,
+      won * 100 + g.maxCombo * 50 - extra * 15 + Math.max(0, 300 - secs * 2),
+    );
+    const eff = g.pairs / Math.max(1, g.moves);
+    const rank =
+      eff >= 0.85
+        ? ["S", "ほぼ完璧"]
+        : eff >= 0.65
+          ? ["A", "みごと"]
+          : eff >= 0.5
+            ? ["B", "まあまあ"]
+            : ["C", "もう一回"];
+
+    store.cleared++;
+    store.best = Math.max(store.best, score);
+    saveStore();
+
+    $("r-range").textContent =
+      (drillMode ? "にがて札" : BAND(chosenCat).label) +
+      " / " +
+      g.pairs +
+      "ペア" +
+      (g.vs ? " / あいて「" + g.foe.label + "」" : "");
+    const rankEl = $("r-rank");
+    rankEl.classList.toggle("vs", !!g.vs);
+    if (g.vs) {
+      const you = g.score.you,
+        cpu = g.score.cpu;
+      rankEl.textContent = you + "－" + cpu;
+      rankEl.appendChild(
+        Object.assign(document.createElement("small"), {
+          textContent:
+            you > cpu
+              ? "あなたの勝ち"
+              : you < cpu
+                ? "あいての勝ち"
+                : "引き分け",
+        }),
+      );
+    } else {
+      rankEl.textContent = rank[0];
+      rankEl.appendChild(
+        Object.assign(document.createElement("small"), {
+          textContent: rank[1],
+        }),
+      );
+    }
+    $("r-score").textContent = score;
+    $("r-moves").textContent = g.moves;
+    $("r-time").textContent = clock(secs);
+    $("r-combo").textContent = g.maxCombo;
+
+    const list = $("r-list");
+    if (g.missed.size === 0) {
+      $("r-list-title").textContent = "取りこぼし";
+      list.innerHTML =
+        '<div class="empty">ノーミス。一枚も外していません。</div>';
+    } else {
+      $("r-list-title").textContent = "この回に外した " + g.missed.size + " 語";
+      list.innerHTML =
+        '<div class="wordlist">' +
+        [...g.missed.entries()]
+          .sort((x, y) => y[1] - x[1])
+          .map(([id, n]) => {
+            const w = BY_ID.get(id);
+            return (
+              '<div class="row"><span class="e">' +
+              esc(w.e) +
+              "</span>" +
+              '<span class="j">' +
+              esc(w.j) +
+              "</span>" +
+              '<span class="c">' +
+              n +
+              "回</span></div>"
+            );
+          })
+          .join("") +
+        "</div>";
+    }
+    show("s-result");
+  }
+
+  /* ============================================================
    ホーム／にがて札の描画
    ============================================================ */
-function renderHome(){
-  const cw = $('pick-cat');
-  cw.innerHTML = '';
-  BANDS.forEach(band => {
-    const n = WORDS.filter(w => w.r >= band.lo && w.r <= band.hi).length;
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.type = 'button';
-    b.setAttribute('aria-pressed', String(band.k === chosenCat));
-    b.innerHTML = esc(band.label) + '<span class="n">' + n + '</span>';
-    b.addEventListener('click', () => { chosenCat = band.k; renderHome(); });
-    cw.appendChild(b);
-  });
+  function renderHome() {
+    const cw = $("pick-cat");
+    cw.innerHTML = "";
+    BANDS.forEach((band) => {
+      const n = WORDS.filter((w) => w.r >= band.lo && w.r <= band.hi).length;
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(band.k === chosenCat));
+      b.innerHTML = esc(band.label) + '<span class="n">' + n + "</span>";
+      b.addEventListener("click", () => {
+        chosenCat = band.k;
+        renderHome();
+      });
+      cw.appendChild(b);
+    });
 
-  const fw = $('pick-foe');
-  fw.innerHTML = '';
-  FOES.forEach(f => {
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.type = 'button';
-    b.setAttribute('aria-pressed', String(f.k === chosenFoe));
-    b.innerHTML = esc(f.label) + '<span class="n">' + esc(f.hint) + '</span>';
-    b.addEventListener('click', () => { chosenFoe = f.k; renderHome(); });
-    fw.appendChild(b);
-  });
+    const fw = $("pick-foe");
+    fw.innerHTML = "";
+    FOES.forEach((f) => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(f.k === chosenFoe));
+      b.innerHTML = esc(f.label) + '<span class="n">' + esc(f.hint) + "</span>";
+      b.addEventListener("click", () => {
+        chosenFoe = f.k;
+        renderHome();
+      });
+      fw.appendChild(b);
+    });
 
-  const sw = $('pick-size');
-  sw.innerHTML = '';
-  SIZES.forEach(s => {
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.type = 'button';
-    b.setAttribute('aria-pressed', String(s.n === chosenSize));
-    b.innerHTML = esc(s.label) + '<span class="n">' + esc(s.hint) + '</span>';
-    b.addEventListener('click', () => { chosenSize = s.n; renderHome(); });
-    sw.appendChild(b);
-  });
+    const sw = $("pick-size");
+    sw.innerHTML = "";
+    SIZES.forEach((s) => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(s.n === chosenSize));
+      b.innerHTML = esc(s.label) + '<span class="n">' + esc(s.hint) + "</span>";
+      b.addEventListener("click", () => {
+        chosenSize = s.n;
+        renderHome();
+      });
+      sw.appendChild(b);
+    });
 
-  const seen = Object.keys(store.stats).length;
-  const mastered = Object.keys(store.stats).filter(isMastered).length;
-  $('l-stage').textContent = store.cleared;
-  $('l-learned').textContent = seen;
-  $('l-mastered').textContent = mastered;
-  $('l-best').textContent = store.best || '—';
-  $('weak-n').textContent = weakWords().length ? '(' + weakWords().length + ')' : '';
-}
-
-function renderWeak(){
-  const weak = weakWords();
-  const list = $('w-list');
-  if (!weak.length) {
-    list.innerHTML = '<div class="empty">にがて札はまだありません。外した語がここに集まります。</div>';
-    $('w-drill').disabled = true;
-    $('w-drill').style.opacity = .45;
-  } else {
-    list.innerHTML = '<div class="wordlist">' + weak.map(w => {
-      const s = store.stats[w.id];
-      return '<div class="row"><span class="e">' + esc(w.e) + '</span>' +
-             '<span class="j">' + esc(w.j) + '</span>' +
-             '<span class="c">×' + s.miss + '</span></div>';
-    }).join('') + '</div>';
-    $('w-drill').disabled = false;
-    $('w-drill').style.opacity = 1;
+    const seen = Object.keys(store.stats).length;
+    const mastered = Object.keys(store.stats).filter(isMastered).length;
+    $("l-stage").textContent = store.cleared;
+    $("l-learned").textContent = seen;
+    $("l-mastered").textContent = mastered;
+    $("l-best").textContent = store.best || "—";
+    $("weak-n").textContent = weakWords().length
+      ? "(" + weakWords().length + ")"
+      : "";
   }
-  show('s-weak');
-}
 
-/* ============================================================
+  function renderWeak() {
+    const weak = weakWords();
+    const list = $("w-list");
+    if (!weak.length) {
+      list.innerHTML =
+        '<div class="empty">にがて札はまだありません。外した語がここに集まります。</div>';
+      $("w-drill").disabled = true;
+      $("w-drill").style.opacity = 0.45;
+    } else {
+      list.innerHTML =
+        '<div class="wordlist">' +
+        weak
+          .map((w) => {
+            const s = store.stats[w.id];
+            return (
+              '<div class="row"><span class="e">' +
+              esc(w.e) +
+              "</span>" +
+              '<span class="j">' +
+              esc(w.j) +
+              "</span>" +
+              '<span class="c">×' +
+              s.miss +
+              "</span></div>"
+            );
+          })
+          .join("") +
+        "</div>";
+      $("w-drill").disabled = false;
+      $("w-drill").style.opacity = 1;
+    }
+    show("s-weak");
+  }
+
+  /* ============================================================
    起動
    ============================================================ */
-function boot(data){
-  loadStore(data && data.store);
-  renderHome();
+  function boot(data) {
+    loadStore(data && data.store);
+    renderHome();
 
-  $('go').addEventListener('click', () => { drillMode = false; deal(); });
-  $('again').addEventListener('click', () => deal());
-  $('to-weak').addEventListener('click', renderWeak);
-  $('w-home').addEventListener('click', () => { renderHome(); show('s-home'); });
-  $('r-home').addEventListener('click', () => { renderHome(); show('s-home'); });
-  $('w-drill').addEventListener('click', () => { drillMode = true; deal(); });
-  $('poplayer').addEventListener('click', closePop);
-  $('scrim').addEventListener('click', closePop);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
-  $('quit').addEventListener('click', () => {
-    closePop();
-    if (g) { g.gen = -1; if (g.timer) clearInterval(g.timer); }   // 予約済みのあいての手を無効にする
-    renderHome(); show('s-home');
-  });
-  $('sound-toggle').addEventListener('click', e => {
-    soundOn = !soundOn;
-    e.currentTarget.textContent = '音声 ' + (soundOn ? 'ON' : 'OFF');
-    e.currentTarget.setAttribute('aria-pressed', String(soundOn));
-  });
+    $("go").addEventListener("click", () => {
+      drillMode = false;
+      deal();
+    });
+    $("again").addEventListener("click", () => deal());
+    $("to-weak").addEventListener("click", renderWeak);
+    $("w-home").addEventListener("click", () => {
+      renderHome();
+      show("s-home");
+    });
+    $("r-home").addEventListener("click", () => {
+      renderHome();
+      show("s-home");
+    });
+    $("w-drill").addEventListener("click", () => {
+      drillMode = true;
+      deal();
+    });
+    $("poplayer").addEventListener("click", closePop);
+    $("scrim").addEventListener("click", closePop);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closePop();
+    });
+    $("quit").addEventListener("click", () => {
+      closePop();
+      if (g) {
+        g.gen = -1;
+        if (g.timer) clearInterval(g.timer);
+      } // 予約済みのあいての手を無効にする
+      renderHome();
+      show("s-home");
+    });
+    $("sound-toggle").addEventListener("click", (e) => {
+      soundOn = !soundOn;
+      e.currentTarget.textContent = "音声 " + (soundOn ? "ON" : "OFF");
+      e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+    });
 
-  show('s-home');
-}
+    show("s-home");
+  }
 
-window.claude?.hot?.snapshot?.(() => ({ store }));
-if (window.claude?.hot?.ready) window.claude.hot.ready(boot);
-else boot(window.claude?.hot?.data ?? {});
+  window.claude?.hot?.snapshot?.(() => ({ store }));
+  if (window.claude?.hot?.ready) window.claude.hot.ready(boot);
+  else boot(window.claude?.hot?.data ?? {});
 </script>
